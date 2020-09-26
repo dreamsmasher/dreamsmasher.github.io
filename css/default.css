@@ -1,12 +1,20 @@
 html {
-  font-size: 62.5%;
+  font-size: 70%;
+  font-family: 'VT323', monospace
 }
 
 body {
   font-size: 1.6rem;
-  color: #000;
+  background: black;
+  color: lightgray;
+  height: auto;
+  height: 100%;
+  margin: 0 auto;
 }
 
+hr {
+    border: 1px dashed #00aaaa;
+}
 header {
   border-bottom: 0.2rem solid #000;
 }
@@ -15,30 +23,47 @@ nav {
   text-align: right;
 }
 
+nav .delim {
+    color: cyan;
+}
+
 nav a {
   font-size: 1.8rem;
+  background: black;
   font-weight: bold;
-  color: black;
+  color: white;
   text-decoration: none;
   text-transform: uppercase;
 }
 
+.spacer {
+    flex: 1;
+}
 footer {
-  margin-top: 3rem;
+  position: absolute;
+  /* height: 0px;*/
+  text-align: left;
+  width: 80%;
   padding: 1.2rem 0;
   border-top: 0.2rem solid #000;
   font-size: 1.2rem;
   color: #555;
+  margin-bottom: 5px;
 }
 
 h1 {
   font-size: 2.4rem;
+  color: #aa00aa;
 }
+
 
 h2 {
   font-size: 2rem;
 }
 
+article .name {
+    color: orangered;
+}
 article .header {
   font-size: 1.4rem;
   font-style: italic;
@@ -47,8 +72,11 @@ article .header {
 
 .logo a {
   font-weight: bold;
-  color: #000;
+  color: white;
+  text-shadow: 1px 1px magenta, 1.5px 1.5px yellow, -0.8px -0.8px cyan;
   text-decoration: none;
+  position: relative;
+
 }
 
 @media (max-width: 319px) {
@@ -70,9 +98,11 @@ article .header {
   .logo {
     text-align: center;
     margin: 1rem auto 3rem;
+    color: white;
   }
   .logo a {
     font-size: 2.4rem;
+    color: white;
   }
   nav a {
     display: block;
@@ -94,7 +124,11 @@ article .header {
     text-align: center;
   }
   footer {
-    text-align: center;
+    text-align: right;
+    position: absolute;
+    width: 80%;
+    text-size: 40%;
+    
   }
   .logo {
     text-align: center;
@@ -114,6 +148,7 @@ article .header {
     width: 60rem;
     margin: 0 auto;
     padding: 0;
+    min-height: 100%;
   }
   header {
     margin: 0 0 3rem;
@@ -124,12 +159,10 @@ article .header {
     text-align: right;
   }
   nav a {
-    margin: 0 0 0 1.2rem;
+    margin: 0 0 0 0;
     display: inline;
   }
-  footer {
-    text-align: right;
-  }
+
   .logo {
     margin: 0;
     text-align: left;

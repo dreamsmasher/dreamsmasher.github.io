@@ -1,5 +1,9 @@
 ---
 title: S.P.Q.R.
+author: something
+keywords: blog, first blog, epic
+description: yep
+
 ---
 
 Mauris in lorem nisl. Maecenas tempus facilisis ante, eget viverra nisl
