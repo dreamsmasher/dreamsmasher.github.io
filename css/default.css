@@ -8,12 +8,25 @@ body {
   background: black;
   color: lightgray;
   height: auto;
-  height: 100%;
   margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+body::after {
+    content: '';
+    display: block;
+    height: 50px;
 }
 
 hr {
     border: 1px dashed #00aaaa;
+}
+
+div {
+    .main_container {
+        height: auto;
+    }
 }
 header {
   border-bottom: 0.2rem solid #000;
@@ -36,19 +49,53 @@ nav a {
   text-transform: uppercase;
 }
 
+a:link {
+    color:magenta;
+}
+a:visited {
+    color:cyan;
+}
+a:hover {
+    color:white;
+    text-transform: uppercase;
+}
+a:active {
+    color:yellow;
+}
 .spacer {
     flex: 1;
 }
+
+#page-container {
+    position: relative;
+    min-height: 80vh;
+}
+
+#content {
+    padding-bottom: 2.5rem;
+}
+
 footer {
+    /*
   position: absolute;
-  /* height: 0px;*/
-  text-align: left;
+  bottom: 0;
+  font-size: 20%;
+  height: 50px;
+  display: block;
   width: 80%;
   padding: 1.2rem 0;
   border-top: 0.2rem solid #000;
   font-size: 1.2rem;
   color: #555;
-  margin-bottom: 5px;
+  margin-bottom: -5 px;
+  z-index: -1;
+  */
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 2.5rem;
+    font-size: 1rem;
+
 }
 
 h1 {
@@ -61,13 +108,16 @@ h2 {
   font-size: 2rem;
 }
 
-article .name {
-    color: orangered;
-}
-article .header {
-  font-size: 1.4rem;
-  font-style: italic;
-  color: #555;
+article {
+
+    .header {
+      font-size: 1.4rem;
+      font-style: italic;
+      color: #555;
+    }
+    .name {
+        color: red;
+    }
 }
 
 .logo a {
@@ -81,7 +131,6 @@ article .header {
 
 @media (max-width: 319px) {
   body {
-    width: 90%;
     margin: 0;
     padding: 0 5%;
   }
@@ -126,8 +175,7 @@ article .header {
   footer {
     text-align: right;
     position: absolute;
-    width: 80%;
-    text-size: 40%;
+    width: 100%
     
   }
   .logo {
@@ -145,7 +193,7 @@ article .header {
 
 @media (min-width: 640px) {
   body {
-    width: 60rem;
+    width: 90%;
     margin: 0 auto;
     padding: 0;
     min-height: 100%;

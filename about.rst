@@ -1,17 +1,9 @@
 ---
 title: About
 ---
-Nullam imperdiet sodales orci vitae molestie. Nunc quam orci, pharetra a
-rhoncus vitae, eleifend id felis. Suspendisse potenti. Etiam vitae urna orci.
-Quisque pellentesque dignissim felis, egestas tempus urna luctus vitae. In hac
-habitasse platea dictumst. Morbi fringilla mattis odio, et mattis tellus
-accumsan vitae.
 
-1. Amamus Unicode 碁
-2. Interdum nex magna.
+My name is Norman Liu, and I'm a developer from Canada. I graduated with a B.Sc.in Biology, but realized way too late that my real passion was code. In my spare time, I'm usually exploring open-source projects, playing music, or grinding through LeetCode questions (I'm at 530!).
 
-Vivamus eget mauris sit amet nulla laoreet lobortis. Nulla in diam elementum
-risus convallis commodo. Cras vehicula varius dui vitae facilisis. Proin
-elementum libero eget leo aliquet quis euismod orci vestibulum. Duis rhoncus
-lorem consequat tellus vestibulum aliquam. Quisque orci orci, malesuada porta
-blandit et, interdum nec magna.
+I love reading into the history and complexities of computation, algorithms, and puzzles. It's immensely more satisfying than rote memorization of biological pathways.
+
+I also have an affinity for turbocharged, AWD, manual station wagons. Please feel free to send me pictures of these.
