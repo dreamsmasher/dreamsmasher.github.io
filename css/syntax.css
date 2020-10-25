@@ -12,6 +12,9 @@ code.sourceCode {
     position: relative;
     font-size: 80%;
     font-family: 'VT323', monospace;
+    border-style: dashed hidden dashed hidden;
+    border-width: 2px;
+    border-color: white;
 }
 
 div.sourceCode { 
