@@ -6,7 +6,7 @@ html {
 body {
   font-size: 1.6rem;
   background: black;
-  color: lightgray;
+  color: white;
   height: auto;
   margin: 0 auto;
   min-height: 100vh;
@@ -19,6 +19,10 @@ body::after {
     height: 50px;
 }
 
+p#code{
+        font-family: 'VT323' monospace;
+        color: #aa00aa;
+}
 hr {
     border: 1px dashed #00aaaa;
 }
