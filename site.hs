@@ -79,7 +79,7 @@ config = defaultConfiguration {
                         , "git add -A"
                         , "git commit -m \"Publish.\""
                         , "git push origin master:master"
-                        , "git checkout site"
+                        , "git checkout source"
                         , "git branch -D master"
                         ]
          }
