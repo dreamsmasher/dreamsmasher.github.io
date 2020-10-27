@@ -1,17 +1,20 @@
 a.sourceLine { display: inline-block; line-height: 1.25; }
 a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
 a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
+.sourceCode {
+    overflow: visible;
+    color: white;
+}
 
 code {
-    font-family: 'VT323', monospace;
+    font-family: 'Share Tech Mono', monospace;
     color: cyan;
 }
 code.sourceCode { 
     white-space: pre;
     position: relative;
     font-size: 80%;
-    font-family: 'VT323', monospace;
+    font-family: 'Share Tech Mono', monospace;
 }
 
 div.sourceCode { 
@@ -20,7 +23,8 @@ div.sourceCode {
 }
 pre.sourceCode { 
     margin: 0; 
-    border-style: dashed hidden dashed hidden;
+    padding: 1em;
+    border-style: dashed;
     border-color: white;
     border-width: 2px;
 }
@@ -51,7 +55,7 @@ a.sourceLine::before { text-decoration: underline; }
 }
 code span.al { color: #00aaaa; font-weight: bold; } /* Alert */
 code span.an { color: yellow; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
+code span.at { color: #aa00aa; } /* Attribute */
 code span.bn { color: #55ff55; } /* BaseN */
 code span.bu { } /* BuiltIn */
 code span.cf { color: #ff55ff; font-weight: bold; } /* ControlFlow */
@@ -61,21 +65,21 @@ code span.co { color: #60a0b0; font-style: italic; } /* Comment */
 code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code span.do { color: #ba2121; font-style: italic; } /* Documentation */
 code span.dt { color: #00aaaa; } /* DataType */
-code span.dv { color: yellow; } /* DecVal */
+code span.dv { color: #00aaaa; } /* DecVal */
 code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #55ff55; } /* Float */
-code span.fu { color: #5555ff; } /* Function */
+code span.fu { color: #aa00aa; } /* Function */
 code span.im { } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #ff55ff; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
-code span.ot { color: #ff55ff; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.ot { color: #55ffff; } /* Other */
+code span.pp { color: #ffffff; } /* Preprocessor */
 code span.sc { color: #4070a0; } /* SpecialChar */
 code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
+code span.st { color: #5555ff; } /* String */
 code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
->>>>>>> Stashed changes
+
