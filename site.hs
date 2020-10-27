@@ -70,7 +70,7 @@ postCtx =
 config :: Configuration
 config = defaultConfiguration {
             deployCommand = 
-                unlines [ "git checkout source"
+                unlines [ "git checkout site"
                         , "stack exec site clean"
                         , "stack exec site build"
                         , "git fetch --all"
@@ -79,7 +79,7 @@ config = defaultConfiguration {
                         , "git add -A"
                         , "git commit -m \"Publish.\""
                         , "git push origin master:master"
-                        , "git checkout source"
+                        , "git checkout site"
                         , "git branch -D master"
                         ]
          }
