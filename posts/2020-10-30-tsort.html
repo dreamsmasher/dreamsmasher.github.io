@@ -172,56 +172,53 @@
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a>             , <span class="dt">HMB312</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a>             <span class="co">-- fourth semester</span></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a>             , <span class="dt">HAJ453</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>             ]</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a><span class="dt">Do</span> you see the <span class="kw">pattern</span> <span class="kw">in</span> our strategy<span class="op">?</span> <span class="dt">We</span> did a topological <span class="fu">sort</span> by hand, using [<span class="dt">Kahn's</span> algorithm](https<span class="op">://</span>dl<span class="op">.</span>acm<span class="op">.</span>org<span class="op">/</span>doi<span class="op">/</span><span class="fl">10.1145</span><span class="op">/</span><span class="fl">368996.369025</span>)<span class="op">.</span> <span class="dt">Starting</span> off with a randomly permuted list <span class="kw">of</span> elements <span class="ot">`(a, b)`</span>, <span class="kw">where</span> <span class="ot">`b`</span> has to be fulfilled before <span class="ot">`a`</span>, we identify which courses we're eligible for (nodes with no incoming edges)<span class="op">.</span> <span class="dt">Next</span>, we <span class="st">&quot;visit&quot;</span> these nodes by taking the courses, confident that we're <span class="fu">not</span> lacking <span class="fu">any</span> background knowledge<span class="op">.</span> <span class="dt">After</span> removing our visited nodes from the graph, we delete their edges <span class="fu">and</span> <span class="fu">take</span> note <span class="kw">of</span> the next batch <span class="kw">of</span> zero<span class="op">-</span>degree nodes<span class="op">.</span> <span class="dt">Keep</span> doing this <span class="fu">until</span> we're out <span class="kw">of</span> courses to <span class="fu">take</span>, <span class="fu">and</span> the <span class="dt">University</span> shoves a diploma <span class="kw">in</span> our hands <span class="fu">and</span> cancels our health insurance<span class="op">.</span> </span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true"></a><span class="dt">This</span> sucks to work out by hand, <span class="fu">and</span> we only had to deal with <span class="dv">11</span> courses<span class="op">.</span> <span class="dt">What</span> about <span class="dv">40</span><span class="op">?</span> (flashback to dealing with <span class="dt">U</span> <span class="kw">of</span> <span class="dt">T's</span> degree explorer)<span class="op">.</span> <span class="dt">What</span> <span class="kw">if</span> we're immortal, <span class="fu">and</span> trying to <span class="fu">take</span> every single course at the <span class="dt">University</span><span class="op">?</span> <span class="dt">Where</span> <span class="kw">do</span> we <span class="fu">even</span> start <span class="kw">then</span><span class="op">?</span> <span class="dt">We</span> need computers <span class="op">-</span> let's express this <span class="kw">in</span> their language<span class="op">.</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true"></a></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true"></a><span class="ot">```python</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true"></a><span class="ot">def gradPlan(requirements):</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true"></a><span class="ot">    transcript = []</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true"></a></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true"></a><span class="ot">    # each entry corresponds to a set of unfulfilled requirements</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true"></a><span class="ot">    preReqs = defaultdict(set)</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true"></a></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true"></a><span class="ot">    for (prereq, course) in requirements:</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true"></a><span class="ot">        preReqs[course].add(prereq)</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true"></a></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true"></a><span class="ot">    # start our frosh week by selecting courses we can enroll in</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true"></a><span class="ot">    eligibleCourses = </span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true"></a><span class="ot">        list(</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true"></a><span class="ot">            filter(lambda course: not preReqs[course], preReqs)</span></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true"></a><span class="ot">            )</span></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true"></a></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true"></a><span class="ot">    while eligibleCourses:</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true"></a><span class="ot">        current = eligibleCourses.pop() # take any course that we're allowed to </span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true"></a><span class="ot">        transcript.append(current) # add that to our transcript </span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true"></a></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true"></a><span class="ot">        #  now that we've taken the class, see which courses we've fulfilled a prereq for</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true"></a><span class="ot">        nextCourses = filter(lambda course: current in preReqs[course], preReqs)</span></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true"></a></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true"></a><span class="ot">        for nxt in nextCourses:</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true"></a><span class="ot">            preReqs[nxt].discard(current) # mark current as done</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true"></a><span class="ot">            if not preReqs[nxt]:</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true"></a><span class="ot">                eligibleCourses.append(nxt)</span></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true"></a><span class="ot">                # if we've satisfied the requirements, we're eligible to enroll now</span></span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true"></a><span class="ot">    </span></span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true"></a><span class="ot">    return transcript # magna cum laude, baby</span></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true"></a><span class="ot">    </span></span></code></pre></div>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>             ]</span></code></pre></div>
+<p>Do you see the pattern in our strategy? We did a topological sort by hand, using <a href="https://dl.acm.org/doi/10.1145/368996.369025">Kahn’s algorithm</a>. Starting off with a randomly permuted list of elements <code>(a, b)</code>, where <code>b</code> has to be fulfilled before <code>a</code>, we identify which courses we’re eligible for (nodes with no incoming edges). Next, we “visit” these nodes by taking the courses, confident that we’re not lacking any background knowledge. After removing our visited nodes from the graph, we delete their edges and take note of the next batch of zero-degree nodes. Keep doing this until we’re out of courses to take, and the University shoves a diploma in our hands and cancels our health insurance.</p>
+<p>This sucks to work out by hand, and we only had to deal with 11 courses. What about 40? (flashback to dealing with U of T’s degree explorer). What if we’re immortal, and trying to take every single course at the University? Where do we even start then? We need computers - let’s express this in their language.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">def</span> gradPlan(requirements):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>    transcript <span class="op">=</span> []</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>    <span class="co"># each entry corresponds to a set of unfulfilled requirements</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    preReqs <span class="op">=</span> defaultdict(<span class="bu">set</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    <span class="cf">for</span> (prereq, course) <span class="kw">in</span> requirements:</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>        preReqs[course].add(prereq)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>    <span class="co"># start our frosh week by selecting courses we can enroll in</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>    eligibleCourses <span class="op">=</span> </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>        <span class="bu">list</span>(</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a>            <span class="bu">filter</span>(<span class="kw">lambda</span> course: <span class="kw">not</span> preReqs[course], preReqs)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true"></a>            )</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true"></a>    <span class="cf">while</span> eligibleCourses:</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true"></a>        current <span class="op">=</span> eligibleCourses.pop() <span class="co"># take any course that we're allowed to </span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true"></a>        transcript.append(current) <span class="co"># add that to our transcript </span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true"></a>        <span class="co">#  now that we've taken the class, see which courses we've fulfilled a prereq for</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true"></a>        nextCourses <span class="op">=</span> <span class="bu">filter</span>(<span class="kw">lambda</span> course: current <span class="kw">in</span> preReqs[course], preReqs)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true"></a>        <span class="cf">for</span> nxt <span class="kw">in</span> nextCourses:</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true"></a>            preReqs[nxt].discard(current) <span class="co"># mark current as done</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true"></a>            <span class="cf">if</span> <span class="kw">not</span> preReqs[nxt]:</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true"></a>                eligibleCourses.append(nxt)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true"></a>                <span class="co"># if we've satisfied the requirements, we're eligible to enroll now</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true"></a>    </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true"></a>    <span class="cf">return</span> transcript <span class="co"># magna cum laude, baby</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true"></a>    </span></code></pre></div>
 <p>This isn’t syntactically valid <code>Python</code>, and there are optimizations we can make. But I think it illustrates the algorithm pretty well. At any point in time, we can only take courses that we’re eligible to enroll in. The relative order of courses doesn’t matter if they’re at the same “depth” within the graph. For instance, we can take <code>BIO120</code> at the same time as <code>CHM136</code> since neither of them rely on any prerequisites, so it doesn’t matter which of the two comes first in our transcript. For courses that directly depend on these, however, we can only take them after we’re finished. How are you supposed to know understand glycolysis if you don’t even know what electrons are?</p>
 <p>Now that we know the theory behind topological sorting, we can add it to our toolkit. Luckily, you won’t have to implement <code>tsort</code> by hand very often, because real engineers avoid code duplication at all costs. Here’s an easy solution to the Leetcode problem:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="im">from</span> subprocess <span class="im">import</span> check_output, DEVNULL</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="kw">def</span> courseSchedule(numCourses: <span class="bu">int</span>, prerequisites: List[List[<span class="bu">int</span>]]) <span class="op">-&gt;</span> List[<span class="bu">int</span>]:</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    rev_pair_strs <span class="op">=</span> [<span class="st">&quot; &quot;</span>.join(<span class="bu">map</span>(<span class="bu">str</span>, <span class="bu">reversed</span>(pair))) <span class="cf">for</span> pair <span class="kw">in</span> prerequisites]</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>    formatted <span class="op">=</span> <span class="bu">bytes</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>.join(pair_strings), <span class="st">'UTF-8'</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>    tsorted <span class="op">=</span> check_output([<span class="st">&quot;tsort&quot;</span>], <span class="bu">input</span><span class="op">=</span>formatted, stderr<span class="op">=</span>DEVNULL)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>    <span class="cf">return</span> <span class="bu">list</span>(<span class="bu">map</span>(<span class="bu">int</span>, tsorted.splitlines()))</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="im">from</span> subprocess <span class="im">import</span> check_output, DEVNULL</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="kw">def</span> courseSchedule(numCourses: <span class="bu">int</span>, prerequisites: List[List[<span class="bu">int</span>]]) <span class="op">-&gt;</span> List[<span class="bu">int</span>]:</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>    rev_pair_strs <span class="op">=</span> [<span class="st">&quot; &quot;</span>.join(<span class="bu">map</span>(<span class="bu">str</span>, <span class="bu">reversed</span>(pair))) <span class="cf">for</span> pair <span class="kw">in</span> prerequisites]</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>    formatted <span class="op">=</span> <span class="bu">bytes</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>.join(pair_strings), <span class="st">'UTF-8'</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>    tsorted <span class="op">=</span> check_output([<span class="st">&quot;tsort&quot;</span>], <span class="bu">input</span><span class="op">=</span>formatted, stderr<span class="op">=</span>DEVNULL)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>    <span class="cf">return</span> <span class="bu">list</span>(<span class="bu">map</span>(<span class="bu">int</span>, tsorted.splitlines()))</span></code></pre></div>
 <p>Beautiful.</p>
-<p>It turns out that <code>tsort</code> isn’t used in <code>ld</code> anymore (<code>grep</code>ped for it just now), but it’s a cool utility that can come in handy. Don’t listen to <a href="https://docstore.mik.ua/orelly/unix/unixnut/c02_222.htm">O’Reilly</a>.</p>
+<p>It turns out that <code>tsort</code> isn’t used in <code>ld</code> anymore (<code>grep</code>ped for it just now), but it’s a cool utility that can come in handy. Don’t listen to <a href="https://docstore.mik.ua/orelly/unix/unixnut/c02_222.htm">O’Reilly</a>. Next time you run into a problem where you have to consider a set of objects with relationships, see if you can reduce it to graph traversal. This is usually my go-to intuition when I’m doing Leetcode problems, mainly because the site is biased towards graph-type questions anyways. What are some other domains where this is applicable?</p>
     </section>
 </article>
 
