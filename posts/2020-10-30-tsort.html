@@ -54,7 +54,6 @@
     <section>
         <p>Graph theory comes up a lot more often than you think. Whenever you run a search, download packages, or do anything on the Internet really, you’re reaping its benefits without even realizing. You might be familiar with <code>sort</code> if you’ve done any work in the shell beyond <code>rm -rf /*</code>. It’s useful for working with huge unsorted files, and it’s pretty much an essential tool for any serious scripting. There’s another program with similar intentions, but completely different usecases - <code>tsort</code>. It’s a relative newcomer to the <code>POSIX.1</code> standard that was only canonized in 2017, although it’s been around since 1979.</p>
 <p><code>tsort</code> takes any number of space-separated pairs that represent directed edges in a graph, and outputs each node in topologically sorted order. Its original purpose was for use in <code>ld</code>, the UNIX standard linker. Back in the days when <code>tar</code> actually referred to tape archives, the linker could only do a single pass over a series of object files, in order. With this processing format, problems would arise when the linker tried to figure out symbols or functions that were invoked before they were defined. The solution for this? Represent a program as a directed graph, and generate a topological sorting of symbol references first.</p>
-<hr />
 <p>What’s a topological sort?</p>
 <p>If you’re unfamiliar with graph theory, here’s a short refresher. A directed graph is a collection of nodes with arrows between each other, pointing towards another node.</p>
 <p>I made these figures in <code>Snapchat</code>, bear with me.</p>
@@ -93,7 +92,6 @@
 <p>Notice that <code>think</code> comes after <code>cowboy</code>, even though they both have edges that are 2 degrees of separation away from our origin. There’s a shorter, 1-degree path to <code>cowboy</code>, so he comes first.</p>
 <p>We have our topological sorting now, a 1-dimensional representation of the DAG and a souvenir of our time reenacting of the Emoji Movie:</p>
 <p><img src="../images/tsort/tsorted.jpg" class="pic" /></p>
-<hr />
 <p>There’s a really interesting <a href="https://leetcode.com/problems/course-schedule-ii/description/">Leetcode</a> problem that involves graph traversal in this way. The prompt goes something like this:</p>
 <p>You have a list of <code>n</code> courses you need to take, labeled from <code>0</code> to <code>n - 1</code>. Some courses have prerequisites that need to be satisfied before you can take them. Given <code>n</code>, and a list of pairs <code>[(a, b)]</code>, denoting that <code>b</code> is a prerequisite of <code>a</code>, return the order in which you need to take these courses. Notice that the ordering of edges is backwards from our <code>tsort</code> example.</p>
 <p>So let’s go with a simple example. We’ll use part of my old university transcript.</p>
