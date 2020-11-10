@@ -341,14 +341,7 @@ Beauty is only skin-deep
 <p>The <code>head</code> and <code>tail</code> functions are the key to how <code>bytestring</code> maintains a streaming interface in spite of its fragmented implementation, but we need some backstory first. <code>Data.ByteString</code>’s source code actually pops up a lot in Haskell forums for one specific passage - even its authors, while seasoned IO necromancers, are not immune to the pitfalls of aggressive functional rule-bending. It turns out there’s a third sibling in the vile family of <code>unsafe*</code> functions, one that would get you fired from your cushy industrial Haskell job if you used it.</p>
 <p>The soliloquy in question: (<strong>A Developer’s Lament</strong>)<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a></p>
 <p><em>This “function” has a superficial similarity to ‘System.IO.Unsafe.unsafePerformIO’ but it is in fact a malevolent agent of chaos. It unpicks the seams of reality (and the ‘IO’ monad) so that the normal rules no longer apply. It lulls you into thinking it is reasonable, but when you are not looking it stabs you in the back and aliases all of your mutable buffers. The carcass of many a seasoned Haskell programmer lie strewn at its feet.</em></p>
-<p><em>Witness the trail of destruction:</em></p>
-<ul>
-<li><em><a href="https://github.com/haskell/bytestring/commit/71c4b438c675aa360c79d79acc9a491e7bbc26e7" class="uri">https://github.com/haskell/bytestring/commit/71c4b438c675aa360c79d79acc9a491e7bbc26e7</a></em></li>
-<li><em><a href="https://github.com/haskell/bytestring/commit/210c656390ae617d9ee3b8bcff5c88dd17cef8da" class="uri">https://github.com/haskell/bytestring/commit/210c656390ae617d9ee3b8bcff5c88dd17cef8da</a></em></li>
-<li><em><a href="https://ghc.haskell.org/trac/ghc/ticket/3486" class="uri">https://ghc.haskell.org/trac/ghc/ticket/3486</a></em></li>
-<li><em><a href="https://ghc.haskell.org/trac/ghc/ticket/3487" class="uri">https://ghc.haskell.org/trac/ghc/ticket/3487</a></em></li>
-<li><em><a href="https://ghc.haskell.org/trac/ghc/ticket/7270" class="uri">https://ghc.haskell.org/trac/ghc/ticket/7270</a></em></li>
-</ul>
+<p><em><a href="https://github.com/haskell/bytestring/commit/71c4b438c675aa360c79d79acc9a491e7bbc26e7">Witness</a> <a href="https://github.com/haskell/bytestring/commit/210c656390ae617d9ee3b8bcff5c88dd17cef8da">the</a> <a href="https://ghc.haskell.org/trac/ghc/ticket/3486">trail</a> <a href="https://ghc.haskell.org/trac/ghc/ticket/3487">of</a> <a href="https://ghc.haskell.org/trac/ghc/ticket/7270">destruction.</a></em></p>
 <p><em>Do not talk about "safe"! You do not know what is safe!</em></p>
 <p><em>Yield not to its blasphemous call! Flee traveller! Flee or you will be corrupted and devoured!</em></p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="ot">accursedUnutterablePerformIO ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> a</span>
