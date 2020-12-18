@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>beauty and the bytestring - Norman Liu's blog</title>
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&family=Space+Mono&display=swap" rel="stylesheet">
+
+        
+        
+          <meta name="keywords" content="c, haskell, programming">
+        
+
+
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="../">normative statements</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                <span class="delim">
+                    >>
+                </span>
+                <a href="../about.html">About</a>
+                <span class="delim">
+                    >>
+                </span>
+                <a href="../contact.html">Contact</a>
+                <span class="delim">
+                    >>
+                </span>
+                <a href="../archive.html">Archive</a>
+            </nav>
+            <hr class="head_delim">
+        </header>
+
+        <div id="page-container">
+          <div id="content">
+        <main role="main">
+                        <article>
+    <section class="header">
+      <h1>beauty and the bytestring</h1>
+      Written: <span class="date">2020-12-18</span> 
+      
+      to <span class="date">2020-12-18</span>
+      
+        
+    </section>
+    <section>
+        <blockquote>
+<p><span style="color: yellow">» This is my submission for the 2020 <a href="https://adventofhaskell.com/">Advent of Haskell</a>, an event that aims to showcase some of the cool, unknown features of Haskell that newcomers might not know.</span></p>
+</blockquote>
+<p>Ok, let’s talk about Linked Lists. You’ve likely come across them before, either in Leetcode problems or in a pretentious whiteboard interview. They’re a simple data structure, and a great way to learn how to use <code>struct</code>s or <code>Option&lt;Rc&lt;RefCell&lt;Box&lt;ListNode&gt;&gt;&gt;&gt;</code> when you’re starting out. As a refresher, the canonical definition of a linked list is something like</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">typedef</span> <span class="kw">struct</span> LinkedList {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="dt">int</span> val;</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>  <span class="kw">struct</span> LinkedList *next;</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>} LinkedList;</span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">List</span> a <span class="ot">=</span> <span class="dt">Nil</span> <span class="op">|</span> <span class="dt">Cons</span> a (<span class="dt">List</span> a)</span></code></pre></div>
+<p>where each node contains a value, and a pointer to the next element in the list. They’re intuitive, and allow you grow/shrink collections of objects without having to shift everything else over or reallocate when you run out of slots. Magic, right? There’s no such thing as a free lunch.</p>
+<p>When you construct a new node, you still need memory for it. Ignoring byte padding and assuming we’re on a 64-bit machine using GCC, a single <code>LinkedList</code> node will require <strong>96</strong> bits. <strong>32</strong> bits for <code>val</code>, and <strong>64</strong> bits for your <code>next</code> pointer. That’s a ton of bloat compared to arrays. A linked list will incur <strong>66%</strong> more overhead over an equally sized array of <code>int</code>s, not to mention the cost of switching contexts every time you ring up <code>malloc()</code> to lend you a chunk of memory.</p>
+<p>If you’re <em>le epic C hacker</em> already, you probably know better than to keep <code>malloc</code> on speed-dial. It’s faster to create a “pool” of memory at first, carving off chunks whenever memory is needed. You make an array of <code>ListNode</code>s, but link them together irrespective of their actual positions in memory.</p>
+<p>Dealing with heap objects adds a lot of complexity, Not to mention, all these indirections and disorganization of memory locations result in a ton of cache misses for your CPU, further hindering performance.</p>
+<p>What does this have to do with Haskell? We make heavy use of lists. Arrays in Haskell are dodgy - you can have purely functional arrays provided by <code>Data.Vector</code>, butindex-based updates can result in space leaks from unevaluated thunks building up. <code>ST</code> and <code>IO</code>arrays are strict, and update values in place, but they force you to wrap your functions in their respective monads which can be daunting for beginners. Haskell’s linked lists have undergone a ton of revision, optimization, and other analysis over the years, and they’re a fantastic way to deal with streams of values. Depending on your use case, the contrast between lists in Haskell and arrays in other languages is marginal. Haskell represents its lists syntactically just like any other language, square brackets and all. There are some interesting differences, still:</p>
+<ol type="1">
+<li>No random access.</li>
+</ol>
+<p>Since true mutability is unrepresentable in Haskell outside of monads, a lot of dynamic programming/array-based algorithms require a little bit of clever rethinking in order to be implemented using pure and referentially-transparent methods. For example, let’s try finding the first <code>n</code> fibonacci numbers. In an imperative language, we could keep track of two values and store our numbers in an array as we iterate:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">def</span> nth_fib(n):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  prev_of_prev <span class="op">=</span> <span class="dv">0</span> <span class="co"># don't judge these variable names</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>  prev <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>  fibs <span class="op">=</span> []</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>  <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    fibs.append(prev_of_prev)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>    next_num <span class="op">=</span> prev <span class="op">+</span> prev_of_prev</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>    prev_of_prev <span class="op">=</span> prev</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>    prev <span class="op">=</span> next_num</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>  <span class="cf">return</span> fibs</span></code></pre></div>
+<p>We’re mutating <code>fibs, prev_of_prev</code>, and <code>prev</code> here. That’s a big no-no in Haskell, because modifying values in place prevents you from reusing them later. Of course, there are valid arguments for still wanting random access, like performance.</p>
+<ol start="2" type="1">
+<li>Lazy evaluation.</li>
+</ol>
+<p>O(1) runtime for <code>push</code> and <code>pop</code> operations is powerful. Most higher-level languages have some sort of operation for appending and popping off the end of an array, but they require some behind-the-scenes overhead to manage storage. Keep in mind that dynamically resizable arrays provide an <em>amortized</em> O(1) runtime for these operations, but they’re still subject to the restriction that their size, capacity, and elements have to be known at all times.</p>
+<p>Haskell’s linked lists can be infinite, on the other hand. We can <em>define</em> a list to be unbounded, as long as we only need to <em>evaluate</em> a small subset of it. You’ve probably come across this implementation of the fibonacci sequence in some tutorials:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ot">nth_fib ::</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> [<span class="dt">Integer</span>] </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>nth_fib n <span class="ot">=</span> <span class="fu">take</span> n fibs</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>  <span class="kw">where</span> fibs <span class="ot">=</span> <span class="dv">0</span> <span class="op">:</span> <span class="dv">1</span> <span class="op">:</span> <span class="fu">zipWith</span> (<span class="op">+</span>) fibs (<span class="fu">tail</span> fibs)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>  <span class="co">-- or: fibs = 0 : scanl (+) 1 fibs</span></span></code></pre></div>
+<p>If you’re unfamiliar with Haskell, here’s what we’re doing:</p>
+<p><code>0 : 1 : _</code> describes a linked list with <code>0</code> at the head, pointing to <code>1</code>, which in turn points to the next element, and so on. <code>[1,2,3]</code> is the same as <code>1 : 2 : 3 : []</code>, it’s just a matter of syntax.</p>
+<p><code>zipWith</code> has the type <code>(a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]</code>, which is saying “give me a function that takes an <code>a</code> and a <code>b</code>, returning a <code>c</code>, and two lists containing elements of those types, and I’ll give you back the result of combining these two lists using the given function”. <code>tail</code> is a function that takes a list, and returns the rest of the list excluding the first element.</p>
+<p>When we’re zipping <code>fibs</code> with itself, we’re using two copies of the list, shifted out of phase by one element. They both still refer to the same data source. This copying will almost certainly get optimized out since the compiler can infer that we’re sharing the same source.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>fibs:      <span class="dv">0</span> : <span class="dv">1</span> : ?</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>tail fibs: <span class="dv">1</span> : ?</span></code></pre></div>
+<p>We then merge the two lists together, like a zipper. Since our function is <code>+</code>, we combine values by adding them together. Pretty standard stuff:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>fibs:      <span class="dv">0</span> : <span class="dv">1</span> : ?</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>tail fibs: <span class="dv">1</span> : ?</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="op">--------------------</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="op">+</span>          <span class="dv">1</span> : ?</span></code></pre></div>
+<p>The resulting <code>1</code> is the next element in <code>fibs</code>, because we’ve defined <code>fibs</code> in terms of itself. Lazy evaluation means the Haskell runtime doesn’t try to evaluate anything until it’s actually needed. In this case, we need the next element of <code>fibs</code> in order to evaluate it another step. <code>fibs</code> is now evaluated to:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>fibs:      <span class="dv">0</span> : <span class="dv">1</span> : <span class="dv">1</span> : ?</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>tail fibs: <span class="dv">1</span> : <span class="dv">1</span> : ?</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>   </span></code></pre></div>
+<p>If you’ve read the <em>Principia Mathematica</em>, you know that <code>1 + 1 = 2</code>. When that second <code>1</code> in <code>tail fibs</code> gets <code>zipWith (+)</code>’ed with the first <code>1</code>, the next element of <code>fibs</code> is known, and we can keep evaluating <code>fibs</code> as far as we want.</p>
+<p>Not only have we implemented the Fibonacci sequence, it’s also implicitly a generator now. No <code>yield</code> or errant <code>*</code>’s are needed in your functions. It doesn’t matter that we’ve defined an infinite sequence, since we’re only going to <code>take</code> a finite amount from it. We can trust that the sequence will only be evaluated as far as we need. Extremely powerful stuff. We can consume, map over, or add on whatever values we want to this sequence, and trust that any functions that consume <code>fibs</code> will always get the same data.</p>
+<hr />
+<h3 style="color: yellow">
+import qualified Data.ByteString as B
+</h3>
+<p>The problem arises when we try to use linked lists for values that don’t carry much information on their own. Sure, we can make lists of anything that’s representable in Haskell. Lists of Vectors of Trees of Ints? Easy. Boxing values means that you only need to include a pointer inside your <code>List</code> cell.</p>
+<p>When you want to work with large collections of data, like reading from a file, it’s common practice to abstract away from file handles, input buffers, etc. and look at data in terms of streams. In the same way that “strings” in <code>C</code> are just pointers to arrays of <code>char</code>acters, <code>String</code>s in Haskell are just linked lists of <code>Char</code>acters.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="ot">syntacticSugar ::</span> <span class="dt">String</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>syntacticSugar <span class="ot">=</span> <span class="st">&quot;henlo&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="ot">actualString ::</span> [<span class="dt">Char</span>]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>actualString <span class="ot">=</span> <span class="ch">'h'</span> <span class="op">:</span> <span class="ch">'e'</span> <span class="op">:</span> <span class="ch">'n'</span> <span class="op">:</span> <span class="ch">'l'</span> <span class="op">:</span> <span class="ch">'o'</span> <span class="op">:</span> []</span></code></pre></div>
+<p>This affords a lot of flexibility when it comes to string operations, since you can apply any list function to strings as well.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="ot">dupItems ::</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>dupItems lst <span class="ot">=</span> lst <span class="op">&gt;&gt;=</span> \x <span class="ot">-&gt;</span> [x, x]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a><span class="op">&gt;</span> dupItems [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>[<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a><span class="op">&gt;</span> dupItems <span class="st">&quot;henlo&quot;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="st">&quot;hheennlloo&quot;</span></span></code></pre></div>
+<p>Leetcode-style problems also become trivial, which is why they don’t support Haskell.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (liftM3, join)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a><span class="ot">nucleotides ::</span> [<span class="dt">Char</span>]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>nucleotides <span class="ot">=</span> <span class="st">&quot;ATGC&quot;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a><span class="ot">allCodons ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> [(<span class="dt">Char</span>, <span class="dt">Char</span>, <span class="dt">Char</span>)]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>allCodons <span class="ot">=</span> join <span class="op">$</span> join <span class="op">$</span> liftM3 (,,)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a><span class="co">-- allCodons xs = do</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a><span class="co">--     c1 &lt;- xs</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a><span class="co">--     c2 &lt;- xs</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a><span class="co">--     c3 &lt;- xs</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a><span class="co">--     pure (c1, c2, c3)</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a><span class="co">-- allCodons nucleotides = [('A', 'A', 'A'), ('A', 'A', 'C') …]</span></span></code></pre></div>
+<p>The problem arises when we try to use our <code>[Char]</code> streams for high-performance situations. <code>Char</code>s are boxed, just like any other regular Haskell value. Accessing them requires following a pointer to a heap object, then accessing the value there. This indirection will add up, especially when you have to do it on a per-character basis. Linked lists are unsuited for small, information-sparse values in general because of the additional overhead and cache misses they introduce.</p>
+<p>Let’s say we wanted to parse a large file for a specific byte signature. For simplicity, let’s seek to the first occurrence of <code>0x20</code> (’ ’). Haskell’s native <code>Char</code> type is normally 32-bit, and <code>readFile</code> treats your file streams as <code>[Char]</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="ot">findSpc ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>   </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>findSpc s <span class="ot">=</span> <span class="fu">dropWhile</span> (<span class="op">/=</span> <span class="ch">' '</span>) s</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="co">-- inequality is written as /= in haskell</span></span></code></pre></div>
+<p>Now we do some idiomatic shell wizardry to generate a test case. The resulting <code>test.txt</code> file is around 573MB:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a>$ <span class="ex">python</span> -c <span class="st">&quot;a = 'aaa' * 100000000; print(a + ' ' + a)&quot;</span> <span class="op">&gt;</span> test.txt</span></code></pre></div>
+<p>and our test scheme (again, we’re keeping it simple):</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Time</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a>    testStr <span class="ot">&lt;-</span> <span class="fu">readFile</span> <span class="st">&quot;test.txt&quot;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>    start1 <span class="ot">&lt;-</span> getCurrentTime</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>    <span class="fu">print</span> <span class="op">$</span> <span class="fu">take</span> <span class="dv">10</span> (findSpc testStr)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a>    stop1 <span class="ot">&lt;-</span> getCurrentTime</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a>    <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;String runtime : &quot;</span> <span class="op">&lt;&gt;</span> <span class="fu">show</span> (diffUTCTime stop1 start1)</span></code></pre></div>
+<p>We actually print the values in case the compiler decides to be smart and just optimize out our functions.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>$ <span class="ex">ghc</span> findSpc.hs -O0 <span class="kw">&amp;&amp;</span> <span class="ex">./findSpc</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a><span class="st">&quot; aaaaaaaaa&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a><span class="ex">String</span> runtime : 3.328033023s</span></code></pre></div>
+<p>I mean, that’s not bad for a half-gig file. You can only imagine this number will get worse as our inputs scale further. What if you had terabytes of data? Or wanted to do something less trivial than finding whitespace?</p>
+<p>According to the <a href="https://wiki.haskell.org/Dealing_with_binary_data#Handling_Binary_Data_with_Haskell">Haskell wiki</a>, <code>String</code> incurs a memory footprint of around 24 times compared to an equivalent <code>uint8_t *</code> array in C. As you can probably guess, most of the overhead from Strings comes from the way they’re stored, and the way that the Haskell runtime deals with boxed values.</p>
+<p>This is where our star package comes in: <a href="http://hackage.haskell.org/package/bytestring">bytestring</a>. <code>ByteString</code>s are meant to be faster and more space-efficient than our regular linked lists, and they definitely live up to the expectation. The package is intended to be imported <code>qualified</code> for a reason - most of its exported functions do exactly the same thing as their List equivalents. It only makes sense to give them the same names too. It’s a great example of a package that abstracts away complexity, while maintaining a familiar, simple, and most importantly, pure interface. Let’s try it out.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.ByteString.Char8</span> (<span class="dt">ByteString</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Char8</span> <span class="kw">as</span> <span class="dt">C</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Time</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a><span class="ot">findByt ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>findByt bs <span class="ot">=</span> C.dropWhile (<span class="op">/=</span> <span class="ch">' '</span>) bs</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a><span class="ot">main ::</span> <span class="dt">IO</span> ()</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true"></a>    testBtStr <span class="ot">&lt;-</span> C.readFile <span class="st">&quot;test.txt&quot;</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true"></a>    start2 <span class="ot">&lt;-</span> getCurrentTime</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true"></a>    <span class="fu">print</span> <span class="op">$</span> C.take <span class="dv">10</span> (findByt testBtStr)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true"></a>    stop2 <span class="ot">&lt;-</span> getCurrentTime</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true"></a>    <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;ByteString runtime : &quot;</span> <span class="op">&lt;&gt;</span> <span class="fu">show</span> (diffUTCTime stop2 start2)</span></code></pre></div>
+<h5 style="text-align: center; margin: 0 auto; color:#ffff55">
+Benchmark results at -O0 and -O2 optimizations
+</h5>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;">-O0</th>
+<th style="text-align: center;">-O2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">findSpc</td>
+<td style="text-align: center;">3.328033023s</td>
+<td style="text-align: center;">2.314101402s</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">findByt</td>
+<td style="text-align: center;">2.337315973s</td>
+<td style="text-align: center;">0.149613233s</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">ratio</td>
+<td style="text-align: center;">1 / 0.702</td>
+<td style="text-align: center;">1 / 0.065</td>
+</tr>
+</tbody>
+</table>
+<p>The difference is uncanny. Where does this speedup actually come from?</p>
+<p>To reiterate: inside the GHC Runtime, most of your primitive values aren’t actually primitive, in the sense that there’s a ton of indirection that’s hidden from you. When you have a function that takes an <code>Int</code> for instance, you’re not working with the <code>Int</code> directly. You’re actually working with a pointer to an object stored on the heap. These objects contain a header, which in turn contains a pointer to an info table, and optional profiling data. The info table carries metadata about the object’s type - whether it’s a function, a piece of data that’s already been evaluated, etc. The actual types that you deal with, like <code>ST s (Maybe (Either Int Char))</code>, are a compile-time abstraction only. Once your types are verified, they’re stripped out of the program.. Next are a bitmap and a layout field containing info for the garbage collector, then some entry code that will lead to the object becoming evaluated when the code is run.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>This is the heart of Haskell’s lazy evaluation - for values that aren’t used, their entry code simply doesn’t get executed. The <em>idea</em> of the value is always there, and GHC has a way to figure it out if needed. Once you actually compute a value, the entry code for the object gets overwritten with code that just returns the result, ensuring that computation only needs to happen once.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> This is great for algorithms that require a lot of sharing, because you have implicit memoization built into the runtime itself. You can see for yourself - implement the <a href="https://projecteuler.net/problem=14">Longest Collatz Sequence</a> naively, then tail-recursively with an accumulator parameter, and see which one runs faster. The naive version will be faster for large inputs because calling it with the same parameters will allow values to be shared across recursive calls.</p>
+<p>You can usually avoid a lot of overhead when dealing with primitive values by choosing to use unboxed types instead. These are closer to the native data types that you’ll find in lower-level languages, although you’re more restricted in what you’re allowed to do with these values. Although unboxed values give you a big performance boost over regular types stored as heap objects, you can’t pass them into polymorphic functions (functions that are generalized to <code>a</code> vs. <code>Int</code>, for instance). There are also some other restrictions with regards to scoping that limit their usability.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<p>What does <code>Data.ByteString</code> do differently from builtin lists, then?</p>
+<p>As we know, the most cache-friendly and space-efficient way to store collections of values is by <code>pack</code>ing them together into a contiguous array. This is exactly what <code>bytestring</code> does. The package exports a few variants of its core API: a strict version that packs entire vectors of bytes into a single array that’s held in memory, and a <code>Lazy</code> module, which is more suitable for larger amount of data. There are also submodules for both strategies with functions specialized to <code>Char8</code> or <code>Word8</code> types, <code>Short</code>er <code>Word8</code> bytestrings, and a <code>Builder</code> interface that provides an efficient monoid for constructing larger byte sequences. I admit I was cheating in those benchmarks earlier because I used the strict <code>Data.ByteString.Char8</code>, which just reads everything into memory.</p>
+Let’s rerun these tests:
+<h5 style="text-align: center; margin: 0 auto; color:#ffff55">
+Second benchmark results (input size ≈ 573MB)
+</h5>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;">-O0</th>
+<th style="text-align: center;">-O2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">findSpc</td>
+<td style="text-align: center;">3.371048358s</td>
+<td style="text-align: center;">2.097377004s</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">findByt (lazy)</td>
+<td style="text-align: center;">3.446404992s</td>
+<td style="text-align: center;">1.294784458s</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">findByt</td>
+<td style="text-align: center;">2.205551467s</td>
+<td style="text-align: center;">0.151156725s</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">ratios</td>
+<td style="text-align: center;">1 / 1.022 / 0.654</td>
+<td style="text-align: center;">1 / 0.617 / 0.072</td>
+</tr>
+</tbody>
+</table>
+<p>Obviously the completely strict function will be faster, but what happens when we scale up our inputs by another factor of 10? (RIP my RAM)</p>
+<h5 style="text-align: center; margin: 0 auto; color:#ffff55">
+Third benchmark results (input size ≈ 5.6GB)
+</h5>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;">-O0</th>
+<th style="text-align: center;">-O2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">findSpc</td>
+<td style="text-align: center;">35.873325330s</td>
+<td style="text-align: center;">20.948605953s</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">findByt (lazy)</td>
+<td style="text-align: center;">34.669266035s</td>
+<td style="text-align: center;">12.993446475s</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">findByt</td>
+<td style="text-align: center;">22.183239505s</td>
+<td style="text-align: center;">1.503859113s</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">ratios</td>
+<td style="text-align: center;">1 / 0.967 / 0.618</td>
+<td style="text-align: center;">1 / 0.620 / 0.071</td>
+</tr>
+</tbody>
+</table>
+<p>The ratios scale pretty much linearly. That’s cool. Typically, you would want to use lazy <code>bytestring</code>s for anything without predetermined lengths, like UDP streams or user input.</p>
+<p>Now that you’re sold on the idea, let’s answer the question of how these magic unrolled lists actually work.</p>
+<hr />
+<h3 style="color: yellow">
+Beauty is only skin-deep
+</h3>
+<p>We’re going to focus on <a href="http://hackage.haskell.org/package/bytestring-0.11.0.0/docs/src/Data.ByteString.Lazy.Internal.html"><code>Data.ByteString.Lazy.Internal</code></a>, since this is where the really cool hackery comes into play.</p>
+<p>A little bit of background information first - the IO Monad. A really common question that pops up when you’re first learning Haskell is “how do I escape the IO monad?” You can’t, and people on Stack Overflow will mock you for even pondering the idea.</p>
+<p>Simplified, the IO monad is defined as</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">type</span> <span class="dt">IO</span> a <span class="ot">=</span> <span class="dt">RealWorld</span> <span class="ot">-&gt;</span> (<span class="dt">RealWorld</span>, a)</span></code></pre></div>
+<p>When you have a value with a type like <code>IO String</code>, it actually has the type <code>RealWorld -&gt; (RealWorld, String)</code>. An <code>IO</code> function will take the real world as input, and spit out a new world, along with a value taken from evaluating the real world. Does this pattern look familiar?</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">newtype</span> <span class="dt">State</span> s a <span class="ot">=</span> <span class="dt">State</span> {<span class="ot"> runState ::</span> s <span class="ot">-&gt;</span> (s, a) } </span></code></pre></div>
+<p>The <code>IO</code> monad is quite literally just the State monad, specialized to the real world.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> You need a <code>RealWorld</code> value in order to be able to “saturate” the arguments for any <code>IO</code> function, and you can only get a <code>RealWorld</code> value by evaluating <code>main</code>, your Haskell program’s entry point. The <code>RealWorld</code> value is pretty self-explanatory. <code>IO</code> functions tell you, “Hey, pass me the outside world, I’ll do some meddling with it, then return the modified world and the result of my meddling.” It’s supposed to model a user writing input, or the changed state of the world after writing to a file, but I like to think of it as dark magic that bends the very fabric of the universe. This is how Haskell allows you to sequence effects in a predictable fashion, by assembling a pipeline of world-warping black magic in a way that each function directly depends on the <code>RealWorld</code> result from the previous one. You can’t escape from the <code>IO</code> monad because its constructor isn’t exported, so there’s no way to represent an <code>IO</code> value that can be unwrapped. You can’t do any world-meddling outside of the <code>IO</code> monad, because you don’t have a <code>RealWorld</code> to mess with.</p>
+<p>This also allows us to represent side-effects without violating functional purity. As long as you pass in <strong>exactly</strong> the same <code>RealWorld</code> to an <code>IO</code> function, you’ll get the same result. You don’t know what <code>getLine</code> is actually doing to the outside world (<code>IO</code> actions are built into the runtime, because there’s no way to do them from the regular Haskell realm), besides that it’ll give you a <code>String</code> to work with. It’s just an abstraction to keep the compiler from doing its usual black-box inlining and potentially giving unexpected results for <code>IO</code> actions, and all of these abstractions will be factored out during the compilation process. It forces you to keep your pure and impure code separate.</p>
+<p><code>bytestring</code> breaks free of this safety net, though. It turns out, deep inside the hallowed halls of the <code>Base</code> library, there’s a dark spell that allows you to conjure a world out of nothing. It’s called <code>unsafePerformIO</code>, and it lets you do <code>IO</code> actions outside of their intended domain, escaping the lawful monadic contexts that we depend on. Ignoring the esoteric runes of GHC internals and thread locking, it looks like this:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="ot">unsafePerformIO ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> a <span class="co">-- (RealWorld -&gt; (RealWorld, a)) -&gt; a</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>unsafePerformIO act <span class="ot">=</span> <span class="kw">let</span> runRealWorld <span class="ot">=</span> <span class="co">-- a function that creates a new RealWorld value, passing it to an IO function and returning the result</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>                          (_, a) <span class="ot">=</span> runRealWorld act </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a>                       <span class="kw">in</span> a</span></code></pre></div>
+<p>Extremely irresponsible. When you use <code>unsafePerformIO</code>, you’re creating a new, tainted universe from scratch, meddling with that world until you pick out a value, then throwing the new world away. That’s like frying an entire chicken just to eat the skin. The hubris of man is unbounded and you will one day face the consequences, either through reality warping in on itself, or encountering undefined behaviour.</p>
+<p>It turns out that <code>bytestring</code> makes heavy use of unsafe IO and some internal GHC functions to achieve its speed. Deep down, the difference between <code>Data.ByteString.Lazy</code> and regular, strict <code>Data.ByteString</code> is that lazy <code>ByteStrings</code> are implemented as linked lists of chunks containing either 32k or 4k bytes each, instead of monolithic arrays. This provides a good tradeoff between the overhead of boxing each individual character, and the bloat of storing everything at once.<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> The two definitions are:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="co">-- strict: S.ByteString</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">ByteString</span> <span class="ot">=</span> <span class="dt">PS</span> <span class="op">!</span>(<span class="dt">ForeignPtr</span> <span class="dt">Word8</span>) <span class="co">-- a pointer to an array of Word8's</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>                     <span class="op">!</span><span class="dt">Int</span> <span class="co">-- the bytestring's length</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a><span class="co">-- lazy</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">ByteString</span> <span class="ot">=</span> <span class="dt">Empty</span> <span class="op">|</span> <span class="dt">Chunk</span> <span class="op">!</span><span class="dt">S.ByteString</span> <span class="dt">ByteString</span></span></code></pre></div>
+<p><code>S.ByteString</code> refers to the strict arrays exported by <code>Data.ByteString</code>. The <code>(!) BangPattern</code> just asserts strictness in a node’s construction, leaving the rest of the list to be lazily built as needed. When you want to convert a Haskell-style list of bytes to a <code>ByteString</code>, the exported function <code>packBytes</code> (or <code>packChars</code>, depending on the version you’re using) will recursively consume up to 32k bytes of a Haskell list at a time, storing them in an allocated array and continuing down the list until it runs out of input. Turning a strict <code>ByteString</code> into a lazy one is trivial, because the entire allocated array is just wrapped inside of a <code>Chunk</code>. The inverse operation takes a little longer - the first list node has to be checked to see if it’s <code>Empty</code> or if the initial chunk is empty. Otherwise, the list is fed into a tail-recursive function that adds up the lengths and data of each chunk, then copies everything into a single array when it reaches the end.</p>
+<p>How are these arrays created, then? The GHC foreign-function interface is powerful, and allows you to pass pointers back and forth between native and foreign code (to an extent). These <code>ForeignPtr</code> values are reference counted within Haskell-land, and you can specify finalizer actions (callbacks, if you’re a scrub) to clean things up when they’re out of scope and out of mind. Because the GHC team is sane, any <code>ForeignPtr</code> action is safely isolated within the <code>IO</code> monad. Because the <code>bytestring</code> team is better than sane, <code>ByteStrings</code> are allocated, manipulated, joined, etc. using the FFI. The difference is that they’re returned to our pure plateau as if they were also borne of the same soil, and not of the dark plains that lie beyond our reach. Here is the spell to conjure a <code>ByteString</code>:<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="ot">create ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Ptr</span> <span class="dt">Word8</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">ByteString</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a>create l f <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a>    fp <span class="ot">&lt;-</span> mallocByteString l</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a>    withForeignPtr fp <span class="op">$</span> \p <span class="ot">-&gt;</span> f p</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a>    <span class="fu">return</span> <span class="op">$!</span> <span class="dt">PS</span> fp <span class="dv">0</span> l   </span></code></pre></div>
+<p><code>f</code> is an action that will be applied to the area of memory referenced by <code>ForeignPtr</code>. Let’s look at how we get there, from trying to <code>pack</code> a <code>[Char]</code>:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.ByteString.Lazy.Char</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a><span class="ot">henlo ::</span> [<span class="dt">Char</span>]</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>henlo <span class="ot">=</span> <span class="st">&quot;henlo&quot;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a><span class="ot">testStr ::</span> <span class="dt">ByteString</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true"></a>testStr <span class="ot">=</span> <span class="fu">pack</span> henlo </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true"></a><span class="fu">pack</span><span class="ot"> ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true"></a><span class="fu">pack</span> <span class="ot">=</span> packChars</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true"></a><span class="ot">packChars ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true"></a>packChars cs <span class="ot">=</span> unsafePackLenChars (<span class="fu">length</span> cs) cs</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true"></a><span class="ot">unsafePackLenChars ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true"></a>unsafePackLenChars len cs0 <span class="ot">=</span> unsafeCreate len <span class="op">$</span> \p <span class="ot">-&gt;</span> go p cs0</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true"></a>  <span class="kw">where</span> go <span class="op">!</span>_ []     <span class="ot">=</span> <span class="fu">return</span> ()</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true"></a>        go <span class="op">!</span>p (c<span class="op">:</span>cs) <span class="ot">=</span> poke p (c2w c) <span class="op">&gt;&gt;</span> go (p <span class="ot">`plusPtr`</span> <span class="dv">1</span>) cs</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true"></a>        <span class="co">-- c2w casts a Char into a Word8</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true"></a>        <span class="co">-- c2w = fromIntegral . ord</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true"></a>        <span class="co">-- poke takes a Ptr and a value, writing to the Ptr</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true"></a>        <span class="co">-- plusPtr increments a pointer address by n bytes</span></span></code></pre></div>
+<p>The tide is getting harsher the further we wade from our shores.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a><span class="ot">unsafeCreate ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Ptr</span> <span class="dt">Word8</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true"></a>unsafeCreate l f <span class="ot">=</span> unsafeDupablePerformIO (create l f)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true"></a>  <span class="co">-- remember that create returns an IO ByteString</span></span></code></pre></div>
+<p>All this time, we have been taken for FOOLS. The source of this bountiful harvest of performance and agility is nothing more than dark, universe-creating magic. <code>unsafeDupablePerformIO</code> is like <code>unsafePerformIO</code>, but without the single-threaded assertions of the latter. On multi-threaded systems, Haskell is free to assign evaluation of any value to any thread because there’s no risk of accidentally mutating a value while it’s being read elsewhere.<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a> This gives you concurrency for (almost) free because there’s no need for thread locking when computing pure values.</p>
+<p><code>bytestring</code> is smart to avoid the pitfalls of potential race conditions, though. The biggest problem that can arise from executing an IO action twice is if it has a chance of returning a different value. Appending to a file, or incrementing a referenced value would cause you a ton of grief. The <code>bytestring</code> codebase is careful to restrict the use of <code>unsafeDupablePerformIO</code> to many-to-one functions, like copying. In a worst case scenario, <code>unsafePackLenChars</code> would just copy the same values and return the pointer from the action that finishes first. Since <code>ForeignPtr</code>s are reference-counted, the others will be tossed by the garbage collector. There’s also no need to worry about a finalizer function running prematurely - <code>mallocByteString</code>, which is really just <code>mallocPlainForeignPtrBytes</code> from the internal package <code>GHC.ForeignPtr</code>, takes care of freeing the <code>ByteString</code> it’s finished being used. <code>mallocPlainForeignPtrBytes</code> also explicitly keeps the <code>ForeignPtr</code> from having any finalizers associated with it.</p>
+<p>So we know that lazy <code>ByteString</code>s are just boneless versions of their strict counterparts. Let’s look at how some common List operations are implemented on them.</p>
+<p><code>cons</code> is the equivalent of <code>(:)</code>, letting you append onto the front of a bytestring in O(1) time. There’s no array shuffling or reallocating needed, since it just constructs a new <code>Chunk</code> node with a single value and plops it onto the head. If you abuse <code>cons</code> by trying to use <code>ByteStrings</code> like lists, your wish will be granted and your beautiful array-list-thing will degenerate into a regular linked list. The <code>Builder</code> module is designed to counteract this, packing small chunks together into arrays using the <code>Monoid</code> interface. The strict append function, <code>cons'</code>, actually checks the length of the first chunk to see if shifting its values over is worth it, and will insert the new value in place if so.</p>
+<p>The <code>head</code> and <code>tail</code> functions are the key to how <code>bytestring</code> maintains a streaming interface in spite of its fragmented implementation, but we need some more backstory first. <code>Data.ByteString</code>’s source code actually pops up a lot in Haskell forums for one specific passage - even its authors, while seasoned <code>IO</code>mancers, are not immune to the pitfalls of aggressive functional rule-bending. It turns out there’s a third sibling in the vile family of <code>unsafe*</code> functions, unspoken of outside of dark circles and Reddit threads (arguably the same thing).</p>
+<p>The soliloquy in question: (<strong>A Developer’s Lament</strong>)<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a></p>
+<p><em>This “function” has a superficial similarity to ‘System.IO.Unsafe.unsafePerformIO’ but it is in fact a malevolent agent of chaos. It unpicks the seams of reality (and the ‘IO’ monad) so that the normal rules no longer apply. It lulls you into thinking it is reasonable, but when you are not looking it stabs you in the back and aliases all of your mutable buffers. The carcass of many a seasoned Haskell programmer lie strewn at its feet.</em></p>
+<p><em><a href="https://github.com/haskell/bytestring/commit/71c4b438c675aa360c79d79acc9a491e7bbc26e7">Witness</a> <a href="https://github.com/haskell/bytestring/commit/210c656390ae617d9ee3b8bcff5c88dd17cef8da">the</a> <a href="https://ghc.haskell.org/trac/ghc/ticket/3486">trail</a> <a href="https://ghc.haskell.org/trac/ghc/ticket/3487">of</a> <a href="https://ghc.haskell.org/trac/ghc/ticket/7270">destruction.</a></em></p>
+<p><em>Do not talk about "safe"! You do not know what is safe!</em></p>
+<p><em>Yield not to its blasphemous call! Flee traveller! Flee or you will be corrupted and devoured!</em></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="ot">accursedUnutterablePerformIO ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> a <span class="co">-- (RealWorld -&gt; (RealWorld, a)) -&gt; a</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a>accursedUnutterablePerformIO (<span class="dt">IO</span> m) <span class="ot">=</span> <span class="kw">case</span> m realWorld<span class="op">#</span> <span class="kw">of</span> (<span class="op">#</span> _, r <span class="op">#</span>) <span class="ot">-&gt;</span> r</span></code></pre></div>
+<p><code>accursedUnutterablePerformIO</code> used to be called <code>inlinePerformIO</code>, until it showed its true colours. It doesn’t check for thread-safety like its more docile sibling <code>unsafeDupablePerformIO</code>, but <code>aUPIO</code> is also more open to inlining by the compiler. While <code>uDPIO</code> uses a function called <code>runRW#</code> to mold a new universe from scratch, <code>aUPIO</code> is blatant in its world-building, outright conjuring a <code>realWorld</code> from thin air. This makes it a lot more susceptible to value sharing by the compiler, as there’s no real way to tell the difference between one instantiation of <code>realWorld#</code> from the next. The result is that <code>IO</code> actions become joined together within the chaos, blurring their boundaries, and consuming your startup’s capital along with your sanity.<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a></p>
+<p>Let’s look at <code>head</code> and <code>tail</code>, now.<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="fu">head</span><span class="ot"> ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Word8</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a><span class="fu">head</span> <span class="dt">Empty</span>       <span class="ot">=</span> errorEmptyList <span class="st">&quot;head&quot;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a><span class="fu">head</span> (<span class="dt">Chunk</span> c _) <span class="ot">=</span> S.unsafeHead c</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a><span class="co">-- the Char module just casts this from a Word8</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true"></a><span class="fu">tail</span><span class="ot"> ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true"></a><span class="fu">tail</span> <span class="dt">Empty</span>          <span class="ot">=</span> errorEmptyList <span class="st">&quot;tail&quot;</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true"></a><span class="fu">tail</span> (<span class="dt">Chunk</span> c cs)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true"></a>  <span class="op">|</span> S.length c <span class="op">==</span> <span class="dv">1</span> <span class="ot">=</span> cs</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true"></a>  <span class="op">|</span> <span class="fu">otherwise</span>       <span class="ot">=</span> <span class="dt">Chunk</span> (S.unsafeTail c) cs</span></code></pre></div>
+<p>Simple, right? Head is easy - check if the list is empty, otherwise use the <code>head</code> from the Strict module and get the first element of the current chunk. <code>tail</code> adapts the Strict <code>tail</code> to the unique structure of Lazy <code>ByteString</code>s. Again, it looks vanilla until you really look at what it means to take the <code>unsafeHead</code> of a <code>ByteString</code>.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="ot">unsafeHead ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Word8</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a>unsafeHead (<span class="dt">BS</span> x l) <span class="ot">=</span> assert (l <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">$</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a>    accursedUnutterablePerformIO <span class="op">$</span> withForeignPtr x <span class="op">$</span> \p <span class="ot">-&gt;</span> peek p</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true"></a><span class="ot">unsafeTail ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true"></a>unsafeTail (<span class="dt">BS</span> ps l) <span class="ot">=</span> assert (l <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">$</span> <span class="dt">BS</span> (plusForeignPtr ps <span class="dv">1</span>) (l<span class="op">-</span><span class="dv">1</span>)</span></code></pre></div>
+<p><code>unsafeTail</code> is pretty simple - just return a new “Chunk” node with an incremented pointer, and the previous array’s length subtracted by one. <code>unsafeHead</code> is where the dreaded <code>aUPIO</code> makes an appearance. <code>peek</code> just dereferences a <code>ForeignPtr</code> - after checking to make sure there’s something to dereference, reality is warped and the value is yanked out of its ethereal realm, never to return. Why is <code>aUPIO</code> used here? Obviously, speed. <code>aUPIO</code> is very rarely usable in situations that create side-effects, like writing to a pointer. Simply reading from <code>x</code> shouldn’t trigger any unexpected behaviour, however, since nothing is being changed or transformed. Even then, the use of <code>aUPIO</code> within the codebase has decreased dramatically over the last decade, for the reasons listed above. Looking through <code>bytestring-0.9.1.7</code> from 2010, <code>foldr</code>, <code>any</code>, <code>map</code>, and a few other functions used to make heavy use of the vile hex under its old moniker. Its usage has been scaled back over the years to keep any transforming functions free of unexpected effects.</p>
+<p>In short, <code>ByteString</code>s are actually 2D collections - linked lists of arrays, presented to the user as 1D lists. They avoid the overhead of linked lists by packing values together as compactly as possible, while allowing for laziness in 32Kb increments. Reading a value at your current position simply involves using <code>head</code>, and you step down the list with <code>tail</code>, just like with regular lists. The authors are careful to keep side-effects to a minimum during construction and modification. This allows you to take advantage of C-style arrays without violating referential transparency, or being restricted to the <code>IO</code> monad. You don’t have to worry about all the innocent fabrics of reality that you’ve torn, because your parser is now 10 times faster.</p>
+<p>It’s pretty cool seeing how much work has gone into <code>bytestring</code> over its lifetime - the package is almost 20 years old, but it’s still only at version 0.11. There’s an incredible amount of complexity behind the simplicity of its interface, and it manages to keep its hot mess of a strategy hidden from the programmer. The point of functional purity is to have guarantees about your program’s results based on its input - it doesn’t matter if your key-value data structure is implemented as a <code>HashMap</code> or a <code>Tree</code>, and it doesn’t matter if your collections are contiguous arrays or evil demon magic. Compartmentalization <strong>requires</strong> a proper interface in order to be effective. <code>bytestring</code> manages to abstract away its internal complexity beautifully, allowing for performant, low-level code to integrate with safe, high-level reasoning. It’s truly the best of both worlds.</p>
+<p><em>full credit is due to the authors of <code>bytestring</code> - Don Stewart, Duncan Coutts, David Roundy, and all the contributors over the years.</em></p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p><a href="https://gitlab.haskell.org/ghc/ghc/-/wikis/commentary/rts/storage/heap-objects">GHC commentary: The Layout of Heap Objects</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://www.microsoft.com/en-us/research/wp-content/uploads/1992/04/spineless-tagless-gmachine.pdf">The Spineless Tagless G-machine</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p><a href="https://downloads.haskell.org/~ghc/6.12.1/docs/html/users_guide/primitives.html">Unboxed types</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p><a href="https://hackage.haskell.org/package/base-4.14.0.0/docs/GHC-IO.html">GHC.IO</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p><a href="https://hackage.haskell.org/package/bytestring-0.11.0.0/docs/src/Data.ByteString.Lazy.Internal.html">Data.ByteString.Lazy.Internal</a><a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p><a href="https://hackage.haskell.org/package/bytestring-0.10.10.0/docs/src/Data.ByteString.Internal.html">Data.ByteString.Internal</a><a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7" role="doc-endnote"><p><a href="http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html">System.IO.Unsafe</a><a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8" role="doc-endnote"><p><a href="https://hackage.haskell.org/package/bytestring-0.10.10.0/docs/src/Data.ByteString.Internal.html">Data.ByteString.Internal</a><a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9" role="doc-endnote"><p><a href="https://free.cofree.io/2020/07/20/perform-io/">How Accursed and Unutterable is accursedUnutterablePerformIO?</a><a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10" role="doc-endnote"><p><a href="https://hackage.haskell.org/package/bytestring-0.11.0.0/docs/src/Data.ByteString.Lazy.html#cons">Data.ByteString.Lazy</a><a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+    </section>
+</article>
+
+        </main>
+
+          </div>
+        <footer>
+            <hr>
+            <span style="color:yellow">λ</span> Copyright 2020 - Norman Liu.  Site powered by 
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+        </footer>
+        </div>
+    </body>
+</html>
