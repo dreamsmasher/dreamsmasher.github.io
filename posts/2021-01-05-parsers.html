@@ -59,17 +59,18 @@
 <p>Sounds pretty simple, right?</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (isDigit)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Text.Read</span> (readMaybe)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Maybe</span> (fromMaybe)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="ot">parseMolec ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [(<span class="dt">Char</span>, <span class="dt">Int</span>)]</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>parseMolec [] <span class="ot">=</span> []</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>parseMolec [c] <span class="ot">=</span> [(c, <span class="dv">1</span>)]</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>parseMolec (c<span class="op">:</span>cs) <span class="ot">=</span> <span class="kw">let</span> (ns, cs') <span class="ot">=</span> <span class="fu">span</span> <span class="fu">isDigit</span> cs</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>                     <span class="kw">in</span> (c, (fromMaybe <span class="dv">1</span> <span class="op">.</span> readMaybe) ns) <span class="op">:</span> parseMolec cs'</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;CH3CO2H&quot;</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>[(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'H'</span>,<span class="dv">3</span>),(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'O'</span>,<span class="dv">2</span>),(<span class="ch">'H'</span>,<span class="dv">1</span>)]</span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Map</span> <span class="kw">qualified</span> <span class="kw">as</span> <span class="dt">Map</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Text.Read</span> (readMaybe)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Maybe</span> (fromMaybe, maybeToList)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="ot">parseMolec ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [(<span class="dt">Char</span>, <span class="dt">Int</span>)]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>parseMolec [] <span class="ot">=</span> []</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>parseMolec [c] <span class="ot">=</span> [(c, <span class="dv">1</span>)]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>parseMolec (c<span class="op">:</span>cs) <span class="ot">=</span> <span class="kw">let</span> (ns, cs') <span class="ot">=</span> <span class="fu">span</span> <span class="fu">isDigit</span> cs</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>                     <span class="kw">in</span> (c, (fromMaybe <span class="dv">1</span> <span class="op">.</span> readMaybe) ns) <span class="op">:</span> parseMolec cs'</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;CH3CO2H&quot;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>[(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'H'</span>,<span class="dv">3</span>),(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'O'</span>,<span class="dv">2</span>),(<span class="ch">'H'</span>,<span class="dv">1</span>)]</span></code></pre></div>
 <p>That’s it, we’re done. End of post.</p>
 <p>Obviously, we’re not done. Even organic chemists deal with atoms beyond C, H, O, N.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;Mg&quot;</span></span>
@@ -200,16 +201,16 @@
 <span id="cb23-20"><a href="#cb23-20" aria-hidden="true"></a><span class="ot">lowersN ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
 <span id="cb23-21"><a href="#cb23-21" aria-hidden="true"></a>lowersN n <span class="ot">=</span> [<span class="dv">0</span><span class="op">..</span>n] <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> <span class="fu">sequence</span> <span class="op">$</span> <span class="fu">replicate</span> x lowers)</span>
 <span id="cb23-22"><a href="#cb23-22" aria-hidden="true"></a>  <span class="co">-- [sequence $ replicate x &quot;abcde&quot; | x &lt;- [0..n]]</span></span></code></pre></div>
-<p>which is isomorphic to the set containing the input set’s identity, plus the union of all the n-ary Cartesian powers of the set, for <code>n &lt;- 1..</code>. The Kleene plus just omits the identity element. With this distinction, the Kleene star forms a <code>Monoid</code>, while the Kleene plus is only a <code>Semigroup</code>. In fact, Kleene stars construct a <a href="https://bartoszmilewski.com/2015/07/21/free-monoids/">free monoid</a> over their <a href="https://proofwiki.org/wiki/Definition:Free_Monoid">inputs</a>.</p>
-<p>This is where regexes are truly beautiful - when you write a regular expression, you’re specifying <em>exactly</em> what should be matched, with regards to the set of all inputs the resulting automaton will succeed on. You could rewrite <code>/foo*/</code> as <code>/(fo|foo|fooo|foooo ...)</code>, but that isn’t feasible for people with finite lifetimes. Having these operators on hand allows you to expand the set of accepted inputs for your parser arbitrarily.</p>
+<p>which is isomorphic to the set of all the n-ary Cartesian powers of the set for <code>n &lt;- 1..</code>, plus the set’s identity element. The Kleene plus just omits the identity element. With this distinction, the Kleene star forms a <code>Monoid</code>, while the Kleene plus is only a <code>Semigroup</code>. In fact, Kleene stars construct a <a href="https://bartoszmilewski.com/2015/07/21/free-monoids/">free monoid</a> over their <a href="https://proofwiki.org/wiki/Kleene_Closure_is_Free_Monoid">inputs</a>.</p>
+<p>This is where regular expressions are truly beautiful - when you write a regex, you’re specifying <em>exactly</em> what should be matched, with regards to the set of all inputs the resulting automaton will succeed on. You could rewrite <code>/foo*/</code> as <code>/(fo|foo|fooo|foooo ...)</code>, but that isn’t feasible for people with finite lifetimes. Having these operators on hand allows you to arbitrarily expand the set of accepted inputs for your parser.</p>
 <p>In the <code>Alternative</code> context, these operators will run an action repeatedly until they yield empty - if you aren’t passing a state parameter around, your program will likely enter an infinite loop. Just something to keep in mind.</p>
-<p><code>Alternative</code> is extremely similar to <code>Monoid</code> - <code>empty</code> is an identity element, such that</p>
+<p>The <code>Alternative</code> class is similar to <code>Monoid</code> - <code>empty</code> is an identity element, such that</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a><span class="ot">a ::</span> <span class="dt">Alternative</span> f</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a>empty <span class="op">&lt;|&gt;</span> a <span class="ot">=</span> a</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>a <span class="op">&lt;|&gt;</span> empty <span class="ot">=</span> empty</span></code></pre></div>
-<p>and the stickbug operator <code>&lt;|&gt;</code> is a binary associative function between two <code>Alternative</code>s:</p>
+<p>and the stickbug operator <code>&lt;|&gt;</code> is an associative binary function between two <code>Alternative</code>s:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a>(a <span class="op">&lt;|&gt;</span> b) <span class="op">&lt;|&gt;</span> c <span class="ot">=</span> a <span class="op">&lt;|&gt;</span> (b <span class="op">&lt;|&gt;</span> c)</span></code></pre></div>
-<p>Where these types differ is that <code>Alternative</code> is biased towards the left argument - it’s a <em>choice</em>, rather than a <em>composition</em>.</p>
+<p>Where these types differ is that joining <code>Alternative</code>s is biased towards the left argument - it’s a <em>choice</em>, rather than a <em>composition</em>.</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;&gt;</span>  <span class="dt">Nothing</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a><span class="dt">Nothing</span></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;|&gt;</span> <span class="dt">Nothing</span></span>
@@ -340,13 +341,11 @@
 <span id="cb34-16"><a href="#cb34-16" aria-hidden="true"></a>  <span class="kw">where</span> allConsumed <span class="ot">=</span> p <span class="op">&lt;*</span> eof <span class="co">-- assert input is entirely consumed after parsing</span></span></code></pre></div>
 <p>This is the power of parser combinators - you can build entire grammars out of simple primitives, and write as if every parser succeeds according to your specification. Traversing the input stream and error handling is abstracted away from you by the underlying monad, so your code ends up looking almost identical to your initial grammar.</p>
 <p>Oh yeah, we need to get the total counts of each atom:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Map</span> <span class="kw">qualified</span> <span class="kw">as</span> <span class="dt">Map</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true"></a></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true"></a><span class="ot">condense ::</span> [<span class="dt">Atoms</span>] <span class="ot">-&gt;</span> [<span class="dt">Atoms</span>]</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true"></a>condense <span class="ot">=</span> toList <span class="op">.</span> Map.fromListWith (<span class="op">+</span>)</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true"></a></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true"></a><span class="ot">parseMolecule ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [<span class="dt">Atoms</span>]</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true"></a>parseMolecule s <span class="ot">=</span> condense <span class="op">&lt;$&gt;</span> parse molecule s</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true"></a><span class="ot">condense ::</span> [<span class="dt">Atoms</span>] <span class="ot">-&gt;</span> [<span class="dt">Atoms</span>]</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true"></a>condense <span class="ot">=</span> toList <span class="op">.</span> Map.fromListWith (<span class="op">+</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true"></a><span class="ot">parseMolecule ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [<span class="dt">Atoms</span>]</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true"></a>parseMolecule s <span class="ot">=</span> condense <span class="op">&lt;$&gt;</span> parse molecule s</span></code></pre></div>
 <p>Testing Fremy’s salt:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true"></a><span class="op">&gt;</span> parseMolecule <span class="st">&quot;K4[ON(SO3)2]2&quot;</span> <span class="co">-- Fremy's salt</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true"></a><span class="dt">Just</span> [(<span class="st">&quot;K&quot;</span>,<span class="dv">4</span>),(<span class="st">&quot;O&quot;</span>,<span class="dv">14</span>),(<span class="st">&quot;N&quot;</span>,<span class="dv">2</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">4</span>)]</span></code></pre></div>
