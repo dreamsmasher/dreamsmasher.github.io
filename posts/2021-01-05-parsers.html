@@ -78,7 +78,7 @@
 <p>To make matters more complicated, chemists are just like programmers - lazy. For polymeric materials with repeating groups, there’s a handy way to express their structure. For example, the formula for PVC is <code>C2H3Cl</code>. I guess that would just be VC - because it forms arbitrarily long chains, it’s written as <code>(C2H3Cl)n</code>. What a tradeoff - chemists making their lives easier at our expense. If we had to parse something like</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">CH3</span>(<span class="dt">CH2</span>)2CONH2 <span class="co">-- butyramide</span></span></code></pre></div>
 <p>It seems like we can treat a group of parentheses as a subexpression on its own, multiplying every number by the coefficient that comes after it.</p>
-<p>You can look at this notation as a form of <a href="https://en.wikipedia.org/wiki/Run-length_encoding">run-length encoding</a>, where you express repeating substructures of data as pairs (s, n). It’s the simplest form of data compression, and it’s extremely easily to decode. Encoding it is slightly harder, especially when you consider that these expressions can be nested, e.g. </p>
+<p>You can look at this notation as a form of <a href="https://en.wikipedia.org/wiki/Run-length_encoding">run-length encoding</a>, where you express repeating substructures of data as pairs (s, n). It’s the simplest form of data compression, and it’s easy to encode an arbitrary string. Decoding it is slightly harder, especially when you consider that these expressions can be nested:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a> <span class="dt">K4</span>(<span class="dt">ON</span>(<span class="dt">SO3</span>)<span class="dv">2</span>)<span class="dv">2</span> <span class="co">-- Fremy's salt</span></span></code></pre></div>
 <p>Let’s take a step back and write a (roughly) formal grammar for this problem.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>atom <span class="op">=</span> uppercase, [lowercase], [number]</span>
@@ -187,14 +187,14 @@
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true"></a></span>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true"></a><span class="ot">lowers1 ::</span> [<span class="dt">String</span>]</span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true"></a>lowers1 <span class="ot">=</span> lowers0 <span class="op">&lt;&gt;</span> [[c] <span class="op">|</span> c <span class="ot">&lt;-</span> lowers] <span class="co">-- include empty string</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, &quot;b&quot;, ... &quot;aa&quot;, &quot;ab&quot;, &quot;ac&quot; ...]</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true"></a></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true"></a><span class="ot">lowers2 ::</span> [<span class="dt">String</span>]</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true"></a>lowers2 <span class="ot">=</span> lowers1 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c1) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c1 <span class="ot">&lt;-</span> lowers1]</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, ..., &quot;aa&quot;, ... &quot;aaa&quot;, &quot;aab&quot;, ...]</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true"></a></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true"></a><span class="ot">lowers3 ::</span> [<span class="dt">String</span>]</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true"></a>lowers3 <span class="ot">=</span> lowers2 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c2) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c2 <span class="ot">&lt;-</span> lowers2]</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true"></a><span class="ot">lowers2 ::</span> [<span class="dt">String</span>]</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true"></a>lowers2 <span class="ot">=</span> lowers1 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c1) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c1 <span class="ot">&lt;-</span> lowers1]</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, &quot;b&quot;, ... &quot;aa&quot;, &quot;ab&quot;, &quot;ac&quot; ...]</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true"></a></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true"></a><span class="ot">lowers3 ::</span> [<span class="dt">String</span>]</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true"></a>lowers3 <span class="ot">=</span> lowers2 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c2) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c2 <span class="ot">&lt;-</span> lowers2]</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, ..., &quot;aa&quot;, ... &quot;aaa&quot;, &quot;aab&quot;, ...]</span></span>
 <span id="cb23-17"><a href="#cb23-17" aria-hidden="true"></a></span>
 <span id="cb23-18"><a href="#cb23-18" aria-hidden="true"></a><span class="op">...</span></span>
 <span id="cb23-19"><a href="#cb23-19" aria-hidden="true"></a></span>
