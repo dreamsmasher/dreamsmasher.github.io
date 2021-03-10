@@ -1,11 +1,21 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="advent" of code 2020, day 7: droste and bourke />
+        
+        <meta name="description" property="og:description" content="Normative Statements - Functional programming for nonfunctional people" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
         <title>advent of code 2020, day 7: droste and bourke - Norman Liu's blog</title>
+        
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/syntax.css" />
         
@@ -19,7 +29,7 @@
     </head>
     <body>
         <header>
-            <div class="logo">
+            <div class="logo"> 
                 <a href="../">normative statements</a>
             </div>
             <nav>
@@ -61,16 +71,16 @@
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  Г──────── <span class="ex">green</span> ───┘</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="fu">red</span> ─────── blue<span class="kw">|</span></span></code></pre></div>
 <p><code>blue</code> would come before gold in sorted topological order. We’ll just have to walk the graph normally, then.</p>
-<p>Sounds simple enough. We’ll conjure up some Haskell as usual, and model our graph as a <code>Map</code> of <code>String</code>s (bag colours) to lists, <code>[(String, Int)]</code>, denoting other bag colours and their respective counts.</p>
+<p>Sounds simple enough. We’ll conjure up some Haskell as usual, and model our graph as a <code class="inline-type">Map</code> of <code class="inline-type">String</code>s (bag colours) to lists, <code>[(String, Int)]</code>, denoting other bag colours and their respective counts.</p>
 <p>I took some time this weekend and refactored my <a href="https://github.com/dreamsmasher/advent-of-code-2020">Advent of Code repo</a> a little bit. It makes use of the <a href="https://hackage.haskell.org/package/advent-of-code-api">advent-of-code-api</a> library to automatically fetch inputs and submit solutions. I’ve also abstracted away a bunch of modules and useful functions into one monolithic file for faster imports. All in all, I save about 30 seconds now.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">module</span> <span class="dt">Solutions.Day7</span> <span class="kw">where</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Helpers</span> <span class="co">-- Control.Arrow, Control.Applicative, Control.Monad, Data.Maybe, Data.List.Split, Data.List</span></span></code></pre></div>
-<p>We also need a way to map keys to values. <code>Data.Map</code> is comfy, although it uses trees instead of hash tables internally. That’s fine for our purposes.</p>
+<p>We also need a way to map keys to values. <code class="inline-mod">Data.Map</code> is comfy, although it uses trees instead of hash tables internally. That’s fine for our purposes.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Map</span> (<span class="dt">Map</span>, (!))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.Map</span> <span class="kw">as</span> <span class="dt">M</span></span></code></pre></div>
 <p>Following my tradition of avoiding regex like the plague, we’ll spit out something naive to parse our input into the format we want. In my defense, even Parsec is an ordeal to debug and it was late.</p>
-<p>It seems like every line has the term <code>bags contain</code> separating the description of a bag and the description of its children, so we’ll use <code>splitOn</code> from <code>Data.List.Split</code>. Only matching a 2-element list like that is dangerous in the real world, because you’ll hit a parse error if you try to match a list of any other length.</p>
+<p>It seems like every line has the term <code>bags contain</code> separating the description of a bag and the description of its children, so we’ll use <code>splitOn</code> from <code class="inline-mod">Data.List.Split</code>. Only matching a 2-element list like that is dangerous in the real world, because you’ll hit a parse error if you try to match a list of any other length.</p>
 <p>If a description says <code>no other</code>, we can (safely) assume that there won’t be any outgoing edges from this graph node. It also saves us from a potential edge case when trying to parse the descriptions of inner bags. We’ll focus on a single line at first.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="ot">parseBag ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">String</span>, [(<span class="dt">String</span>, <span class="dt">Int</span>)])</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>parseBag <span class="ot">=</span> splitOn <span class="st">&quot; bags contain&quot;</span> <span class="op">&gt;&gt;&gt;</span> \[colour, inners] <span class="ot">-&gt;</span> (colour, edges)</span>
@@ -86,7 +96,7 @@
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="ot">splitComma ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> [[<span class="dt">Char</span>]]</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>splitComma <span class="ot">=</span> splitOn <span class="st">&quot;,&quot;</span></span></code></pre></div>
 <p>We also need to parse the predicates of each sentence. We know that each description is separated by commas, so we can break the task down to parsing a single description at a time. The inputs for <code>parseDscrp</code> will look like <code>&lt;number&gt; &lt;adjective&gt; &lt;colour&gt; (bag[s])</code> at this point. Wikipedia doesn’t list any colours that start with “bag”, and <a href="https://adventofcode.com/2020/about">Eric</a> isn’t evil, so we’ll filter out any “bag”-like word too.</p>
-<p>Since every sequence starts with a number, we’ll just split by words, turn the <code>&lt;number&gt;</code> into an <code>Int</code>, and use the remainder as our colour. These colours should match up with the colour descriptions that preface each line, that we’ll use as keys in our eventual <code>Map</code>.</p>
+<p>Since every sequence starts with a number, we’ll just split by words, turn the <code>&lt;number&gt;</code> into an <code class="inline-type">Int</code>, and use the remainder as our colour. These colours should match up with the colour descriptions that preface each line, that we’ll use as keys in our eventual <code class="inline-type">Map</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="ot">parseDscrp ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">String</span>, <span class="dt">Int</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>parseDscrp <span class="ot">=</span> <span class="fu">words</span> <span class="op">&gt;&gt;&gt;</span> <span class="fu">filter</span> (<span class="fu">not</span> <span class="op">.</span> (<span class="st">&quot;bag&quot;</span> <span class="ot">`isPrefixOf`</span>)) <span class="op">&gt;&gt;&gt;</span> (<span class="fu">tail</span> <span class="op">&amp;&amp;&amp;</span> <span class="fu">head</span>) <span class="op">&gt;&gt;&gt;</span> (<span class="fu">unwords</span> <span class="op">***</span> <span class="fu">read</span>) </span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>                                                           <span class="co">-- \(n:bs) -&gt; (unwords bs, read n)) </span></span></code></pre></div>
@@ -99,7 +109,7 @@
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a><span class="op">&gt;</span> parseBag <span class="st">&quot;dark black bags contain no other bags.&quot;</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>(<span class="st">&quot;dark black&quot;</span>, [])</span></code></pre></div>
-<p>Way easier than writing regular expressions, right? At least it’s more fun this way. Let’s build our graph now - <code>fromList</code> from <code>Data.Map</code> expects a list <code>[(key, value)]</code>, which matches up with the output type of <code>parseBag</code>. All our types match up, so we’ll connect our functions into a neat little pipeline and build a dependency graph from our input.</p>
+<p>Way easier than writing regular expressions, right? At least it’s more fun this way. Let’s build our graph now - <code>fromList</code> from <code class="inline-mod">Data.Map</code> expects a list <code>[(key, value)]</code>, which matches up with the output type of <code>parseBag</code>. All our types match up, so we’ll connect our functions into a neat little pipeline and build a dependency graph from our input.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">type</span> <span class="dt">Graph</span> <span class="ot">=</span> <span class="dt">Map</span> <span class="dt">String</span> [(<span class="dt">String</span>, <span class="dt">Int</span>)]</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="ot">fromInput ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Graph</span></span>
@@ -113,14 +123,14 @@
 <p>That’s it. We can map <code>walk</code> over the keys of our graph directly, saving us from having to convert it back down to a list.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="ot">day7Pt1 ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>day7Pt1 <span class="ot">=</span> fromInput <span class="op">&gt;&gt;&gt;</span> (\graph <span class="ot">-&gt;</span> M.filterWithKey (\k _ <span class="ot">-&gt;</span> walk graph k) graph) <span class="op">&gt;&gt;&gt;</span> M.size</span></code></pre></div>
-<p>If you want to be even more clever, you can use the <code>Monad</code> instance of the function type <code>((-&gt;) r)</code> (lifting sequential function application with the same input into a monadic bind) to cut this down even more. Brevity is free in the lambda calculus.</p>
+<p>If you want to be even more clever, you can use the <code class="inline-type">Monad</code> instance of the function type <code>((-&gt;) r)</code> (lifting sequential function application with the same input into a monadic bind) to cut this down even more. Brevity is free in the lambda calculus.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Monad</span> ((<span class="ot">-&gt;</span>) r) <span class="kw">where</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="ot">  (&gt;&gt;=) ::</span> (r <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> (r <span class="ot">-&gt;</span> b)) <span class="ot">-&gt;</span> (r <span class="ot">-&gt;</span> b)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>  g <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> \x <span class="ot">-&gt;</span> f (g x) x </span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="ot">day7Pt1' ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>day7Pt1' <span class="ot">=</span> fromInput <span class="op">&gt;&gt;&gt;</span> ((walk <span class="op">&gt;&gt;&gt;</span> (<span class="fu">const</span> <span class="op">.</span>)) <span class="op">&gt;&gt;=</span> M.filterWithKey) <span class="op">&gt;&gt;&gt;</span> M.size</span></code></pre></div>
-<p>Really useful stuff. The <code>Applicative</code> instance of the function type <code>((-&gt;) r)</code> additionally corresponds to the <code>S</code> combinator, which encapsulates the <a href="http://www.staff.city.ac.uk/~ross/papers/Applicative.html">flipped</a> version of this <a href="https://kseo.github.io/posts/2016-12-24-reader-monad-and-ski-combinators.html">pattern,</a></p>
+<p>Really useful stuff. The <code class="inline-type">Applicative</code> instance of the function type <code>((-&gt;) r)</code> additionally corresponds to the <code class="inline-type">S</code> combinator, which encapsulates the <a href="http://www.staff.city.ac.uk/~ross/papers/Applicative.html">flipped</a> version of this <a href="https://kseo.github.io/posts/2016-12-24-reader-monad-and-ski-combinators.html">pattern,</a></p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Applicative</span> ((<span class="ot">-&gt;</span>) r) <span class="kw">where</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a> <span class="co">-- pure :: a -&gt; ((-&gt;) r a)</span></span>
@@ -141,34 +151,29 @@
 </article>
 
         </main>
-
           </div>
           <footer>
             <hr>
             <div id="footer-container">
               <div id="footer-text">
-                <span style="color:yellow">λ</span> © 2021 Norman Liu.  
-                <span id="hakyll-ad">
-                Site powered by 
-                <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+                <a style="color:yellow" href="http://jaspervdj.be/hakyll">λ</a>2021 Norman Liu.  
                 </span> 
               </div>
-                  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <a href="mailto:norman@nliu.net">
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://github.com/dreamsmasher">
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://linkedin.com/in/norman-wuwei-liu">
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
-  </a>
   </svg>
-
+</a>
             </div>
           </footer>
     </body>

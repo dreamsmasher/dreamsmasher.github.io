@@ -1,11 +1,21 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="write" you a parser for okay acceptable! />
+        
+        <meta name="description" property="og:description" content="Normative Statements - Functional programming for nonfunctional people" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
         <title>write you a parser for okay acceptable! - Norman Liu's blog</title>
+        
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/syntax.css" />
         
@@ -19,7 +29,7 @@
     </head>
     <body>
         <header>
-            <div class="logo">
+            <div class="logo"> 
                 <a href="../">normative statements</a>
             </div>
             <nav>
@@ -73,7 +83,7 @@
 <p>Obviously, we’re not done. Even organic chemists deal with atoms beyond C, H, O, N.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;Mg&quot;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>[(<span class="ch">'M'</span>, <span class="dv">1</span>), (<span class="ch">'g'</span>, <span class="dv">1</span>)]</span></code></pre></div>
-<p>To make matters more complicated, chemists are just like programmers - lazy. For polymeric materials with repeating groups, there’s a handy way to express their structure. For example, the formula for PVC is <code>C2H3Cl</code>. I guess that would just be VC - because it forms arbitrarily long chains, it’s written as <code>(C2H3Cl)n</code>. What a tradeoff - chemists making their lives easier at our expense. If we had to parse something like</p>
+<p>To make matters more complicated, chemists are just like programmers - lazy. For polymeric materials with repeating groups, there’s a handy way to express their structure. For example, the formula for PVC is <code class="inline-type">C2H3Cl</code>. I guess that would just be VC - because it forms arbitrarily long chains, it’s written as <code>(C2H3Cl)n</code>. What a tradeoff - chemists making their lives easier at our expense. If we had to parse something like</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">CH3</span>(<span class="dt">CH2</span>)2CONH2 <span class="co">-- butyramide</span></span></code></pre></div>
 <p>It seems like we can treat a group of parentheses as a subexpression on its own, multiplying every number by the coefficient that comes after it.</p>
 <p>You can look at this notation as a form of <a href="https://en.wikipedia.org/wiki/Run-length_encoding">run-length encoding</a>, where you express repeating substructures of data as pairs (s, n). It’s the simplest form of data compression, and it’s easy to encode an arbitrary string. Decoding it is slightly harder, especially when you consider that these expressions can be nested:</p>
@@ -83,25 +93,25 @@
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>molecule <span class="op">=</span> {atom <span class="op">|</span> <span class="st">&quot;(&quot;</span>, molecule, <span class="st">&quot;)&quot;</span>, [number]}</span></code></pre></div>
 <p>In EBNF, curly braces denote repetition, and square brackets denote optionals. The regular expression is left as an exercise for the reader (i.e. I don’t want to figure it out.)</p>
 <p>We know that these expressions are recursive, so our parser is also going to be recursive. We consume an input string, apply these rules one character at a time, and treat the results of deeper recursive calls as atomic values. We’ll also need to continue off from where the deeper recursive calls left off.</p>
-<p>Let’s start off with a simple data type and work from there. We know that a parser is a function that will take in a <code>String</code>, and return some value from consuming that string, along with the remainder of the input. There’s also a chance that our parser might fail, so we’ll reflect this on the type level by wrapping the result in a <code>Maybe</code>. If we were doing something less trivial, we might use <code>Either</code> or <code>ExceptT</code> for more descriptive errors.</p>
+<p>Let’s start off with a simple data type and work from there. We know that a parser is a function that will take in a <code class="inline-type">String</code>, and return some value from consuming that string, along with the remainder of the input. There’s also a chance that our parser might fail, so we’ll reflect this on the type level by wrapping the result in a <code class="inline-type">Maybe</code>. If we were doing something less trivial, we might use <code class="inline-type">Either</code> or <code class="inline-type">ExceptT</code> for more descriptive errors.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">newtype</span> <span class="dt">Parse</span> a <span class="ot">=</span> <span class="dt">P</span> {<span class="ot"> runParse ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (a, <span class="dt">String</span>) } </span></code></pre></div>
-<p>Our <code>Parse</code>r type is just the <code>State</code> monad with the added possibility of failure. As we consume our string, we’re going to thread around the input as we consume it. Let’s try to turn our parser into a monad so we can do this implicitly.</p>
+<p>Our <code class="inline-type">Parse</code>r type is just the <code class="inline-type">State</code> monad with the added possibility of failure. As we consume our string, we’re going to thread around the input as we consume it. Let’s try to turn our parser into a monad so we can do this implicitly.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>    <span class="fu">fmap</span> f p <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> runParse p s <span class="op">&gt;&gt;=</span> \(a, s') <span class="ot">-&gt;</span> <span class="dt">Just</span> (f a, s')</span></code></pre></div>
-<p>The <code>&gt;&gt;=</code> in this case refers to our <code>Maybe</code> context - the <code>\(a, s')</code> function will only be applied if the parser action succeeds. This is where monads really shine, letting you sequence effects in a way that abstracts out the repetition of managing nested contexts.</p>
+<p>The <code class="inline-op">&gt;&gt;=</code> in this case refers to our <code class="inline-type">Maybe</code> context - the <code>\(a, s')</code> function will only be applied if the parser action succeeds. This is where monads really shine, letting you sequence effects in a way that abstracts out the repetition of managing nested contexts.</p>
 <p>Any time you find yourself writing a lambda expression just to pass it as the first parameter of a monadic binding, you can usually abstract that away with a Kleisli fish. I mean arrow.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co">-- (&gt;=&gt;) :: Monad m =&gt; (a -&gt; m b) -&gt; (b -&gt; m c) -&gt; (a -&gt; m c)</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>  <span class="fu">fmap</span> f p <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="op">&gt;=&gt;</span> \(a, s') <span class="ot">-&gt;</span> <span class="dt">Just</span> (f a, s')</span></code></pre></div>
-<p>But: since every <code>Monad</code> is an <code>Applicative</code>, we can basically get all the lower classes for free. Even better.</p>
+<p>But: since every <code class="inline-type">Monad</code> is an <code class="inline-type">Applicative</code>, we can basically get all the lower classes for free. Even better.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>  <span class="fu">fmap</span> <span class="ot">=</span> liftM </span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>    (<span class="op">&lt;*&gt;</span>) <span class="ot">=</span> ap</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>    <span class="fu">pure</span> <span class="ot">=</span> <span class="fu">return</span></span></code></pre></div>
-<p>Now we have to actually write some code. We know that in order to qualify our data type as a Monad, it needs to fulfill the monadic laws and have a lawful implementation of <code>(&gt;&gt;=)</code> and <code>return</code>.</p>
+<p>Now we have to actually write some code. We know that in order to qualify our data type as a Monad, it needs to fulfill the monadic laws and have a lawful implementation of <code class="inline-op">(&gt;&gt;=)</code> and <code>return</code>.</p>
 <p>To put a value in the bare minimum context of a monad it shouldn’t have any effects per se. In our case, <code>return</code> should be a parser that doesn’t consume any input, and successfully yields a value regardless.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Monad</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="ot">  return ::</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
@@ -116,12 +126,12 @@
 <p>As usual, we can use arrows to make this a lot cleaner.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Parse</span> b) <span class="ot">-&gt;</span> <span class="dt">Parse</span> b</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>p <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="op">&gt;=&gt;</span> (first f <span class="op">&gt;&gt;&gt;</span> <span class="fu">uncurry</span> runParse) </span></code></pre></div>
-<p>This is a little precarious, though. Parsing is a task, that more often that not, will fail. If a single parser is unable to successfully read a string, we’d like to be able to try an alternative function before giving up. Good thing this is already implemented for us. The <code>Alternative</code> instance for Maybe looks something like</p>
+<p>This is a little precarious, though. Parsing is a task, that more often that not, will fail. If a single parser is unable to successfully read a string, we’d like to be able to try an alternative function before giving up. Good thing this is already implemented for us. The <code class="inline-type">Alternative</code> instance for Maybe looks something like</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Alternative</span> <span class="dt">Maybe</span> <span class="kw">where</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>  empty <span class="ot">=</span> <span class="dt">Nothing</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>  <span class="dt">Nothing</span> <span class="op">&lt;|&gt;</span> b <span class="ot">=</span> b</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>  <span class="dt">Just</span> a  <span class="op">&lt;|&gt;</span> _ <span class="ot">=</span> <span class="dt">Just</span> a </span></code></pre></div>
-<p>Where we only need to evaluate <code>b</code> if <code>a</code> is <code>empty</code>. You can think of <code>&lt;|&gt;</code> as <code>||</code> lifted to effectful types. If you squint hard enough, it looks like a stickbug. We’ll call it that from here on out, but it’s more like a <code>choice</code> operator if anything. In our case, if one parser succeeds, we don’t need to try the other one. We can take advantage of the fact that functions are <code>Applicative</code>, and use <code>liftA2</code> to write the equivalent of <code>\s -&gt; runParse a s &lt;|&gt; runParse b s</code>.</p>
+<p>Where we only need to evaluate <code>b</code> if <code>a</code> is <code>empty</code>. You can think of <code class="inline-op">&lt;|&gt;</code> as <code class="inline-op">||</code> lifted to effectful types. If you squint hard enough, it looks like a stickbug. We’ll call it that from here on out, but it’s more like a <code>choice</code> operator if anything. In our case, if one parser succeeds, we don’t need to try the other one. We can take advantage of the fact that functions are <code class="inline-type">Applicative</code>, and use <code>liftA2</code> to write the equivalent of <code>\s -&gt; runParse a s &lt;|&gt; runParse b s</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Alternative</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    empty <span class="ot">=</span> <span class="dt">P</span> (<span class="fu">const</span> <span class="dt">Nothing</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    a <span class="op">&lt;|&gt;</span> b <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> liftA2 (<span class="op">&lt;|&gt;</span>) (runParse a) (runParse b)</span></code></pre></div>
@@ -149,7 +159,7 @@
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> runParse ( cond (\c <span class="ot">-&gt;</span> c <span class="op">==</span> <span class="ch">'h'</span>) anyChar ) <span class="st">&quot;xello&quot;</span></span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a><span class="dt">Nothing</span></span></code></pre></div>
-<p>A parser that parses unconditionally is boring, and a parser that only parses a single character is useless. Since we’ve proven that our parser is a <code>Monad</code>, <code>Applicative</code>, <code>Functor</code>, and <code>Alternative</code>, we get a ton of functions for <em>free</em>.</p>
+<p>A parser that parses unconditionally is boring, and a parser that only parses a single character is useless. Since we’ve proven that our parser is a <code class="inline-type">Monad</code>, <code class="inline-type">Applicative</code>, <code class="inline-type">Functor</code>, and <code class="inline-type">Alternative</code>, we get a ton of functions for <em>free</em>.</p>
 <p>We’ll start off by defining something to parse a specific character (we already have):</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="ot">char ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Parser</span> <span class="dt">Char</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>char c <span class="ot">=</span> cond (<span class="op">==</span> c) anyChar</span></code></pre></div>
@@ -158,7 +168,7 @@
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>upper <span class="ot">=</span> cond <span class="fu">isUpper</span> anyChar</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>lower <span class="ot">=</span> cond <span class="fu">isLower</span> anyChar</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a>digit <span class="ot">=</span> cond <span class="fu">isDigit</span> anyChar</span></code></pre></div>
-<p>Now we have everything we need to parse a simple atom (again). <code>Control.Applicative</code> exports some really useful functions for <code>Alternative</code> types, like <code>optional</code>, <code>some</code>, and <code>many</code> that makes our lives a LOT easier. You can think of these functions as generalized versions of the regex qualifiers <code>?</code>, <code>+</code>, and <code>*</code>. Instead of transforming the match behaviour of a single pattern, they’ll apply an <code>Alternative</code> action zero or one times, one or more times, or an unlimited amount. You can implement a regex engine using parser combinators and these operators pretty trivially, since monadic parsers are Turing-complete.</p>
+<p>Now we have everything we need to parse a simple atom (again). <code class="inline-mod">Control.Applicative</code> exports some really useful functions for <code class="inline-type">Alternative</code> types, like <code>optional</code>, <code>some</code>, and <code>many</code> that makes our lives a LOT easier. You can think of these functions as generalized versions of the regex qualifiers <code class="inline-op">?</code>, <code class="inline-op">+</code>, and <code class="inline-op">*</code>. Instead of transforming the match behaviour of a single pattern, they’ll apply an <code class="inline-type">Alternative</code> action zero or one times, one or more times, or an unlimited amount. You can implement a regex engine using parser combinators and these operators pretty trivially, since monadic parsers are Turing-complete.</p>
 <p>If you’re savvy, you might recognize <code>some</code> and <code>many</code> as the Kleene plus and Kleene star, respectively. When we apply a specific parser, all we’re doing is providing a set of strings that might be matched:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="ot">foo ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a>foo <span class="ot">=</span> string <span class="st">&quot;foo&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;fooo&quot;</span></span>
@@ -199,17 +209,17 @@
 <span id="cb23-20"><a href="#cb23-20" aria-hidden="true"></a><span class="ot">lowersN ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
 <span id="cb23-21"><a href="#cb23-21" aria-hidden="true"></a>lowersN n <span class="ot">=</span> [<span class="dv">0</span><span class="op">..</span>n] <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> <span class="fu">sequence</span> <span class="op">$</span> <span class="fu">replicate</span> x lowers)</span>
 <span id="cb23-22"><a href="#cb23-22" aria-hidden="true"></a>  <span class="co">-- [sequence $ replicate x &quot;abcde&quot; | x &lt;- [0..n]]</span></span></code></pre></div>
-<p>which is isomorphic to the set of all the n-ary Cartesian powers of the set for <code>n &lt;- 1..</code>, plus the set’s identity element. The Kleene plus just omits the identity element. With this distinction, the Kleene star forms a <code>Monoid</code>, while the Kleene plus is only a <code>Semigroup</code>. In fact, Kleene stars construct a <a href="https://bartoszmilewski.com/2015/07/21/free-monoids/">free monoid</a> over their <a href="https://proofwiki.org/wiki/Kleene_Closure_is_Free_Monoid">inputs</a>.</p>
+<p>which is isomorphic to the set of all the n-ary Cartesian powers of the set for <code>n &lt;- 1..</code>, plus the set’s identity element. The Kleene plus just omits the identity element. With this distinction, the Kleene star forms a <code class="inline-type">Monoid</code>, while the Kleene plus is only a <code class="inline-type">Semigroup</code>. In fact, Kleene stars construct a <a href="https://bartoszmilewski.com/2015/07/21/free-monoids/">free monoid</a> over their <a href="https://proofwiki.org/wiki/Kleene_Closure_is_Free_Monoid">inputs</a>.</p>
 <p>This is where regular expressions are truly beautiful - when you write a regex, you’re specifying <em>exactly</em> what should be matched, with regards to the set of all inputs the resulting automaton will succeed on. You could rewrite <code>/foo*/</code> as <code>/(fo|foo|fooo|foooo ...)</code>, but that isn’t feasible for people with finite lifetimes. Having these operators on hand allows you to arbitrarily expand the set of accepted inputs for your parser.</p>
-<p>In the <code>Alternative</code> context, these operators will run an action repeatedly until they yield empty - if you aren’t passing a state parameter around, your program will likely enter an infinite loop. Just something to keep in mind.</p>
-<p>The <code>Alternative</code> class is similar to <code>Monoid</code> - the stickbug operator <code>&lt;|&gt;</code> is an associative binary function between two <code>Alternative</code>s, and <code>empty</code> is an identity element such that:</p>
+<p>In the <code class="inline-type">Alternative</code> context, these operators will run an action repeatedly until they yield empty - if you aren’t passing a state parameter around, your program will likely enter an infinite loop. Just something to keep in mind.</p>
+<p>The <code class="inline-type">Alternative</code> class is similar to <code class="inline-type">Monoid</code> - the stickbug operator <code class="inline-op">&lt;|&gt;</code> is an associative binary function between two <code class="inline-type">Alternative</code>s, and <code>empty</code> is an identity element such that:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a>(a <span class="op">&lt;|&gt;</span> b) <span class="op">&lt;|&gt;</span> c <span class="ot">=</span> a <span class="op">&lt;|&gt;</span> (b <span class="op">&lt;|&gt;</span> c)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>empty <span class="op">&lt;|&gt;</span> empty <span class="ot">=</span> empty</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a>empty <span class="op">&lt;|&gt;</span> alt   <span class="ot">=</span> alt</span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true"></a>alt   <span class="op">&lt;|&gt;</span> empty <span class="ot">=</span> alt</span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true"></a>alt1  <span class="op">&lt;|&gt;</span> alt2  <span class="ot">=</span> alt1</span></code></pre></div>
-<p>Where these types differ is that joining <code>Alternative</code>s is biased towards the left argument - it’s a <em>choice</em>, rather than a <em>composition</em>.</p>
+<p>Where these types differ is that joining <code class="inline-type">Alternative</code>s is biased towards the left argument - it’s a <em>choice</em>, rather than a <em>composition</em>.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;&gt;</span>  <span class="dt">Nothing</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a><span class="dt">Nothing</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;|&gt;</span> <span class="dt">Nothing</span></span>
@@ -229,7 +239,7 @@
 <span id="cb25-17"><a href="#cb25-17" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;Hi&quot;</span></span>
 <span id="cb25-18"><a href="#cb25-18" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;|&gt;</span> <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
 <span id="cb25-19"><a href="#cb25-19" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;H&quot;</span></span></code></pre></div>
-<p>Having gained the ability of choice, we also have <code>optional</code>s now - <code>optional</code> is a function that takes an <code>Alternative</code> functor, runs its action, and returns a <code>Maybe</code> value inside the <code>Alternative</code> instead of returning <code>empty</code> at the root context. This has the advantage of always succeeding, so we can treat a failure as a slight speedbump instead of an error that has to be propagated forwards. You can also just use <code>&lt;|&gt;</code>:</p>
+<p>Having gained the ability of choice, we also have <code>optional</code>s now - <code>optional</code> is a function that takes an <code class="inline-type">Alternative</code> functor, runs its action, and returns a <code class="inline-type">Maybe</code> value inside the <code class="inline-type">Alternative</code> instead of returning <code>empty</code> at the root context. This has the advantage of always succeeding, so we can treat a failure as a slight speedbump instead of an error that has to be propagated forwards. You can also just use <code class="inline-op">&lt;|&gt;</code>:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a><span class="co">-- H, O, Mg, Ne, etc.</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a><span class="ot">symbol ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a>symbol <span class="ot">=</span> <span class="kw">do</span> </span>
@@ -299,7 +309,7 @@
 <span id="cb29-31"><a href="#cb29-31" aria-hidden="true"></a>                                                  <span class="st">&quot;ta&quot;</span>           | OK -&gt; (<span class="st">&quot;pasta&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
 <span id="cb29-32"><a href="#cb29-32" aria-hidden="true"></a>                                                                <span class="st">&quot;a&quot;</span> </span></code></pre></div>
 <p>If you were writing a compiler from a regular expression down to a DFA, you might want to combine common paths into a trie-like structure to prevent redundant backtracking. After the initial prefix of the string is consumed by the “i liek” parser, the remaining chunk is passed into the choice between three strings: “mudkipz”, “parsers”, “pasta”. The parser function at that point in the pipeline has “pasta” as its input, so we can essentially “save” our position within the string at this nexus. We’re passing a literal string around (a linked list of characters), but this can easily be done with a pointer to a packed string literal as well for efficiency. Backtracking is implicit between choices.</p>
-<p>Let’s recur now and try to tackle the nested repeating groups. It turns out that the problem is even more annoying, because the molecules can use any kind of bracket. <code>K4[ON{SO3}2]2</code> is fair game. It doesn’t make that much of a difference really, we just have to make sure that brackets are paired correctly.</p>
+<p>Let’s recur now and try to tackle the nested repeating groups. It turns out that the problem is even more annoying, because the molecules can use any kind of bracket. <code class="inline-type">K4[ON{SO3}2]2</code> is fair game. It doesn’t make that much of a difference really, we just have to make sure that brackets are paired correctly.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true"></a><span class="ot">choice ::</span> (<span class="dt">Alternative</span> f) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> f a</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true"></a>choice <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">&lt;|&gt;</span>) empty</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true"></a></span>
@@ -310,7 +320,7 @@
 <span id="cb30-8"><a href="#cb30-8" aria-hidden="true"></a>  p <span class="op">&lt;*</span> <span class="kw">case</span> c <span class="kw">of</span> <span class="ch">'('</span> <span class="ot">-&gt;</span> char <span class="ch">')'</span></span>
 <span id="cb30-9"><a href="#cb30-9" aria-hidden="true"></a>                 <span class="ch">'{'</span> <span class="ot">-&gt;</span> char <span class="ch">'}'</span></span>
 <span id="cb30-10"><a href="#cb30-10" aria-hidden="true"></a>                 <span class="ch">'['</span> <span class="ot">-&gt;</span> char <span class="ch">']'</span> </span></code></pre></div>
-<p><code>&lt;*</code> is like the flipped, <code>Applicative</code> version of <code>&gt;&gt;</code>. It runs both actions, ignoring the second’s result but allowing its effects to propagate. If you find yourself doing something like</p>
+<p><code class="inline-op">&lt;*</code> is like the flipped, <code class="inline-type">Applicative</code> version of <code class="inline-op">&gt;&gt;</code>. It runs both actions, ignoring the second’s result but allowing its effects to propagate. If you find yourself doing something like</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true"></a><span class="ot">betweenParens ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true"></a>betweenParens p <span class="ot">=</span> <span class="kw">do</span></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true"></a>  char <span class="ch">'('</span></span>
@@ -320,7 +330,7 @@
 <p>it helps to refactor using these <code>const</code> operators:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true"></a><span class="ot">betweenParens ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true"></a>betweenParens p <span class="ot">=</span> char <span class="ch">'('</span> <span class="op">*&gt;</span> p <span class="op">&lt;*</span> char <span class="ch">')'</span></span></code></pre></div>
-<p>I generally prefer <code>(*&gt;)</code> to <code>(&gt;&gt;)</code>, because you don’t <em>always</em> need the power of a monad. We have both, largely because of historical reasons (<code>Applicative</code> came around after <code>Monad</code>).</p>
+<p>I generally prefer <code class="inline-op">(*&gt;)</code> to <code class="inline-op">(&gt;&gt;)</code>, because you don’t <em>always</em> need the power of a monad. We have both, largely because of historical reasons (<code class="inline-type">Applicative</code> came around after <code class="inline-type">Monad</code>).</p>
 <p>Finally, our core, mutually recursive parsers - a functional group (in the chemical sense) is a molecule/atom within a pair of matching brackets, followed by an optional number, like “(OH)2”:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true"></a><span class="ot">funcGroup ::</span> <span class="dt">Parse</span> [<span class="dt">Atoms</span>]</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true"></a>funcGroup <span class="ot">=</span> <span class="kw">do</span></span>
@@ -353,34 +363,29 @@
 </article>
 
         </main>
-
           </div>
           <footer>
             <hr>
             <div id="footer-container">
               <div id="footer-text">
-                <span style="color:yellow">λ</span> © 2021 Norman Liu.  
-                <span id="hakyll-ad">
-                Site powered by 
-                <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+                <a style="color:yellow" href="http://jaspervdj.be/hakyll">λ</a>2021 Norman Liu.  
                 </span> 
               </div>
-                  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <a href="mailto:norman@nliu.net">
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://github.com/dreamsmasher">
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://linkedin.com/in/norman-wuwei-liu">
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
-  </a>
   </svg>
-
+</a>
             </div>
           </footer>
     </body>

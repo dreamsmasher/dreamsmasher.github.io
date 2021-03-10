@@ -1,11 +1,21 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="magical" shell utilities: ld />
+        
+        <meta name="description" property="og:description" content="Normative Statements - Functional programming for nonfunctional people" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
         <title>magical shell utilities: ld - Norman Liu's blog</title>
+        
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/syntax.css" />
         
@@ -17,7 +27,7 @@
     </head>
     <body>
         <header>
-            <div class="logo">
+            <div class="logo"> 
                 <a href="../">normative statements</a>
             </div>
             <nav>
@@ -51,10 +61,10 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">int</span> launchMissiles(<span class="dt">char</span> **targets, <span class="dt">uint32_t</span> *launchCodes) {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>. . .</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>}</span></code></pre></div>
-<p>enough information for the compiler? It shows how much space needs to be allocated for its body, how many bytes needs to be pushed onto the stack for its arguments, and how many meaningful bytes will be <code>mov</code>ed into <code>RAX</code> when it returns. Why do you have to write that twice? Once in the implementation, and again in a separate header file. You need to <code>#include</code> that header in any other module that you want to launch missiles from.</p>
+<p>enough information for the compiler? It shows how much space needs to be allocated for its body, how many bytes needs to be pushed onto the stack for its arguments, and how many meaningful bytes will be <code>mov</code>ed into <code class="inline-type">RAX</code> when it returns. Why do you have to write that twice? Once in the implementation, and again in a separate header file. You need to <code>#include</code> that header in any other module that you want to launch missiles from.</p>
 <p>Imagine your program as a tree, rooted at <code>main.c</code> or whatever module includes <code>main()</code>. Your program’s entry point is primitive, in the sense that <code>main()</code> doesn’t require a header. Your program will always start from <code>main()</code>. That’s your onramp onto the highway, and it’s the point from which every other symbol lookup and function call will stem. All the declarations made in a header file form a collection of edges emanating from that header file to compiled object files. The ultimate goal of a linker is to have every <code>jmp</code> and <code>call</code> instruction point somewhere in a program’s address space. This involves traversing a complex web of object files and figuring out which modules and subroutines depend on what. <code>ld</code> needs to know where <code>launchMissiles()</code> is defined <em>before</em> it can add a location to jump to when the function is invoked. Sound familiar?</p>
-<p>The <code>ELF</code> format for executable files consists of a <a href="https://refspecs.linuxbase.org/elf/gabi4+/ch4.intro.html">few important parts</a>. The order tends to vary between environments, but the idea remains the same. There’s a header that tells you it’s an ELF file. Next is a program header table with information to the OS on how the program should be run. Then a series of sections where your program’s data lies - space for static variables, string literals, opcodes for your CPU to crunch, etc. These come from your individual object files. The clues on where your functions are actually defined lie in the section header table. There are a few interesting entries in the section header table, like redirection addresses for sections that are too big to fit, the total offsets for each section’s location relative to your program’s address space, various flags, the size of symbols, etc.</p>
-<p>Before linking, every object file corresponds to a single source file. If there’s a function call within a source file whose implementation is elsewhere, the compiler basically just adds a little <code>TODO</code> for the linker to figure out. This is assuming that the function has been mentioned somewhere, of course. <code>GCC</code> will throw an error if it’s unknown. This is also where those cryptic <code>implicit declaration of function 'foo' is invalid</code> errors come from - if you try to call <code>foo()</code> before it’s mentioned, the compiler doesn’t know what you’re talking about. <code>GCC</code> doesn’t maintain any context between translating different source files. It sees a file, and does what it does. Try it for yourself.</p>
+<p>The <code class="inline-type">ELF</code> format for executable files consists of a <a href="https://refspecs.linuxbase.org/elf/gabi4+/ch4.intro.html">few important parts</a>. The order tends to vary between environments, but the idea remains the same. There’s a header that tells you it’s an ELF file. Next is a program header table with information to the OS on how the program should be run. Then a series of sections where your program’s data lies - space for static variables, string literals, opcodes for your CPU to crunch, etc. These come from your individual object files. The clues on where your functions are actually defined lie in the section header table. There are a few interesting entries in the section header table, like redirection addresses for sections that are too big to fit, the total offsets for each section’s location relative to your program’s address space, various flags, the size of symbols, etc.</p>
+<p>Before linking, every object file corresponds to a single source file. If there’s a function call within a source file whose implementation is elsewhere, the compiler basically just adds a little <code class="inline-type">TODO</code> for the linker to figure out. This is assuming that the function has been mentioned somewhere, of course. <code class="inline-type">GCC</code> will throw an error if it’s unknown. This is also where those cryptic <code>implicit declaration of function 'foo' is invalid</code> errors come from - if you try to call <code>foo()</code> before it’s mentioned, the compiler doesn’t know what you’re talking about. <code class="inline-type">GCC</code> doesn’t maintain any context between translating different source files. It sees a file, and does what it does. Try it for yourself.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">void</span>) {</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  foo(); <span class="co">// won't compile</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>  <span class="cf">return</span> <span class="dv">0</span>;</span>
@@ -63,7 +73,7 @@
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="dt">void</span> foo(<span class="dt">void</span>) {</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>  puts(<span class="st">&quot;hello world!&quot;</span>)</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>}</span></code></pre></div>
-<p><code>foo</code>’s definition is only 4 lines down, but <code>GCC</code> doesn’t know that. You’re giving that black box way too much credit. What about this?</p>
+<p><code>foo</code>’s definition is only 4 lines down, but <code class="inline-type">GCC</code> doesn’t know that. You’re giving that black box way too much credit. What about this?</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">void</span> foo(<span class="dt">void</span>);</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">void</span>) {</span>
@@ -74,7 +84,7 @@
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a><span class="dt">void</span> foo(<span class="dt">void</span>) {</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>  puts(<span class="st">&quot;hello world!&quot;</span>)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>}</span></code></pre></div>
-<p>Remember what I said about <code>#include</code> just vomiting text into your file? Your header files contain these function declarations for a reason - to give <code>GCC</code> a clue of which instructions are necessary in order to call these functions. Depending on the compiler and environment, arguments might all be passed on the stack, or in partly in registers. This also means you need to know in advance how many arguments there are, and the size of each argument. In terms of handling, a function with the arguments <code>(uint32_t x, uint64_t y)</code> is <strong>not</strong> the same as <code>(uint64_t x, uint32_t y)</code>. Sure, the two values have the same combined size, and the space allocated is equal in both cases. But if you’re passing the arguments on the stack, the offsets for each value are completely different.</p>
+<p>Remember what I said about <code>#include</code> just vomiting text into your file? Your header files contain these function declarations for a reason - to give <code class="inline-type">GCC</code> a clue of which instructions are necessary in order to call these functions. Depending on the compiler and environment, arguments might all be passed on the stack, or in partly in registers. This also means you need to know in advance how many arguments there are, and the size of each argument. In terms of handling, a function with the arguments <code>(uint32_t x, uint64_t y)</code> is <strong>not</strong> the same as <code>(uint64_t x, uint32_t y)</code>. Sure, the two values have the same combined size, and the space allocated is equal in both cases. But if you’re passing the arguments on the stack, the offsets for each value are completely different.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>f1 <span class="op">|</span>  f2</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="op">========</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="dt">X</span>     y</span>
@@ -91,7 +101,7 @@
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a>y     <span class="dt">X</span></span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a><span class="co">-- rest of the stack --</span></span></code></pre></div>
 <p>The compiler needs to know <strong>exactly</strong> how much space each variable takes up, because it matters. You might need a <code>popq</code> or a <code>popl</code> in order to get that data off the stack, but the only way to know is to have some idea of what data you’re working with. Imagine if your compiler was prone to making hasty conclusions and guessing about data size. What if it created one version of <code>launchMissiles</code> that took arguments like <code>(char targets, uint8_t launchCodes)</code>, and another version with the original arguments? You’d be writing and overwriting data all over the place, and we’d probably be dead.</p>
-<p>Back to the linker. Now that we know <em>why</em> header files are required (right?), let’s look at how these function definitions are actually resolved. Every object file ends up with a <a href="https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html">symbol table</a> (assume 64-bit because we’re not living in the 90’s anymore). The symbol table is an array of <code>Elf64_Sym</code>, each corresponding to one function:</p>
+<p>Back to the linker. Now that we know <em>why</em> header files are required (right?), let’s look at how these function definitions are actually resolved. Every object file ends up with a <a href="https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html">symbol table</a> (assume 64-bit because we’re not living in the 90’s anymore). The symbol table is an array of <code class="inline-type">Elf64_Sym</code>, each corresponding to one function:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">typedef</span> <span class="kw">struct</span> {</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a>    Elf64_Word      st_name;</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>    <span class="dt">unsigned</span> <span class="dt">char</span>   st_info;</span>
@@ -100,7 +110,7 @@
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>    Elf64_Addr      st_value;</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    Elf64_Xword     st_size;</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>} Elf64_Sym;</span></code></pre></div>
-<p><code>Elf64_Word</code> and <code>Elf64_Xword</code> are just <code>typedef</code> aliases for <code>uint32_t</code> and <code>uint64_t</code>, <a href="http://web.mit.edu/freebsd/head/sys/sys/elf64.h">respectively</a>. <code>Elf64_Addr</code> is, as you guessed it, an unsigned 64-bit pointer (<code>uint64_t</code>). <code>st_name</code> isn’t a string, but an index into a string table within the object file that contains the function’s string representation. <code>st_info</code> is a bitmask that contains metadata about whether the symbol is local or global, and some other bookkeeping stuff. The most crucial bits of info here are <code>st_name, st_info, st_size,</code> and <code>st_value</code>. With this, the linker now has everything it needs to be able to redirect any invocations of the function to its exact location within its resident object file.</p>
+<p><code class="inline-type">Elf64_Word</code> and <code class="inline-type">Elf64_Xword</code> are just <code>typedef</code> aliases for <code>uint32_t</code> and <code>uint64_t</code>, <a href="http://web.mit.edu/freebsd/head/sys/sys/elf64.h">respectively</a>. <code class="inline-type">Elf64_Addr</code> is, as you guessed it, an unsigned 64-bit pointer (<code>uint64_t</code>). <code>st_name</code> isn’t a string, but an index into a string table within the object file that contains the function’s string representation. <code>st_info</code> is a bitmask that contains metadata about whether the symbol is local or global, and some other bookkeeping stuff. The most crucial bits of info here are <code>st_name, st_info, st_size,</code> and <code>st_value</code>. With this, the linker now has everything it needs to be able to redirect any invocations of the function to its exact location within its resident object file.</p>
 <p>When object files are combined together, their data occurs sequentially within the resulting executable’s data. The linker takes the addresses of each function definition and calculates a new offset based on where it spits the function body into the executable. This order doesn’t have to necessarily follow the original order within each object file - functions might be inlined depending on how often they get called, they might be placed closer together or <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_node/ld_22.html">overlaid</a> for cache locality, etc. As <code>ld</code> builds the executable, it’s unclear what the offset of the next function, or the one after that, will be. All it knows is the offset of the program header, data, and everything it’s added in so far. <code>ld</code> provides a lot of fine-grained control to the programmer when specifying how a program should be linked, since there’s so much metadata contained in each object file. The compiler didn’t break when it was translating everything to assembly, the assembler didn’t whine, and so <code>ld</code> gets to do its thing now.</p>
 <p>What’s cool is that <code>ld</code> is <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html#SEC12">lazy</a> in binding functions now. Since the compiler was able to find a valid traversal through your program, the only thing left to be done for your program to run is to actually write the addresses into the executable. This doesn’t have to be done until you try to run your program, and it’s how dynamic linking allows you to save literally <strong>KILOBYTES</strong> of memory by allowing different programs to share the same library functions in memory. This wasn’t the case back in the 1970’s. In the infancy of UNIX, <code>ld</code> had a lot more responsibility. Static analysis wasn’t as feasible as it was today, so tasks like dead-code elimination were up to the linker. In particular, <code>ld</code> used to only do a single pass over a <code>tar</code>ball of objects in their predefined order. This is where it was crucial that a traversal-order permutation of symbols was obtained.</p>
 <p><img src="../images/tsort/yesbabe.png" class="pic" /></p>
@@ -108,34 +118,29 @@
 </article>
 
         </main>
-
           </div>
           <footer>
             <hr>
             <div id="footer-container">
               <div id="footer-text">
-                <span style="color:yellow">λ</span> © 2021 Norman Liu.  
-                <span id="hakyll-ad">
-                Site powered by 
-                <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+                <a style="color:yellow" href="http://jaspervdj.be/hakyll">λ</a>2021 Norman Liu.  
                 </span> 
               </div>
-                  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <a href="mailto:norman@nliu.net">
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://github.com/dreamsmasher">
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://linkedin.com/in/norman-wuwei-liu">
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
-  </a>
   </svg>
-
+</a>
             </div>
           </footer>
     </body>

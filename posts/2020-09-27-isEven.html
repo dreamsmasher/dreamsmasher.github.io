@@ -1,11 +1,21 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="is-even" and the horrors of dependency management />
+        
+        <meta name="description" property="og:description" content="Normative Statements - Functional programming for nonfunctional people" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
         <title>is-even and the horrors of dependency management - Norman Liu's blog</title>
+        
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/syntax.css" />
         
@@ -19,7 +29,7 @@
     </head>
     <body>
         <header>
-            <div class="logo">
+            <div class="logo"> 
                 <a href="../">normative statements</a>
             </div>
             <nav>
@@ -52,8 +62,8 @@
     <section>
         <p>Let’s have a talk about pulling in packages.</p>
 <p>When is it necessary?</p>
-<p>You want to check if a number is even, in a language that isn’t type-safe. Your first intuition is to use the <code>%</code> operator, but it doesn’t work. You’re frustrated. Seven beers and 20 syntax errors later, you throw away any hesitation about bloat and decide to just add another dependency. What does it matter?</p>
-<p>There are quite literally, millions of tiny packages on <code>npm</code>. <code>is-even</code> is just one of them. A full package where the metadata, even the <code>README</code> is longer than the code itself.</p>
+<p>You want to check if a number is even, in a language that isn’t type-safe. Your first intuition is to use the <code class="inline-op">%</code> operator, but it doesn’t work. You’re frustrated. Seven beers and 20 syntax errors later, you throw away any hesitation about bloat and decide to just add another dependency. What does it matter?</p>
+<p>There are quite literally, millions of tiny packages on <code>npm</code>. <code>is-even</code> is just one of them. A full package where the metadata, even the <code class="inline-type">README</code> is longer than the code itself.</p>
 <p>Here are the contents of <code>is-even</code> in their entirety (credits to <code>jonschlinkert</code>):</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">var</span> isOdd <span class="op">=</span> <span class="pp">require</span>(<span class="st">'is-odd'</span>)<span class="op">;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
@@ -64,7 +74,7 @@
 <div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">var</span> isNumber <span class="op">=</span> <span class="kw">function</span>(x) {</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="cf">return</span> (<span class="kw">typeof</span> x <span class="op">===</span> <span class="st">'number'</span>)<span class="op">;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>}</span></code></pre></div>
-<p>A polymorphic function that works on integers and floats. Done. “But what if it’s <code>NaN</code>!????”, you might be asking:</p>
+<p>A polymorphic function that works on integers and floats. Done. “But what if it’s <code class="inline-type">NaN</code>!????”, you might be asking:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">var</span> isNumber <span class="op">=</span> <span class="kw">function</span>(x) {</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">return</span> (<span class="kw">typeof</span> x <span class="op">===</span> <span class="st">'number'</span> <span class="op">&amp;&amp;</span> <span class="pp">isFinite</span>(x))<span class="op">;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>}</span></code></pre></div>
@@ -77,19 +87,19 @@
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="cf">return</span> <span class="op">!</span>(is<span class="op">-</span><span class="fu">even</span>(x))<span class="op">;</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>}</span></code></pre></div>
 <p>Problem solved. This is pretty much what the original code does, but in 20 lines of code. No triplicated metadata and git directories needed. It’s easy to add directly to your projects and your users will thank you for saving them 3 packages in <code>node-modules</code>. Even funnier is that there are 45 similar packages all over npm. <code>is-odd</code> is a dependency of gems such as <code>odd</code>, which gets the odd-numbered items from an array (wow, thanks), and <a href="https://discord.com/acknowledgements">discord</a>. Looking at the reverse and dev dependencies of <code>is-odd</code> shows over 159 packages tangled within this sinister tree of triviality. (credits to <a href="npm.broofa.com">broofa</a> for the visualization tool). How deep does this go?</p>
-<p>Obviously these are trivial examples, and there are much worse examples of the dependency flood that comes with <code>npm</code> modules. My issue with this is that <code>is-even</code> gets over 133,286 downloads per week, according to <code>npm</code> statistics. The Github repo lists over 6.4 MILLION downloads total. How much bandwidth is being wasted on this? (Obviously, not as much as having to redownload jQuery every time you visit a website that uses a different CDN). An article from <a href="https://blog.appsignal.com/2020/04/09/ride-down-the-javascript-dependency-hell.html">AppSignal</a> shows <code>npm</code> has over 1.2 million packages in total. That’s more than <code>PyPI, RubyGems, Maven, Packagist, Hackage, Crates.io</code>, and <code>NuGet</code> COMBINED. Even though JS is the <a href="https://www.benfrederickson.com/ranking-programming-languages-by-github-users/">majority language</a> in terms of active users on Github, it only beats out Python and Java by around 7% (22.63%, 14.75%, and 14.01%, respectively). How in the hell does the <code>npm</code> ecosystem have over 4x the packages?</p>
+<p>Obviously these are trivial examples, and there are much worse examples of the dependency flood that comes with <code>npm</code> modules. My issue with this is that <code>is-even</code> gets over 133,286 downloads per week, according to <code>npm</code> statistics. The Github repo lists over 6.4 MILLION downloads total. How much bandwidth is being wasted on this? (Obviously, not as much as having to redownload jQuery every time you visit a website that uses a different CDN). An article from <a href="https://blog.appsignal.com/2020/04/09/ride-down-the-javascript-dependency-hell.html">AppSignal</a> shows <code>npm</code> has over 1.2 million packages in total. That’s more than <code class="inline-mod">PyPI, RubyGems, Maven, Packagist, Hackage, Crates.io</code>, and <code class="inline-type">NuGet</code> COMBINED. Even though JS is the <a href="https://www.benfrederickson.com/ranking-programming-languages-by-github-users/">majority language</a> in terms of active users on Github, it only beats out Python and Java by around 7% (22.63%, 14.75%, and 14.01%, respectively). How in the hell does the <code>npm</code> ecosystem have over 4x the packages?</p>
 <p>52236 packages on <code>npm</code> relate directly to npm. 1353 packages are for manipulating and working with comments. The <code>npm</code> package itself has 123 direct dependencies, making up 1185 packages. A quick recursive <code>wc -c</code> on my system shows that my npm source directory’s <code>node-modules</code> is wabout 14.12 megabytes, which isn’t too bad considering that some people complain about their <code>node-modules</code> reaching several hundred megabytes. Ignoring meme packages that purposely include an insane amount of dependencies (I’m looking at you, <a href="https://www.npmjs.com/package/bloater">bloater</a>), it seems like the average package doesn’t have that big of a <code>package.json</code>. The most widely-included libraries, like <code>lodash</code> and <code>chalk</code>, are smart to remain self-contained.</p>
 <p>So where is the bloat coming from? I have a few hypotheses:</p>
 <ol type="1">
 <li>Versioning.</li>
 </ol>
-<p>According to the docs, <a href="https://npm.github.io/how-npm-works-docs/npm2/how-npm2-works.html">npm2</a> doesn’t make any attempt to resolve conflicting package versions like <code>Stack</code> or <code>Portage</code> would. Conflicting versions are placed into their own subtrees in the dependency tree.</p>
+<p>According to the docs, <a href="https://npm.github.io/how-npm-works-docs/npm2/how-npm2-works.html">npm2</a> doesn’t make any attempt to resolve conflicting package versions like <code class="inline-type">Stack</code> or <code class="inline-type">Portage</code> would. Conflicting versions are placed into their own subtrees in the dependency tree.</p>
 <p><a href="http://npm.github.io/how-npm-works-docs/npm3/how-npm3-works.html">npmv3</a> attempts to flatten dependencies into a single directory as much as possible, only defaulting to npmv2’s tree insertion when direct conflicts occur. Sandboxing is a pretty common solution to package conflicts across package managers, but the sheer amount of micro-packages on <code>npm</code> makes this worse.</p>
-<p>I really like <code>pnpm</code> for how it handles versioning. Isolation is preferable to the alternative of complete dependency hell (see <code>Stack</code> for a great example of how to do package isolation), but when you’re dealing with thousands of tiny files that each take up a filesystem block at minimum, it adds up. <code>pnpm</code> installs libraries at global scope, hardlinking when you install packages that depend on them. It also supports incremental diffs between library versions, even further reducing the amount of disk space needed.</p>
+<p>I really like <code>pnpm</code> for how it handles versioning. Isolation is preferable to the alternative of complete dependency hell (see <code class="inline-type">Stack</code> for a great example of how to do package isolation), but when you’re dealing with thousands of tiny files that each take up a filesystem block at minimum, it adds up. <code>pnpm</code> installs libraries at global scope, hardlinking when you install packages that depend on them. It also supports incremental diffs between library versions, even further reducing the amount of disk space needed.</p>
 <ol start="2" type="1">
 <li>Javascript is poop.</li>
 </ol>
-<p>Let’s face it, there’s a lot to be desired with respect to the JS ecosystem. Have you ever had to write <code>Array.isArray()</code> as a separate condition before using a switch statement to determine the type of an argument? Because 130 packages solve this.</p>
+<p>Let’s face it, there’s a lot to be desired with respect to the JS ecosystem. Have you ever had to write <code class="inline-mod">Array.isArray()</code> as a separate condition before using a switch statement to determine the type of an argument? Because 130 packages solve this.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="op">&gt;</span> <span class="kw">typeof</span> [<span class="dv">1</span><span class="op">,</span><span class="dv">2</span><span class="op">,</span><span class="dv">3</span>]</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="st">'object'</span></span></code></pre></div>
 <p>Have you ever wondered why there are two different equality tests? Why is overloading so inconsistent? 365 packages. (Thanks to John Demetriou for some <a href="http://www.devsanon.com/rants/stupid-javascript/">examples.</a>)</p>
@@ -117,7 +127,7 @@
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="op">&gt;</span> t <span class="kw">instanceof</span> <span class="bu">String</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="kw">true</span></span></code></pre></div>
-<p>But you can use <code>String.prototype</code> methods on string literals, since they’re automatically coerced into objects for the purposes of property lookups (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">source</a>). What?</p>
+<p>But you can use <code class="inline-mod">String.prototype</code> methods on string literals, since they’re automatically coerced into objects for the purposes of property lookups (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">source</a>). What?</p>
 <p>The two different data types also return different results when passed to <code>eval</code>. This has tripped me up many more times than I’m proud to admit.</p>
 <p>Given these ridiculous rules, it makes sense that people would put together tons of libraries to try and reconcile these notions into something remotely usable. It’s the same reason that self-help books and seatbelts exist - resourcefulness and invention are the only remedies for chaos.</p>
 <ol start="3" type="1">
@@ -128,7 +138,7 @@
 <p>Of course, practice is the only way to learn how to code. But when you’re uploading a new package, you’re putting it out there as a free piece of software for others to adapt and integrate into their own projects. I’m sorry to say this, but your todo-list app isn’t useful to others, and it probably belongs on your portfolio rather than publicsoftware distributions. If you wrote a tool to dynamically generate todo-list apps, however, there’s a lot more potential there. <code>npm</code> and other repositories just aren’t meant to be replacements for your personal Github page - what if you went to a hardware store to buy a hammer, but all they had were prefab houses?</p>
 <p>The <code>npm</code> ecosystem is way too bloated for any meaningful and fair cleanup to be done at this point. I don’t think any package repositories really have detailed moderation systems in place besides dealing with <a href="https://medium.com/@jsoverson/how-two-malicious-npm-packages-targeted-sabotaged-one-other-fed7199099c8">malware</a>, but please let me know if I’m wrong. There’s a similar problem in Haskell, where a lot of packages are written as Ph.D theses and subsequently abandoned. There aren’t nearly as many Haskell developers for this to reach the same extent as <code>npm</code>’s example, though. There is complacency in numbers.</p>
 <p>In short, the next time you open <code>package.json</code> or <code>stack.yaml</code>, consider whether or not you’ll actually need that dependency. If it’s just for convenience, it helps to stop for a moment and make sure you’re not inadvertently doubling the size of your <code>node-modules</code>.</p>
-<p>I was stewing over this problem a few weeks ago, and decided that trivial packages should at least be refactored into something less-trivial. I hereby present my <code>Haskell</code> implementation of <code>is-even</code>:</p>
+<p>I was stewing over this problem a few weeks ago, and decided that trivial packages should at least be refactored into something less-trivial. I hereby present my <code class="inline-type">Haskell</code> implementation of <code>is-even</code>:</p>
 <p>We start off with some standard imports. Nothing too fancy here.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="ot">{-# LANGUAGE FunctionalDependencies, MultiParamTypeClasses, LambdaCase #-}</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a><span class="kw">module</span> <span class="dt">Data.Numbers.IsEven</span> </span>
@@ -165,7 +175,7 @@
 <div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="ot">evenLazy ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>evenLazy <span class="ot">=</span> <span class="fu">last</span> <span class="op">.</span> <span class="fu">zipWith</span> <span class="fu">const</span> z <span class="op">.</span> <span class="fu">enumFromTo</span> <span class="dv">0</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    <span class="kw">where</span> z <span class="ot">=</span> <span class="dt">True</span> <span class="op">:</span> <span class="dt">False</span> <span class="op">:</span> z</span></code></pre></div>
-<p>This was my first time using profunctors, and I seriously doubt this is the actual use-case for them. Essentially, we compose from left to right, a series of subsequent applications of <code>not</code> to <code>False</code>.</p>
+<p>This was my first time using profunctors, and I seriously doubt this is the actual use-case for them. Essentially, we compose from left to right, a series of subsequent applications of <code>not</code> to <code class="inline-type">False</code>.</p>
 <p><code>dimap</code> takes two functions and a profunctor, which is contravariant in its first value and covariant in its second. <code>dimap</code> is honestly redundant here as we accomplish the same thing (applying <code>not</code> n times) in the next block.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">EvenP</span> a b <span class="ot">=</span> <span class="dt">EvenP</span> {</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="ot">                    contr ::</span> <span class="dt">BoolC</span> a,</span>
@@ -268,34 +278,29 @@
 </article>
 
         </main>
-
           </div>
           <footer>
             <hr>
             <div id="footer-container">
               <div id="footer-text">
-                <span style="color:yellow">λ</span> © 2021 Norman Liu.  
-                <span id="hakyll-ad">
-                Site powered by 
-                <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+                <a style="color:yellow" href="http://jaspervdj.be/hakyll">λ</a>2021 Norman Liu.  
                 </span> 
               </div>
-                  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <a href="mailto:norman@nliu.net">
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://github.com/dreamsmasher">
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://linkedin.com/in/norman-wuwei-liu">
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
-  </a>
   </svg>
-
+</a>
             </div>
           </footer>
     </body>

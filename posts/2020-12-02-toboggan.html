@@ -1,11 +1,21 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="advent" of code 2020, day 3: lazy tobogganing />
+        
+        <meta name="description" property="og:description" content="Normative Statements - Functional programming for nonfunctional people" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
         <title>advent of code 2020, day 3: lazy tobogganing - Norman Liu's blog</title>
+        
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/syntax.css" />
         
@@ -19,7 +29,7 @@
     </head>
     <body>
         <header>
-            <div class="logo">
+            <div class="logo"> 
                 <a href="../">normative statements</a>
             </div>
             <nav>
@@ -68,7 +78,7 @@
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="st">  #...##....#</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a><span class="st">  .#..#...#.#</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="st">  &quot;</span></span></code></pre></div>
-<p><code>#</code>’s represent trees and <code>.</code>’s are empty land. Mercifully, we won’t need to deal with floating-point calculations for this problem.</p>
+<p><code class="inline-op">#</code>’s represent trees and <code class="inline-op">.</code>’s are empty land. Mercifully, we won’t need to deal with floating-point calculations for this problem.</p>
 <p>The landscape repeats itself horizontally, so running off the right side of the map will just put you back where you started. Starting from the top left of the map and a rise and run of <code>(3, 1)</code>, how many trees will we collide with?</p>
 <p>Let’s start off by making our problem a little easier. We can’t directly add booleans in Haskell, and binary looks way cleaner anyways. Since we’re working with numbers, we have the power to shift our thinking and modify our landscape to suit our needs. Let’s look at a simpler example:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="op">.</span>##<span class="op">.</span>#</span>
@@ -76,7 +86,7 @@
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="op">..</span>#<span class="op">..</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>#<span class="op">....</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>###<span class="op">.</span>#</span></code></pre></div>
-<p>If we had a <code>(rise, run)</code> of <code>(1, 1)</code>, our path would look like this: (replacing <code>.</code> with <code>' '</code> for clarity).</p>
+<p>If we had a <code>(rise, run)</code> of <code>(1, 1)</code>, our path would look like this: (replacing <code class="inline-op">.</code> with <code>' '</code> for clarity).</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>\ \## #</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a> \#\ # </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>  \#\  </span>
@@ -104,7 +114,7 @@
 <p>Now, we weave a spell to terraform the landscape for our safe travel.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="ot">slide ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [[a]] <span class="ot">-&gt;</span> [[a]]</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>slide run <span class="ot">=</span> (<span class="fu">iterate</span> (<span class="fu">fmap</span> (<span class="fu">drop</span> run) <span class="op">&gt;&gt;&gt;</span> <span class="fu">tail</span>) <span class="op">&gt;&gt;=</span> <span class="fu">zipWith</span> <span class="fu">const</span>) <span class="op">&gt;&gt;&gt;</span> <span class="fu">fmap</span> <span class="fu">head</span></span></code></pre></div>
-<p>We can just walk down our list of infinite rows, dropping the first <code>run</code> elements of each stream at every turn. It’s not <em>too</em> efficient for gigantic inputs, but it’s elegant. We take a list, repeatedly mapping <code>drop run</code> over it, and stepping down to the next stream. Using the <code>Monad</code> instance for functions (aka the <code>Reader</code> monad), we can take advantage of the fact that <code>iterate (fmap (drop run) &gt;&gt;&gt; tail)</code> is a single-argument function, and <code>zipWith const</code> takes two arguments. This fulfills the <code>m a -&gt; (a -&gt; m b) -&gt; m b</code> requirement for monadic binding, and so we can apply them to the same input without having to pollute our code with cruft. Can you imagine <strong>actually</strong> naming arguments?</p>
+<p>We can just walk down our list of infinite rows, dropping the first <code>run</code> elements of each stream at every turn. It’s not <em>too</em> efficient for gigantic inputs, but it’s elegant. We take a list, repeatedly mapping <code>drop run</code> over it, and stepping down to the next stream. Using the <code class="inline-type">Monad</code> instance for functions (aka the <code class="inline-type">Reader</code> monad), we can take advantage of the fact that <code>iterate (fmap (drop run) &gt;&gt;&gt; tail)</code> is a single-argument function, and <code>zipWith const</code> takes two arguments. This fulfills the <code>m a -&gt; (a -&gt; m b) -&gt; m b</code> requirement for monadic binding, and so we can apply them to the same input without having to pollute our code with cruft. Can you imagine <strong>actually</strong> naming arguments?</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Monad</span> ((<span class="ot">-&gt;</span>) r) <span class="kw">where</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  <span class="fu">return</span> <span class="ot">=</span> <span class="fu">const</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>  x <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> \r <span class="ot">-&gt;</span> f (x r) r</span></code></pre></div>
@@ -145,7 +155,7 @@ Part 2: Trees galore
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>         , (<span class="dv">7</span>, <span class="dv">1</span>)</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>         , (<span class="dv">1</span>, <span class="dv">2</span>)</span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a>         ]</span></code></pre></div>
-<p>We gave <code>stepSlope</code> some non-ideal arguments earlier because we want to be able to pass it a constant area map as input, returning a function that’s more flexible when passing it <code>run</code> and <code>rise</code> values. <code>Applicatives</code> are great for this pattern if we have multiple functions and inputs that we want to take every combination of, but it’s overkill in this case. We can fall back on good-old <code>fmap</code>, creating a function from our input that we’ll map over our static list of slopes.</p>
+<p>We gave <code>stepSlope</code> some non-ideal arguments earlier because we want to be able to pass it a constant area map as input, returning a function that’s more flexible when passing it <code>run</code> and <code>rise</code> values. <code class="inline-type">Applicatives</code> are great for this pattern if we have multiple functions and inputs that we want to take every combination of, but it’s overkill in this case. We can fall back on good-old <code>fmap</code>, creating a function from our input that we’ll map over our static list of slopes.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="ot">day3Pt2 ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>day3Pt2 <span class="ot">=</span> format <span class="op">&gt;&gt;&gt;</span> <span class="fu">uncurry</span> <span class="op">.</span> stepSlope <span class="op">&gt;&gt;&gt;</span> (<span class="op">&lt;$&gt;</span> slopes) <span class="op">&gt;&gt;&gt;</span> <span class="fu">product</span></span></code></pre></div>
 <p>We wrap <code>stepSlope</code> up in <code>uncurry</code> so that it works on tuples, pass it in as our <code>map</code>ping function, and that’s it. For every pair <code>(run, rise)</code>, we split the input rows by <code>rise</code> steps, taking the first row of every chunk, and starting our “diagonal” traversal.</p>
@@ -154,34 +164,29 @@ Part 2: Trees galore
 </article>
 
         </main>
-
           </div>
           <footer>
             <hr>
             <div id="footer-container">
               <div id="footer-text">
-                <span style="color:yellow">λ</span> © 2021 Norman Liu.  
-                <span id="hakyll-ad">
-                Site powered by 
-                <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+                <a style="color:yellow" href="http://jaspervdj.be/hakyll">λ</a>2021 Norman Liu.  
                 </span> 
               </div>
-                  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <a href="mailto:norman@nliu.net">
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://github.com/dreamsmasher">
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://linkedin.com/in/norman-wuwei-liu">
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
-  </a>
   </svg>
-
+</a>
             </div>
           </footer>
     </body>

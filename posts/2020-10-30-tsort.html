@@ -1,11 +1,21 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="magical" shell utilities: tsort />
+        
+        <meta name="description" property="og:description" content="Normative Statements - Functional programming for nonfunctional people" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
         <title>magical shell utilities: tsort - Norman Liu's blog</title>
+        
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/syntax.css" />
         
@@ -17,7 +27,7 @@
     </head>
     <body>
         <header>
-            <div class="logo">
+            <div class="logo"> 
                 <a href="../">normative statements</a>
             </div>
             <nav>
@@ -44,21 +54,21 @@
         
     </section>
     <section>
-        <p>Graph theory comes up a lot more often than you think. Whenever you run a search, download packages, or do anything on the Internet really, you’re reaping its benefits without even realizing. You might be familiar with <code>sort</code> if you’ve done any work in the shell beyond <code>rm -rf /*</code>. It’s useful for working with huge unsorted files, and it’s pretty much an essential tool for any serious scripting. There’s another program with similar intentions, but completely different usecases - <code>tsort</code>. It’s a relative newcomer to the <code>POSIX.1</code> standard that was only canonized in 2017, although it’s been around since 1979.</p>
+        <p>Graph theory comes up a lot more often than you think. Whenever you run a search, download packages, or do anything on the Internet really, you’re reaping its benefits without even realizing. You might be familiar with <code>sort</code> if you’ve done any work in the shell beyond <code>rm -rf /*</code>. It’s useful for working with huge unsorted files, and it’s pretty much an essential tool for any serious scripting. There’s another program with similar intentions, but completely different usecases - <code>tsort</code>. It’s a relative newcomer to the <code class="inline-mod">POSIX.1</code> standard that was only canonized in 2017, although it’s been around since 1979.</p>
 <p><code>tsort</code> takes any number of space-separated pairs that represent directed edges in a graph, and outputs each node in topologically sorted order. Its original purpose was for use in <code>ld</code>, the UNIX standard linker. Back in the days when <code>tar</code> actually referred to tape archives, the linker could only do a single pass over a series of object files, in order. With this processing format, problems would arise when the linker tried to figure out symbols or functions that were invoked before they were defined. The solution for this? Represent a program as a directed graph, and generate a topological sorting of symbol references first.</p>
 <p>What’s a topological sort?</p>
 <p>If you’re unfamiliar with graph theory, here’s a short refresher. A directed graph is a collection of nodes with arrows between each other, pointing towards another node.</p>
-<p>I made these figures in <code>Snapchat</code>, bear with me.</p>
+<p>I made these figures in <code class="inline-type">Snapchat</code>, bear with me.</p>
 <p>If we have two nodes like so,</p>
 <p><img src="../images/tsort/twonodes.jpg" class="pic" /></p>
 <p>We can turn it into a directed graph by drawing an arrow that points from A to B. You can look at these arrows as family trees, flow-charts, morphisms, or sloppy artwork.</p>
 <p><img src="../images/tsort/twonodesedge.jpg" class="pic" /></p>
-<p>A special subset of directed graphs are directed acyclic graphs, where you can travel along every path emanating from a node and eventually run out of paths to take. This turns out to be extremely useful in a ton of domains. Whenever you compile a project, you’re creating a dependency graph of modules. Your <code>Main</code> module might depend on <code>Lib</code>, which in turns depends on <code>Bloat, Parse</code>, and <code>is-even</code>. Any dependent relationship between modules forms a directed edge in the overall graph representing the set of all your modules.</p>
-<p>When we have cycles in our graph, however, that’s when issues arise. If you don’t keep track of which nodes you’ve been to, you’ll end up going around in circles as you walk the graph. You’ll go from <code>A</code> to <code>B</code>, see that there’s a path from <code>B</code> to <code>A</code>, and keep going. This is a trivial example obviously. You might be thinking, “I’m not that stupid, I’ll just keep track of which nodes I’ve been to.” Sure, but what if the graph was bigger? How could you represent this graph as a 1-dimensional array?</p>
+<p>A special subset of directed graphs are directed acyclic graphs, where you can travel along every path emanating from a node and eventually run out of paths to take. This turns out to be extremely useful in a ton of domains. Whenever you compile a project, you’re creating a dependency graph of modules. Your <code class="inline-type">Main</code> module might depend on <code class="inline-type">Lib</code>, which in turns depends on <code class="inline-type">Bloat, Parse</code>, and <code>is-even</code>. Any dependent relationship between modules forms a directed edge in the overall graph representing the set of all your modules.</p>
+<p>When we have cycles in our graph, however, that’s when issues arise. If you don’t keep track of which nodes you’ve been to, you’ll end up going around in circles as you walk the graph. You’ll go from <code class="inline-type">A</code> to <code class="inline-type">B</code>, see that there’s a path from <code class="inline-type">B</code> to <code class="inline-type">A</code>, and keep going. This is a trivial example obviously. You might be thinking, “I’m not that stupid, I’ll just keep track of which nodes I’ve been to.” Sure, but what if the graph was bigger? How could you represent this graph as a 1-dimensional array?</p>
 <p><img src="../images/tsort/twonodescycle.jpg" class="pic" /></p>
 <p>Cycles are fine depending on what you’re trying to do. If you’re writing a game and you need to implement pathfinding around obstacles, you might rely on a <a href="https://en.wikipedia.org/wiki/Breadth-first_search">breadth-first search</a> or some version of <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A*</a>. Generally, if you know <em>where</em> you want to go, cycles aren’t that big of a deal. Assuming you know which McDonald’s you wanna head to, you probably won’t get tripped up by cloverleaf interchanges on the highway. If you’re trying to map the highway however, this becomes an issue.</p>
 <p>By the way, trees are always directed acylic graphs, with the special restriction that a node can only ever be pointed to by one node.</p>
-<p>A topological sort is a transformation that’s only valid for graphs without cycles. The idea is to permute every node in such a way that, if a node <code>A</code> points to a node <code>B</code>, <code>A</code> will come before <code>B</code> in the final sorted permutation.</p>
+<p>A topological sort is a transformation that’s only valid for graphs without cycles. The idea is to permute every node in such a way that, if a node <code class="inline-type">A</code> points to a node <code class="inline-type">B</code>, <code class="inline-type">A</code> will come before <code class="inline-type">B</code> in the final sorted permutation.</p>
 <p>Let’s say we have a DAG that looks like this:</p>
 <p><img src="../images/tsort/fullgraph.jpg" class="pic" /></p>
 <p>The nodes are approximately sized according to how many outgoing edges they have. If you wanted to walk this graph, visiting every single emoji, which one would you start at? You can only go in the direction that the arrows point.</p>
@@ -114,8 +124,8 @@
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>  <span class="dt">HMB312</span><span class="op">:</span> [<span class="dt">HMB265</span>, <span class="dt">HMB204</span>],</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>  <span class="dt">HAJ453</span><span class="op">:</span> [<span class="dt">BIO220</span>, <span class="dt">HMB312</span>]</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>}</span></code></pre></div>
-<p>If we look at these courses as nodes, we can see immediately that there are 3 sources in our graph, nodes without any incoming edges. Their <code>in-degrees</code> are zero, and so we know that we need to start from there. In our context, <code>BIO120, BIO130,</code> and <code>CHM136</code> are courses that we can take immediately, and not have to worry about the registrar kicking us out halfway through the semester.</p>
-<p>Now what? It seems like <code>BCH210</code> requires <code>CHM136</code>, so we would have to take it one semester afterwards. Same goes for <code>HMB265, BIO220, HMB204,</code> and <code>PSL301</code>. Let’s skip ahead to Christmas break.Our first courses are done. We don’t care about them anymore, and they’re on our transcript.</p>
+<p>If we look at these courses as nodes, we can see immediately that there are 3 sources in our graph, nodes without any incoming edges. Their <code>in-degrees</code> are zero, and so we know that we need to start from there. In our context, <code class="inline-type">BIO120, BIO130,</code> and <code class="inline-type">CHM136</code> are courses that we can take immediately, and not have to worry about the registrar kicking us out halfway through the semester.</p>
+<p>Now what? It seems like <code class="inline-type">BCH210</code> requires <code class="inline-type">CHM136</code>, so we would have to take it one semester afterwards. Same goes for <code class="inline-type">HMB265, BIO220, HMB204,</code> and <code class="inline-type">PSL301</code>. Let’s skip ahead to Christmas break.Our first courses are done. We don’t care about them anymore, and they’re on our transcript.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>transcript <span class="ot">=</span> [ <span class="dt">BIO120</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>             , <span class="dt">BIO130</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>             , <span class="dt">CHM136</span></span>
@@ -143,13 +153,13 @@
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>             , <span class="dt">PSL301</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>             , <span class="dt">BCH210</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>             ]</span></code></pre></div>
-<p>Are we done yet? Nope. Looking back at <code>courseRequirements</code>, <code>HAJ453</code> still requires courses that we haven’t gotten around to yet. Let’s reorder our requirements list again.</p>
+<p>Are we done yet? Nope. Looking back at <code>courseRequirements</code>, <code class="inline-type">HAJ453</code> still requires courses that we haven’t gotten around to yet. Let’s reorder our requirements list again.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>courseRequirements <span class="ot">=</span> {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  <span class="dt">BCH311</span><span class="op">:</span> [],</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>  <span class="dt">HMB312</span><span class="op">:</span> []</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>  <span class="dt">HAJ453</span><span class="op">:</span> [<span class="dt">HMB312</span>]</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>}</span></code></pre></div>
-<p>We take <code>BCH311</code> and <code>HMB312</code> next, before we can do <code>HAJ453</code> in our senior year. Electives and failed courses aside - in total, it took us 4 iterations to go from being clueless freshmen to becoming well-respected biologists.</p>
+<p>We take <code class="inline-type">BCH311</code> and <code class="inline-type">HMB312</code> next, before we can do <code class="inline-type">HAJ453</code> in our senior year. Electives and failed courses aside - in total, it took us 4 iterations to go from being clueless freshmen to becoming well-respected biologists.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>transcript <span class="ot">=</span> [ <span class="dt">BIO120</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>             , <span class="dt">BIO130</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>             , <span class="dt">CHM136</span></span>
@@ -197,7 +207,7 @@
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true"></a>    </span>
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true"></a>    <span class="cf">return</span> transcript <span class="co"># magna cum laude, baby</span></span>
 <span id="cb9-30"><a href="#cb9-30" aria-hidden="true"></a>    </span></code></pre></div>
-<p>This isn’t syntactically valid <code>Python</code>, and there are optimizations we can make. But I think it illustrates the algorithm pretty well. At any point in time, we can only take courses that we’re eligible to enroll in. The relative order of courses doesn’t matter if they’re at the same “depth” within the graph. For instance, we can take <code>BIO120</code> at the same time as <code>CHM136</code> since neither of them rely on any prerequisites, so it doesn’t matter which of the two comes first in our transcript. For courses that directly depend on these, however, we can only take them after we’re finished. How are you supposed to know understand glycolysis if you don’t even know what electrons are?</p>
+<p>This isn’t syntactically valid <code class="inline-type">Python</code>, and there are optimizations we can make. But I think it illustrates the algorithm pretty well. At any point in time, we can only take courses that we’re eligible to enroll in. The relative order of courses doesn’t matter if they’re at the same “depth” within the graph. For instance, we can take <code class="inline-type">BIO120</code> at the same time as <code class="inline-type">CHM136</code> since neither of them rely on any prerequisites, so it doesn’t matter which of the two comes first in our transcript. For courses that directly depend on these, however, we can only take them after we’re finished. How are you supposed to know understand glycolysis if you don’t even know what electrons are?</p>
 <p>Now that we know the theory behind topological sorting, we can add it to our toolkit. Luckily, you won’t have to implement <code>tsort</code> by hand very often, because real engineers avoid code duplication at all costs. Here’s an easy solution to the Leetcode problem:</p>
 <div class="sourceCode" id="cb10" data-caption="errors and edge-case handling are left as an exercise for the reader."><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="im">from</span> subprocess <span class="im">import</span> check_output, DEVNULL</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a></span>
@@ -215,34 +225,29 @@
 </article>
 
         </main>
-
           </div>
           <footer>
             <hr>
             <div id="footer-container">
               <div id="footer-text">
-                <span style="color:yellow">λ</span> © 2021 Norman Liu.  
-                <span id="hakyll-ad">
-                Site powered by 
-                <a href="http://jaspervdj.be/hakyll">Hakyll</a>.
+                <a style="color:yellow" href="http://jaspervdj.be/hakyll">λ</a>2021 Norman Liu.  
                 </span> 
               </div>
-                  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <a href="mailto:norman@nliu.net">
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://github.com/dreamsmasher">
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
-  </a>
   </svg>
-  <svg aria-hidden="true" pointer-events="bounding-box" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<a href="https://linkedin.com/in/norman-wuwei-liu">
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
-  </a>
   </svg>
-
+</a>
             </div>
           </footer>
     </body>
