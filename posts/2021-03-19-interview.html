@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="subverting" the software interview />
+        
+        <meta name="description" property="og:description" content="Normative Statements - Functional programming for nonfunctional people" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
+        <title>subverting the software interview - Norman Liu's blog</title>
+        
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        
+
+        
+          <meta name="author" content="Norman Liu">
+        
+        
+          <meta name="keywords" content>
+        
+    </head>
+    <body>
+        <header>
+            <div class="logo"> 
+                <a href="../">normative statements</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                
+                <a href="../about.html">About</a>
+
+                <a href="../contact.html">Contact</a>
+
+                <a href="../projects.html">Projects</a>
+
+                <a href="../archive.html">Archive</a>
+
+            </nav>
+            <hr class="head_delim">
+        </header>
+
+          <div id="content">
+        <main role="main">
+                        <article>
+    <section class="header">
+      <h1>subverting the software interview</h1>
+      Written: <span class="date">2021-03-19</span> 
+      <!--  -->
+      to <span class="date">2021-03-19</span>
+      <!--  -->
+        
+        <br>
+        by <a href="../about.html"><span class="name">Norman Liu</span></a>
+        <br>
+        
+    </section>
+    <section>
+        <p><span style="color: yellow">Inspired by <a href="https://aphyr.com/posts/340-reversing-the-technical-interview">Kyle Kingsbury’s</a> <a href="https://aphyr.com/posts/341-hexing-the-technical-interview">series</a> <a href="https://aphyr.com/posts/342-typing-the-technical-interview">on</a> <a href="https://aphyr.com/posts/353-rewriting-the-technical-interview">software</a> <a href="https://aphyr.com/posts/354-unifying-the-technical-interview">magick</a>.</span></p>
+<p>Cans. Cans everywhere. Some alcoholic, some diabetic, all of them eclectic. Remnants of nights long gone, spent hunched over in front of the pale glow of a text editor. Time you’ll never recover, lost to the ethereal dance of progress. There’s an old pizza box in the corner, a faint memory of a lonely meal. You miss being able to go out and eat. More specifically, you miss having the cash to do so. You think back to a happier period in your life, one where your wallet was unbare, and the numbers on your bank statement left no negative space for interpretation. Those times are gone, and you’re desperate for the chance to be able to feed yourself again.</p>
+<p>You came across a posting one night, one that offered the prospect of potential employment. The words of the HR manager echoed softly in your ears - among the sea of corporate jargon, unrealistic requirements, and a slightly boring job description, your eyes lit up when they scanned the salary range. Across the gossamer threads of the internet, where datagrams twirl and spin across fibre-optic highways, this one reached your browser, and by extension - your soul. It’s enough money to shop at Whole Foods without selling a kidney. You jump back, your posture restored by the rejuvinating shock of motivation, and fire your resume across the void.</p>
+<p>A response lands in your inbox a day later.</p>
+<pre><code>Hi there,
+
+Thank you for reaching out to us - we'd like to invite you for a phone interview sometime this week, to get to know you and your fit with the team. This will include some technical problems, in addition to a short chat about your experience and skills. What time works best for you?
+
+Best,
+Dave 
+{tech-company}</code></pre>
+<p>Any time works, Mr.<code>{tech-company}</code>. Any time works.</p>
+<p>You set up an appointment at your (their) earliest convenience, and the day can’t come quick enough. You tell yourself to remain calm, to remember the subtle spells behind negotation as you learned them so long ago, but most of all - to hide your power level.</p>
+<p>You’ve been a strong engineer since you started down this path, but your strength is also your greatest weakness. You make a short note in your head to remember that line if they ask you. It’s been a problem since the beginning - you come across an interesting problem, one that’s arguably trivial, but there’s some notion of challenge behind it that you can’t resist. Maybe it’s because you didn’t get enough attention from your broodmother, or maybe it’s extended procrastination that’s easier to justify to yourself. Either way, you’re well aware of this fatal flaw, your achilles heel, your glowing-red spot with a hit marker on it:</p>
+<p><span style="color:yellow">You have a <em>tendency</em> to overengineer things.</span></p>
+<p>Your mind flashes back to when you wrote a 200-line CLI tool for interactive and configurable cover-letter templating, instead of actually sending out cover letters. Or when you translated half of a <code class="inline-mod">Node.js</code> project into <code class="inline-type">Rust</code> addons in order to save a few milliseconds on a data processing step. Or that other time when you built an S-expression parser, full templating engine, and macro system so you could write <code class="inline-type">Lisp</code> instead of <code class="inline-type">HTML</code> tags.</p>
+<p>“I’m not gonna do that”, you tell yourself. “I need this job, so I’m going to do everything in my power to make that happen”. You meditate on this for a while, wondering about how you got this way. You were a pretty laid-back kid, and extraneous attention to detail was never your defining attribute. Your affinity for pretentious and overpriced coffee definitely doesn’t help your mental state.</p>
+<hr />
+<p>The day finally comes. Cans pushed aside, collared shirt adorned, you turn on your webcam and lie in wait. Your encounter with your <del>adversary</del> interviewer will begin soon enough.</p>
+<p>The chartreuse <code class="inline-type">D</code> adorning the Zoom window begins to shift, blinking from existence. Its pixels are overwritten by the image of a man in his 30’s. He looks enthusiastic to be there, and you get a feeling that he’s mastered the arcane magic of office diplomacy. He’s done enough standups to make even the strongest stander weak in the knees, and his waterfall methodologies rival that of ancient naiads. Dave <code>{tech-company}</code> knows his stuff.</p>
+<p>“Thank you for taking the time to speak with us. As the posting said, we’re looking for a back-end developer, with at least 10 years of Kubernetes experience, 20 years of cumulative experience in TypeScript, PHP, COBOL, and Adobe Reader, in addition to a growth mindset and a willingness to learn new technologies. We’re at the forefront of the industry with our tools, and …”</p>
+<p>He talks for a while about what it means to be a part of the <code>{tech-company}</code> team, what the hours are like, and how their work ethics share the same ability to resist deformation as their play habits. Whatever that means. He goes over your resume, and expresses a little bit of concern at the lack of experience. It’s not your fault that companies want you to work before you can work. Everybody needs to start somewhere professionally.</p>
+<p>“I understand that my experience section is a little empty.” you quip back calmly. The game of shogi has begun. “However, I have plenty of exprience from working on personal projects and contributing to open-source, and I am more than confident in my abilities as an engineer”. Dave frowns.</p>
+<p>“Alright. I’d like to get started on the technical part of this interview. You look like you’re ready to move onto the fun part anyway.” He says this with a slight smirk, as if to get across to you that he’s on your side about this. You honestly just want a job. The encounter has moved into its most crucial stage - the examination of your mind. You wonder if it was always like this, whether the ritual of hazing prospective hires through trivial puzzles has always been a hallowed tradition of engineers, or if there was some tragedy that echoed through history, forever changing the course of technical hiring practices. Did Stallman have to <code class="inline-type">FizzBuzz</code> before he got to yell at printers? Did Ritchie know how to invert a binary tree before inventing null pointers? Did Edward Kmett-</p>
+<p><em>ahem</em>. Dave coughs. “Sorry, just wanted to grab your attention. You seemed a little lost in thought over there.”</p>
+<p>Can a person really be lost when they ponder the secrets of the universe?</p>
+<p>“If you’re ready, here’s your problem. Are you familiar with <code class="inline-type">FizzBuzz</code>?”</p>
+<p>Stallman be damned. You reply yes, but ask for some clarification in case this company wants to be special and put their own spin on it.</p>
+<hr />
+<h2 id="fizz-buzz"><span style="font-size: 2rem; color: cyan;">Fizz Buzz</span></h2>
+<p>There’s a kid’s game called <code class="inline-type">FizzBuzz</code>, which works like this:</p>
+<p>You go around in a circle, and count upwards from 1. The catch is - every 3rd turn, instead of saying the number, you say <code class="inline-type">Fizz</code>. Every 5th turn, you say <code class="inline-type">Buzz</code>. If those conditions happen on the same turn, you say <code class="inline-type">FizzBuzz</code>!.</p>
+<p>Given a number <code>n</code>, where <code>n</code> &gt; 0, return a list of strings representing a game of <code class="inline-type">FizzBuzz</code> with n turns.</p>
+<hr />
+<p>Wow, even you’re surprised by how he managed to explain it with fancy formatting. You’ll have to ask about his spellbooks after the interview. The first thought that comes to mind is to do a trivial solution through trial division -</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fizzbuzz(n):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    strs <span class="op">=</span> []</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">%</span> <span class="dv">15</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            curStr <span class="op">=</span> (<span class="st">'FizzBuzz'</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> i <span class="op">%</span> <span class="dv">5</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            curStr <span class="op">=</span> (<span class="st">'Buzz'</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> i <span class="op">%</span> <span class="dv">3</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            curStr <span class="op">=</span> (<span class="st">'Fizz'</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>            curStr <span class="op">=</span> (<span class="bu">str</span>(i))</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        strs.append(curStr)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> strs</span></code></pre></div>
+<p>But, something clicks in your head. It’s like a spark that slowly emanates from your frontal lobe, traveling down your spine. You feel chills, and the lights flicker for a moment.</p>
+<p>Modulus is <em>slow</em>. It’s also completely unnecessary when you realize that the problem just involves the parallel merging of cyclic sequences. There’s a pattern to these strings, and a faint vision begins to appear in your mind’s eye.</p>
+<p>Dave stares at you, but you continue anyways.</p>
+<p>In a white void, the only inhabitants are abstract objects. They dance like the kinetic frenzy of atoms within a hot cup of coffee, bouncing into each other, pairing up, and everything in-between. Only one law exists in this frenetic land - concatenation. When two of these objects pair up, they may join together in unity, free to live the rest of their lives together as one. There are an infinite number of potential pairings, and endless variations on what types might form the primordial form of these objects.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Semigroup</span> s <span class="kw">where</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ot">(&lt;&gt;) ::</span> s <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> s</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- Associativity law:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- a &lt;&gt; (b &lt;&gt; c) = (a &lt;&gt; b) &lt;&gt; c</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> [a] <span class="kw">where</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    list <span class="op">&lt;&gt;</span> mist <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">:</span>) mist list</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> b <span class="ot">=&gt;</span> <span class="dt">Semigroup</span> (a <span class="ot">-&gt;</span> b) <span class="kw">where</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    func <span class="op">&lt;&gt;</span> gunc <span class="ot">=</span> \x <span class="ot">-&gt;</span> func x <span class="op">&lt;&gt;</span> gunc x</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span> <span class="dt">Semigroup</span> (<span class="dt">Maybe</span> a) <span class="kw">where</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Just</span> x) <span class="op">&lt;&gt;</span> (<span class="dt">Just</span> y) <span class="ot">=</span> <span class="dt">Just</span> (x <span class="op">&lt;&gt;</span> y)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    _ <span class="op">&lt;&gt;</span> _ <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> () <span class="kw">where</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    () <span class="op">&lt;&gt;</span> () <span class="ot">=</span> ()</span></code></pre></div>
+<p>Their concatenation function is polymorphic; specialized to their form, but associative nonetheless. They can join amongst themselves at any time, any number of times, and their final result depends only on the order. This law is a constant among the vast landscape of parallel universes, and they harmonize across the fabric of reality as they slowly tend towards unity.</p>
+<p>Among these objects are special ones, whose existence contributes not to the affairs of their world. They don’t have identity; rather, they ARE identity. These nameless objects can be joined together with any other inhabitant of their realm, but to no effect. Their concatenation is a null operation, and they leave the world just as they entered it - empty. They are equal citizens to other inhabitants of their worlds, but doomed to existenses berect of action.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Semigroup</span> m <span class="ot">=&gt;</span> <span class="dt">Monoid</span> m <span class="kw">where</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    mempty ::</span> m</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- there's also mappend, which is equivalent to (&lt;&gt;). </span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> [a] <span class="kw">where</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> []</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> b <span class="ot">=&gt;</span> <span class="dt">Monoid</span> (a <span class="ot">-&gt;</span> b) <span class="kw">where</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> a <span class="ot">=</span> <span class="fu">mempty</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> a <span class="ot">=&gt;</span> <span class="dt">Monoid</span> (<span class="dt">Maybe</span> a) <span class="kw">where</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> () <span class="kw">where</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> ()</span></code></pre></div>
+<p>From these classes, we can derive new worlds simply by swapping arrows around. Reversing the direction of a morphism results in its <code class="inline-type">Dual</code>, a backwards land where these objects have goatees.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Dual</span> a <span class="ot">=</span> <span class="dt">Dual</span> {<span class="ot">getDual ::</span> a}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> s <span class="ot">=&gt;</span> <span class="dt">Dual</span> s <span class="kw">where</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Dual</span> a <span class="op">&lt;&gt;</span> <span class="dt">Dual</span> b) <span class="ot">=</span> <span class="dt">Dual</span> (b <span class="op">&lt;&gt;</span> a)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> m <span class="ot">=&gt;</span> <span class="dt">Dual</span> m <span class="kw">where</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Dual</span> (<span class="fu">mempty</span>)</span></code></pre></div>
+<p>We can also define associative mathematical operations as monoids, allowing us to treat them as first-class objects.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Sum</span> a <span class="ot">=</span> <span class="dt">Sum</span> {<span class="ot">getSum ::</span> a}</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Product</span> a <span class="ot">=</span> <span class="dt">Add</span> {<span class="ot">getProduct ::</span> a}</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Semigroup</span> (<span class="dt">Sum</span> a) <span class="kw">where</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Add</span> a <span class="op">&lt;&gt;</span> <span class="dt">Add</span> b <span class="ot">=</span> <span class="dt">Add</span> (a <span class="op">+</span> b)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Semigroup</span> (<span class="dt">Product</span> a) <span class="kw">where</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Product</span> a <span class="op">&lt;&gt;</span> <span class="dt">Product</span> b <span class="ot">=</span> <span class="dt">Product</span> (a <span class="op">*</span> b)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Monoid</span> (<span class="dt">Sum</span> a) <span class="kw">where</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Sum</span> <span class="dv">0</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Monoid</span> (<span class="dt">Product</span> a) <span class="kw">where</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Product</span> <span class="dv">1</span></span></code></pre></div>
+<p>There’s also a pretty special monoid that allows for endomorphic operations to be constructed and combined associatively.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Endo</span> a <span class="ot">=</span> <span class="dt">Endo</span> {<span class="ot">appEndo ::</span> a <span class="ot">-&gt;</span> a}</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- a function from a type to the same type</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> (<span class="dt">Endo</span> a) <span class="kw">where</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Endo</span> func) <span class="op">&lt;&gt;</span> (<span class="dt">Endo</span> gunc) <span class="ot">=</span> <span class="dt">Endo</span> (func <span class="op">.</span> gunc)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> (<span class="dt">Endo</span> a) <span class="kw">where</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Endo</span> <span class="fu">id</span></span></code></pre></div>
+<p>As a bonus - we can define the Church numerals as a <code class="inline-type">Monoid</code>, treating function application algebraically. This is one level above <code class="inline-type">Endo</code>, since we’re composing <em>any</em> function rather than containing one:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- composing repeated function applications is &quot;addition&quot;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- Church is a wrapper around a function, that given a func `f`, will apply it to itself</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- some amount of times</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Church</span> a <span class="ot">=</span> <span class="dt">Church</span> {<span class="ot">runChurch ::</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> a)}</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="ot">one ::</span> <span class="dt">Church</span> a</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>one <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f x <span class="ot">-&gt;</span> f x</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="ot">two ::</span> <span class="dt">Church</span> a</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>two <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f x <span class="ot">-&gt;</span> f (f x)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> (<span class="dt">Church</span> a) <span class="kw">where</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    church <span class="op">&lt;&gt;</span> dhurch <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f <span class="ot">-&gt;</span> runChurch c f <span class="op">.</span> runChurch d f</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> (<span class="dt">Church</span> a) <span class="kw">where</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Church</span> (\_ x <span class="ot">-&gt;</span> x)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="ot">addChurch ::</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>addChurch <span class="ot">=</span> (<span class="op">&lt;&gt;</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">-- we can &quot;multiply&quot; numbers by just passing in another church numeral</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="ot">mulChurch ::</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>mulChurch a b <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f <span class="ot">-&gt;</span> runChurch a (runChurch b f)</span></code></pre></div>
+<p>“<em>Ok</em>, I think we’re getting a little sidetracked here.” he says, trying to restore normalcy to his precious conflict-free workspace. You’ve only gotten started.</p>
+<p>“I think I’m ready to code a solution now”, you whisper softly in his ear. Technically, everything you’ve said so far is into his ear since he’s wearing headphones.</p>
+<p>We can create 3 infinite lists, consisting of “Fizz” and “Buzz” in their respective cycles, along with the natural numbers. We zip the “Fizz”es and “Buzzes” together into a single list containing the strings in all their correct places, and fill in a number where there’s a hole.</p>
+<p>Unfortunately, regular lists have an unintuitive <code class="inline-type">Alternative</code> instance for what we want to do, so we’ll just pattern match.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fizzes ::</span> [<span class="dt">String</span>]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fizzes <span class="ot">=</span> <span class="fu">cycle</span> [<span class="st">&quot;&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Fizz&quot;</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ot">buzzes ::</span> [<span class="dt">String</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>buzzes <span class="ot">=</span> <span class="fu">cycle</span> [<span class="st">&quot;&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Buzz&quot;</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="ot">fizzbuzzes ::</span> [<span class="dt">String</span>]</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>fizzbuzzes <span class="ot">=</span> <span class="fu">zipWith</span> (<span class="op">&lt;&gt;</span>) fizzes buzzes</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="ot">fizzbuzz ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>fizzbuzz n <span class="ot">=</span> <span class="fu">take</span> n <span class="op">$</span> <span class="fu">zipWith</span> pick fizzbuzzes [<span class="dv">1</span><span class="op">..</span>]</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> pick <span class="ot">=</span> \<span class="kw">case</span> <span class="st">&quot;&quot;</span> <span class="ot">-&gt;</span> <span class="fu">show</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                       s  <span class="ot">-&gt;</span> <span class="fu">const</span> s</span></code></pre></div>
+<p>“Awesome”, he says. His expression doesn’t match his words. You make a mental note to watch out for Dave at work - he seems like the Janus type. He also <em>really</em> didn’t seem to like your 20-minute monoid lecture to explain FizzBuzz. You try to salvage the situation by mentioning the space-efficiency of your solution, since both <code>fizzes</code> and <code>buzzes</code> are in constant-applicative form, but he looks like he’s had a long day already.</p>
+<p>You didn’t get the job. Next time, you’ll try to keep it even simpler. Maybe you’ll use free monoids?</p>
+    </section>
+</article>
+
+        </main>
+          </div>
+          <footer>
+            <hr>
+            <div id="footer-container">
+              <div id="footer-text">
+                <a style="color:yellow" href="../drafts.html">λ</a>2021 Norman Liu.  
+                </span> 
+              </div>
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
+  </svg>
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
+  </svg>
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
+  </svg>
+</a>
+            </div>
+          </footer>
+    </body>
+</html>

@@ -66,301 +66,301 @@
         <p>Parsec is a beautiful library, but it’s DIFFICULT. Every time I’m working on a problem that requires an actual parser beyond regex, I die a little inside. I used Parsec for my <a href="https://github.com/dreamsmasher/meme">Scheme interpreter</a>, and it was probably the most frustrating part of the project.</p>
 <p>This isn’t the fault of the authors, though. Parsers are complicated beasts, and I definitely didn’t know what I was doing the first time around.</p>
 <p>There’s an interesting problem on <a href="https://www.codewars.com/kata/52f831fa9d332c6591000511">Codewars</a> - given an arbitrary molecule string, return the count of each constituent atom.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">CH3CO2H</span> <span class="co">-- acetate</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">CH3CO2H</span> <span class="co">-- acetate</span></span></code></pre></div>
 <p>Sounds pretty simple, right?</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (isDigit)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Map</span> <span class="kw">qualified</span> <span class="kw">as</span> <span class="dt">Map</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Text.Read</span> (readMaybe)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Maybe</span> (fromMaybe, maybeToList)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="ot">parseMolec ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [(<span class="dt">Char</span>, <span class="dt">Int</span>)]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>parseMolec [] <span class="ot">=</span> []</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>parseMolec [c] <span class="ot">=</span> [(c, <span class="dv">1</span>)]</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>parseMolec (c<span class="op">:</span>cs) <span class="ot">=</span> <span class="kw">let</span> (ns, cs') <span class="ot">=</span> <span class="fu">span</span> <span class="fu">isDigit</span> cs</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>                     <span class="kw">in</span> (c, (fromMaybe <span class="dv">1</span> <span class="op">.</span> readMaybe) ns) <span class="op">:</span> parseMolec cs'</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;CH3CO2H&quot;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>[(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'H'</span>,<span class="dv">3</span>),(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'O'</span>,<span class="dv">2</span>),(<span class="ch">'H'</span>,<span class="dv">1</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (isDigit)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Map</span> <span class="kw">qualified</span> <span class="kw">as</span> <span class="dt">Map</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Read</span> (readMaybe)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Maybe</span> (fromMaybe, maybeToList)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ot">parseMolec ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [(<span class="dt">Char</span>, <span class="dt">Int</span>)]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>parseMolec [] <span class="ot">=</span> []</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>parseMolec [c] <span class="ot">=</span> [(c, <span class="dv">1</span>)]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>parseMolec (c<span class="op">:</span>cs) <span class="ot">=</span> <span class="kw">let</span> (ns, cs') <span class="ot">=</span> <span class="fu">span</span> <span class="fu">isDigit</span> cs</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">in</span> (c, (fromMaybe <span class="dv">1</span> <span class="op">.</span> readMaybe) ns) <span class="op">:</span> parseMolec cs'</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;CH3CO2H&quot;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>[(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'H'</span>,<span class="dv">3</span>),(<span class="ch">'C'</span>,<span class="dv">1</span>),(<span class="ch">'O'</span>,<span class="dv">2</span>),(<span class="ch">'H'</span>,<span class="dv">1</span>)]</span></code></pre></div>
 <p>That’s it, we’re done. End of post.</p>
 <p>Obviously, we’re not done. Even organic chemists deal with atoms beyond C, H, O, N.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;Mg&quot;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>[(<span class="ch">'M'</span>, <span class="dv">1</span>), (<span class="ch">'g'</span>, <span class="dv">1</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> parseMolec <span class="st">&quot;Mg&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>[(<span class="ch">'M'</span>, <span class="dv">1</span>), (<span class="ch">'g'</span>, <span class="dv">1</span>)]</span></code></pre></div>
 <p>To make matters more complicated, chemists are just like programmers - lazy. For polymeric materials with repeating groups, there’s a handy way to express their structure. For example, the formula for PVC is <code class="inline-type">C2H3Cl</code>. I guess that would just be VC - because it forms arbitrarily long chains, it’s written as <code>(C2H3Cl)n</code>. What a tradeoff - chemists making their lives easier at our expense. If we had to parse something like</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="dt">CH3</span>(<span class="dt">CH2</span>)2CONH2 <span class="co">-- butyramide</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">CH3</span>(<span class="dt">CH2</span>)2CONH2 <span class="co">-- butyramide</span></span></code></pre></div>
 <p>It seems like we can treat a group of parentheses as a subexpression on its own, multiplying every number by the coefficient that comes after it.</p>
 <p>You can look at this notation as a form of <a href="https://en.wikipedia.org/wiki/Run-length_encoding">run-length encoding</a>, where you express repeating substructures of data as pairs (s, n). It’s the simplest form of data compression, and it’s easy to encode an arbitrary string. Decoding it is slightly harder, especially when you consider that these expressions can be nested:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a> <span class="dt">K4</span>(<span class="dt">ON</span>(<span class="dt">SO3</span>)<span class="dv">2</span>)<span class="dv">2</span> <span class="co">-- Fremy's salt</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a> <span class="dt">K4</span>(<span class="dt">ON</span>(<span class="dt">SO3</span>)<span class="dv">2</span>)<span class="dv">2</span> <span class="co">-- Fremy's salt</span></span></code></pre></div>
 <p>Let’s take a step back and write a (roughly) formal grammar for this problem.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>atom <span class="op">=</span> uppercase, [lowercase], [number]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>molecule <span class="op">=</span> {atom <span class="op">|</span> <span class="st">&quot;(&quot;</span>, molecule, <span class="st">&quot;)&quot;</span>, [number]}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>atom <span class="op">=</span> uppercase, [lowercase], [number]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>molecule <span class="op">=</span> {atom <span class="op">|</span> <span class="st">&quot;(&quot;</span>, molecule, <span class="st">&quot;)&quot;</span>, [number]}</span></code></pre></div>
 <p>In EBNF, curly braces denote repetition, and square brackets denote optionals. The regular expression is left as an exercise for the reader (i.e. I don’t want to figure it out.)</p>
 <p>We know that these expressions are recursive, so our parser is also going to be recursive. We consume an input string, apply these rules one character at a time, and treat the results of deeper recursive calls as atomic values. We’ll also need to continue off from where the deeper recursive calls left off.</p>
 <p>Let’s start off with a simple data type and work from there. We know that a parser is a function that will take in a <code class="inline-type">String</code>, and return some value from consuming that string, along with the remainder of the input. There’s also a chance that our parser might fail, so we’ll reflect this on the type level by wrapping the result in a <code class="inline-type">Maybe</code>. If we were doing something less trivial, we might use <code class="inline-type">Either</code> or <code class="inline-type">ExceptT</code> for more descriptive errors.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">newtype</span> <span class="dt">Parse</span> a <span class="ot">=</span> <span class="dt">P</span> {<span class="ot"> runParse ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (a, <span class="dt">String</span>) } </span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Parse</span> a <span class="ot">=</span> <span class="dt">P</span> {<span class="ot"> runParse ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (a, <span class="dt">String</span>) } </span></code></pre></div>
 <p>Our <code class="inline-type">Parse</code>r type is just the <code class="inline-type">State</code> monad with the added possibility of failure. As we consume our string, we’re going to thread around the input as we consume it. Let’s try to turn our parser into a monad so we can do this implicitly.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>    <span class="fu">fmap</span> f p <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> runParse p s <span class="op">&gt;&gt;=</span> \(a, s') <span class="ot">-&gt;</span> <span class="dt">Just</span> (f a, s')</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> f p <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> runParse p s <span class="op">&gt;&gt;=</span> \(a, s') <span class="ot">-&gt;</span> <span class="dt">Just</span> (f a, s')</span></code></pre></div>
 <p>The <code class="inline-op">&gt;&gt;=</code> in this case refers to our <code class="inline-type">Maybe</code> context - the <code>\(a, s')</code> function will only be applied if the parser action succeeds. This is where monads really shine, letting you sequence effects in a way that abstracts out the repetition of managing nested contexts.</p>
 <p>Any time you find yourself writing a lambda expression just to pass it as the first parameter of a monadic binding, you can usually abstract that away with a Kleisli fish. I mean arrow.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co">-- (&gt;=&gt;) :: Monad m =&gt; (a -&gt; m b) -&gt; (b -&gt; m c) -&gt; (a -&gt; m c)</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>  <span class="fu">fmap</span> f p <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="op">&gt;=&gt;</span> \(a, s') <span class="ot">-&gt;</span> <span class="dt">Just</span> (f a, s')</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- (&gt;=&gt;) :: Monad m =&gt; (a -&gt; m b) -&gt; (b -&gt; m c) -&gt; (a -&gt; m c)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmap</span> f p <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="op">&gt;=&gt;</span> \(a, s') <span class="ot">-&gt;</span> <span class="dt">Just</span> (f a, s')</span></code></pre></div>
 <p>But: since every <code class="inline-type">Monad</code> is an <code class="inline-type">Applicative</code>, we can basically get all the lower classes for free. Even better.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>  <span class="fu">fmap</span> <span class="ot">=</span> liftM </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>    (<span class="op">&lt;*&gt;</span>) <span class="ot">=</span> ap</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>    <span class="fu">pure</span> <span class="ot">=</span> <span class="fu">return</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmap</span> <span class="ot">=</span> liftM </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Applicative</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    (<span class="op">&lt;*&gt;</span>) <span class="ot">=</span> ap</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> <span class="ot">=</span> <span class="fu">return</span></span></code></pre></div>
 <p>Now we have to actually write some code. We know that in order to qualify our data type as a Monad, it needs to fulfill the monadic laws and have a lawful implementation of <code class="inline-op">(&gt;&gt;=)</code> and <code>return</code>.</p>
 <p>To put a value in the bare minimum context of a monad it shouldn’t have any effects per se. In our case, <code>return</code> should be a parser that doesn’t consume any input, and successfully yields a value regardless.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Monad</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a><span class="ot">  return ::</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>  <span class="fu">return</span> x <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> <span class="dt">Just</span> <span class="op">.</span> (x , )</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a>  <span class="co">-- return x = P $ \s -&gt; Just (x, s)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monad</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  return ::</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> x <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> <span class="dt">Just</span> <span class="op">.</span> (x , )</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- return x = P $ \s -&gt; Just (x, s)</span></span></code></pre></div>
 <p>The tricky part is figuring out what it means to <code>bind</code> a parser into the next. In order to get sequential evaluation of two parsers, <code>f</code> and <code>g</code>, <code>g</code> should be run on the remaining input from running <code>f</code>. If <code>f</code> fails to parse its input, then <code>g</code> should also fail.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Parse</span> b) <span class="ot">-&gt;</span> <span class="dt">Parse</span> b</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>p <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="co">-- apply the function held by p </span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>            <span class="op">&gt;=&gt;</span> \(a, s') <span class="ot">-&gt;</span> <span class="co">-- if it succeeds, it will return a tuple (value, newState)</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a>              <span class="kw">let</span> g <span class="ot">=</span> f a  <span class="co">-- when `f` is applied to `a`, it will yield a value of type `m b` </span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a>               <span class="kw">in</span> runParse g s' <span class="co">-- i.e. (a P holding a function `String -&gt; Maybe (b, String)`)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Parse</span> b) <span class="ot">-&gt;</span> <span class="dt">Parse</span> b</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>p <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="co">-- apply the function held by p </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>            <span class="op">&gt;=&gt;</span> \(a, s') <span class="ot">-&gt;</span> <span class="co">-- if it succeeds, it will return a tuple (value, newState)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>              <span class="kw">let</span> g <span class="ot">=</span> f a  <span class="co">-- when `f` is applied to `a`, it will yield a value of type `m b` </span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>               <span class="kw">in</span> runParse g s' <span class="co">-- i.e. (a P holding a function `String -&gt; Maybe (b, String)`)</span></span></code></pre></div>
 <p>As usual, we can use arrows to make this a lot cleaner.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Parse</span> b) <span class="ot">-&gt;</span> <span class="dt">Parse</span> b</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>p <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="op">&gt;=&gt;</span> (first f <span class="op">&gt;&gt;&gt;</span> <span class="fu">uncurry</span> runParse) </span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">(&gt;&gt;=) ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Parse</span> b) <span class="ot">-&gt;</span> <span class="dt">Parse</span> b</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>p <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> runParse p <span class="op">&gt;=&gt;</span> (first f <span class="op">&gt;&gt;&gt;</span> <span class="fu">uncurry</span> runParse) </span></code></pre></div>
 <p>This is a little precarious, though. Parsing is a task, that more often that not, will fail. If a single parser is unable to successfully read a string, we’d like to be able to try an alternative function before giving up. Good thing this is already implemented for us. The <code class="inline-type">Alternative</code> instance for Maybe looks something like</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Alternative</span> <span class="dt">Maybe</span> <span class="kw">where</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>  empty <span class="ot">=</span> <span class="dt">Nothing</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>  <span class="dt">Nothing</span> <span class="op">&lt;|&gt;</span> b <span class="ot">=</span> b</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a>  <span class="dt">Just</span> a  <span class="op">&lt;|&gt;</span> _ <span class="ot">=</span> <span class="dt">Just</span> a </span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Alternative</span> <span class="dt">Maybe</span> <span class="kw">where</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  empty <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Nothing</span> <span class="op">&lt;|&gt;</span> b <span class="ot">=</span> b</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Just</span> a  <span class="op">&lt;|&gt;</span> _ <span class="ot">=</span> <span class="dt">Just</span> a </span></code></pre></div>
 <p>Where we only need to evaluate <code>b</code> if <code>a</code> is <code>empty</code>. You can think of <code class="inline-op">&lt;|&gt;</code> as <code class="inline-op">||</code> lifted to effectful types. If you squint hard enough, it looks like a stickbug. We’ll call it that from here on out, but it’s more like a <code>choice</code> operator if anything. In our case, if one parser succeeds, we don’t need to try the other one. We can take advantage of the fact that functions are <code class="inline-type">Applicative</code>, and use <code>liftA2</code> to write the equivalent of <code>\s -&gt; runParse a s &lt;|&gt; runParse b s</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Alternative</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>    empty <span class="ot">=</span> <span class="dt">P</span> (<span class="fu">const</span> <span class="dt">Nothing</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    a <span class="op">&lt;|&gt;</span> b <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> liftA2 (<span class="op">&lt;|&gt;</span>) (runParse a) (runParse b)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Alternative</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    empty <span class="ot">=</span> <span class="dt">P</span> (<span class="fu">const</span> <span class="dt">Nothing</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    a <span class="op">&lt;|&gt;</span> b <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> liftA2 (<span class="op">&lt;|&gt;</span>) (runParse a) (runParse b)</span></code></pre></div>
 <p>Now that we have a rudimentary state machine, we can write the basis for open-ended parsers. We only really need 3 simple primitives:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="co">-- we need to be able to consume a value from our input</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="ot">anyChar ::</span> <span class="dt">Parse</span> <span class="dt">Char</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a>anyChar <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> \<span class="kw">case</span> []     <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>                    (x<span class="op">:</span>xs) <span class="ot">-&gt;</span> <span class="dt">Just</span> (x, xs)</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a><span class="co">-- we need to verify that we've parsed everything</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a><span class="ot">eof ::</span> <span class="dt">Parse</span> ()</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a>eof <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> \<span class="kw">case</span> [] <span class="ot">-&gt;</span> <span class="dt">Just</span> ((), [])</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>                _  <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true"></a><span class="co">-- we need to be able to conditionally fail</span></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true"></a><span class="ot">cond ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true"></a>cond test parser <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true"></a>    res <span class="ot">&lt;-</span> parser</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true"></a>    <span class="kw">if</span> test res</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true"></a>       <span class="kw">then</span> <span class="fu">pure</span> res</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true"></a>       <span class="kw">else</span> empty</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- we need to be able to consume a value from our input</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ot">anyChar ::</span> <span class="dt">Parse</span> <span class="dt">Char</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>anyChar <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> \<span class="kw">case</span> []     <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                    (x<span class="op">:</span>xs) <span class="ot">-&gt;</span> <span class="dt">Just</span> (x, xs)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- we need to verify that we've parsed everything</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="ot">eof ::</span> <span class="dt">Parse</span> ()</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>eof <span class="ot">=</span> <span class="dt">P</span> <span class="op">$</span> \<span class="kw">case</span> [] <span class="ot">-&gt;</span> <span class="dt">Just</span> ((), [])</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                _  <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">-- we need to be able to conditionally fail</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="ot">cond ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>cond test parser <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> parser</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> test res</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>       <span class="kw">then</span> <span class="fu">pure</span> res</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>       <span class="kw">else</span> empty</span></code></pre></div>
 <p>Let’s try this out on some simple inputs now:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> runParse anyChar <span class="st">&quot;hello&quot;</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a><span class="dt">Just</span> (<span class="ch">'h'</span>, <span class="st">&quot;ello&quot;</span>)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> runParse ( cond (\c <span class="ot">-&gt;</span> c <span class="op">==</span> <span class="ch">'h'</span>) anyChar ) <span class="st">&quot;xello&quot;</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a><span class="dt">Nothing</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> runParse anyChar <span class="st">&quot;hello&quot;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> (<span class="ch">'h'</span>, <span class="st">&quot;ello&quot;</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> runParse ( cond (\c <span class="ot">-&gt;</span> c <span class="op">==</span> <span class="ch">'h'</span>) anyChar ) <span class="st">&quot;xello&quot;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="dt">Nothing</span></span></code></pre></div>
 <p>A parser that parses unconditionally is boring, and a parser that only parses a single character is useless. Since we’ve proven that our parser is a <code class="inline-type">Monad</code>, <code class="inline-type">Applicative</code>, <code class="inline-type">Functor</code>, and <code class="inline-type">Alternative</code>, we get a ton of functions for <em>free</em>.</p>
 <p>We’ll start off by defining something to parse a specific character (we already have):</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="ot">char ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Parser</span> <span class="dt">Char</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>char c <span class="ot">=</span> cond (<span class="op">==</span> c) anyChar</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ot">char ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Parser</span> <span class="dt">Char</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>char c <span class="ot">=</span> cond (<span class="op">==</span> c) anyChar</span></code></pre></div>
 <p>then some more general selectors:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a>upper, lower,<span class="ot"> digit ::</span> <span class="dt">Parse</span> <span class="dt">Char</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>upper <span class="ot">=</span> cond <span class="fu">isUpper</span> anyChar</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>lower <span class="ot">=</span> cond <span class="fu">isLower</span> anyChar</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a>digit <span class="ot">=</span> cond <span class="fu">isDigit</span> anyChar</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>upper, lower,<span class="ot"> digit ::</span> <span class="dt">Parse</span> <span class="dt">Char</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>upper <span class="ot">=</span> cond <span class="fu">isUpper</span> anyChar</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>lower <span class="ot">=</span> cond <span class="fu">isLower</span> anyChar</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>digit <span class="ot">=</span> cond <span class="fu">isDigit</span> anyChar</span></code></pre></div>
 <p>Now we have everything we need to parse a simple atom (again). <code class="inline-mod">Control.Applicative</code> exports some really useful functions for <code class="inline-type">Alternative</code> types, like <code>optional</code>, <code>some</code>, and <code>many</code> that makes our lives a LOT easier. You can think of these functions as generalized versions of the regex qualifiers <code class="inline-op">?</code>, <code class="inline-op">+</code>, and <code class="inline-op">*</code>. Instead of transforming the match behaviour of a single pattern, they’ll apply an <code class="inline-type">Alternative</code> action zero or one times, one or more times, or an unlimited amount. You can implement a regex engine using parser combinators and these operators pretty trivially, since monadic parsers are Turing-complete.</p>
 <p>If you’re savvy, you might recognize <code>some</code> and <code>many</code> as the Kleene plus and Kleene star, respectively. When we apply a specific parser, all we’re doing is providing a set of strings that might be matched:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="ot">foo ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a>foo <span class="ot">=</span> string <span class="st">&quot;foo&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;fooo&quot;</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a><span class="co">-- /foo?/</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a><span class="ot">charO ::</span> <span class="dt">Parse</span> <span class="dt">Char</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true"></a>charO <span class="ot">=</span> char <span class="ch">'o'</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true"></a><span class="co">-- /o/</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ot">foo ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> string <span class="st">&quot;foo&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;fooo&quot;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- /foo?/</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ot">charO ::</span> <span class="dt">Parse</span> <span class="dt">Char</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>charO <span class="ot">=</span> char <span class="ch">'o'</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- /o/</span></span></code></pre></div>
 <p>Transforming a parser with these operators yields a much larger set of matches:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="ot">foooo ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>foooo <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>  f <span class="ot">&lt;-</span> char <span class="ch">'f'</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a>  o <span class="ot">&lt;-</span> some (char <span class="ch">'o'</span>)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true"></a>  <span class="fu">pure</span> <span class="op">$</span> (f <span class="op">:</span> o)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true"></a><span class="co">-- /fo+/</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ot">foooo ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>foooo <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> char <span class="ch">'f'</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  o <span class="ot">&lt;-</span> some (char <span class="ch">'o'</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> (f <span class="op">:</span> o)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- /fo+/</span></span></code></pre></div>
 <p><code>foooo</code> will now match a countably infinite set of strings, in the form:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true"></a>[<span class="st">&quot;fo&quot;</span>, <span class="st">&quot;foo&quot;</span>, <span class="st">&quot;fooo&quot;</span>, <span class="st">&quot;foooo&quot;</span>, <span class="op">...</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>[<span class="st">&quot;fo&quot;</span>, <span class="st">&quot;foo&quot;</span>, <span class="st">&quot;fooo&quot;</span>, <span class="st">&quot;foooo&quot;</span>, <span class="op">...</span>]</span></code></pre></div>
 <p>Formally, the Kleene star represents the repeated concatenation of a set with the result of cross-concatenating each of its elements together, yielding a new set (including the set’s identity):</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="ot">lowers ::</span> [<span class="dt">Char</span>] </span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a>lowers <span class="ot">=</span> [<span class="ch">'a'</span> <span class="op">..</span> <span class="ch">'z'</span>]</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true"></a><span class="ot">lowers0 ::</span> [<span class="dt">String</span>]</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true"></a>lowers0 <span class="ot">=</span> [<span class="st">&quot;&quot;</span>]</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true"></a><span class="ot">lowers1 ::</span> [<span class="dt">String</span>]</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true"></a>lowers1 <span class="ot">=</span> lowers0 <span class="op">&lt;&gt;</span> [[c] <span class="op">|</span> c <span class="ot">&lt;-</span> lowers] <span class="co">-- include empty string</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true"></a><span class="ot">lowers2 ::</span> [<span class="dt">String</span>]</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true"></a>lowers2 <span class="ot">=</span> lowers1 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c1) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c1 <span class="ot">&lt;-</span> lowers1]</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, &quot;b&quot;, ... &quot;aa&quot;, &quot;ab&quot;, &quot;ac&quot; ...]</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true"></a></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true"></a><span class="ot">lowers3 ::</span> [<span class="dt">String</span>]</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true"></a>lowers3 <span class="ot">=</span> lowers2 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c2) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c2 <span class="ot">&lt;-</span> lowers2]</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, ..., &quot;aa&quot;, ... &quot;aaa&quot;, &quot;aab&quot;, ...]</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true"></a></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true"></a><span class="op">...</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true"></a></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true"></a><span class="ot">lowersN ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true"></a>lowersN n <span class="ot">=</span> [<span class="dv">0</span><span class="op">..</span>n] <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> <span class="fu">sequence</span> <span class="op">$</span> <span class="fu">replicate</span> x lowers)</span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true"></a>  <span class="co">-- [sequence $ replicate x &quot;abcde&quot; | x &lt;- [0..n]]</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ot">lowers ::</span> [<span class="dt">Char</span>] </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>lowers <span class="ot">=</span> [<span class="ch">'a'</span> <span class="op">..</span> <span class="ch">'z'</span>]</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="ot">lowers0 ::</span> [<span class="dt">String</span>]</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>lowers0 <span class="ot">=</span> [<span class="st">&quot;&quot;</span>]</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="ot">lowers1 ::</span> [<span class="dt">String</span>]</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>lowers1 <span class="ot">=</span> lowers0 <span class="op">&lt;&gt;</span> [[c] <span class="op">|</span> c <span class="ot">&lt;-</span> lowers] <span class="co">-- include empty string</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="ot">lowers2 ::</span> [<span class="dt">String</span>]</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>lowers2 <span class="ot">=</span> lowers1 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c1) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c1 <span class="ot">&lt;-</span> lowers1]</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, &quot;b&quot;, ... &quot;aa&quot;, &quot;ab&quot;, &quot;ac&quot; ...]</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="ot">lowers3 ::</span> [<span class="dt">String</span>]</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>lowers3 <span class="ot">=</span> lowers2 <span class="op">&lt;&gt;</span> [(c<span class="op">:</span>c2) <span class="op">|</span> c <span class="ot">&lt;-</span> lowers, c2 <span class="ot">&lt;-</span> lowers2]</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- [&quot;&quot;, &quot;a&quot;, ..., &quot;aa&quot;, ... &quot;aaa&quot;, &quot;aab&quot;, ...]</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="op">...</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="ot">lowersN ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>lowersN n <span class="ot">=</span> [<span class="dv">0</span><span class="op">..</span>n] <span class="op">&gt;&gt;=</span> (\x <span class="ot">-&gt;</span> <span class="fu">sequence</span> <span class="op">$</span> <span class="fu">replicate</span> x lowers)</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- [sequence $ replicate x &quot;abcde&quot; | x &lt;- [0..n]]</span></span></code></pre></div>
 <p>which is isomorphic to the set of all the n-ary Cartesian powers of the set for <code>n &lt;- 1..</code>, plus the set’s identity element. The Kleene plus just omits the identity element. With this distinction, the Kleene star forms a <code class="inline-type">Monoid</code>, while the Kleene plus is only a <code class="inline-type">Semigroup</code>. In fact, Kleene stars construct a <a href="https://bartoszmilewski.com/2015/07/21/free-monoids/">free monoid</a> over their <a href="https://proofwiki.org/wiki/Kleene_Closure_is_Free_Monoid">inputs</a>.</p>
 <p>This is where regular expressions are truly beautiful - when you write a regex, you’re specifying <em>exactly</em> what should be matched, with regards to the set of all inputs the resulting automaton will succeed on. You could rewrite <code>/foo*/</code> as <code>/(fo|foo|fooo|foooo ...)</code>, but that isn’t feasible for people with finite lifetimes. Having these operators on hand allows you to arbitrarily expand the set of accepted inputs for your parser.</p>
 <p>In the <code class="inline-type">Alternative</code> context, these operators will run an action repeatedly until they yield empty - if you aren’t passing a state parameter around, your program will likely enter an infinite loop. Just something to keep in mind.</p>
 <p>The <code class="inline-type">Alternative</code> class is similar to <code class="inline-type">Monoid</code> - the stickbug operator <code class="inline-op">&lt;|&gt;</code> is an associative binary function between two <code class="inline-type">Alternative</code>s, and <code>empty</code> is an identity element such that:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true"></a>(a <span class="op">&lt;|&gt;</span> b) <span class="op">&lt;|&gt;</span> c <span class="ot">=</span> a <span class="op">&lt;|&gt;</span> (b <span class="op">&lt;|&gt;</span> c)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true"></a></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true"></a>empty <span class="op">&lt;|&gt;</span> empty <span class="ot">=</span> empty</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true"></a>empty <span class="op">&lt;|&gt;</span> alt   <span class="ot">=</span> alt</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true"></a>alt   <span class="op">&lt;|&gt;</span> empty <span class="ot">=</span> alt</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true"></a>alt1  <span class="op">&lt;|&gt;</span> alt2  <span class="ot">=</span> alt1</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>(a <span class="op">&lt;|&gt;</span> b) <span class="op">&lt;|&gt;</span> c <span class="ot">=</span> a <span class="op">&lt;|&gt;</span> (b <span class="op">&lt;|&gt;</span> c)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>empty <span class="op">&lt;|&gt;</span> empty <span class="ot">=</span> empty</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>empty <span class="op">&lt;|&gt;</span> alt   <span class="ot">=</span> alt</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>alt   <span class="op">&lt;|&gt;</span> empty <span class="ot">=</span> alt</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>alt1  <span class="op">&lt;|&gt;</span> alt2  <span class="ot">=</span> alt1</span></code></pre></div>
 <p>Where these types differ is that joining <code class="inline-type">Alternative</code>s is biased towards the left argument - it’s a <em>choice</em>, rather than a <em>composition</em>.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;&gt;</span>  <span class="dt">Nothing</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true"></a><span class="dt">Nothing</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;|&gt;</span> <span class="dt">Nothing</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true"></a><span class="dt">Nothing</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true"></a></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;&gt;</span>  <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;|&gt;</span> <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true"></a></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;&gt;</span>  <span class="dt">Nothing</span></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;H&quot;</span></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;|&gt;</span> <span class="dt">Nothing</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;H&quot;</span></span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true"></a></span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;&gt;</span>  <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;Hi&quot;</span></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;|&gt;</span> <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true"></a><span class="dt">Just</span> <span class="st">&quot;H&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;&gt;</span>  <span class="dt">Nothing</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Nothing</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;|&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="dt">Nothing</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;&gt;</span>  <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Nothing</span>  <span class="op">&lt;|&gt;</span> <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;&gt;</span>  <span class="dt">Nothing</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> <span class="st">&quot;H&quot;</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;|&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> <span class="st">&quot;H&quot;</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;&gt;</span>  <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> <span class="st">&quot;Hi&quot;</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="dt">Just</span> <span class="st">&quot;H&quot;</span> <span class="op">&lt;|&gt;</span> <span class="dt">Just</span> <span class="st">&quot;i&quot;</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> <span class="st">&quot;H&quot;</span></span></code></pre></div>
 <p>Having gained the ability of choice, we also have <code>optional</code>s now - <code>optional</code> is a function that takes an <code class="inline-type">Alternative</code> functor, runs its action, and returns a <code class="inline-type">Maybe</code> value inside the <code class="inline-type">Alternative</code> instead of returning <code>empty</code> at the root context. This has the advantage of always succeeding, so we can treat a failure as a slight speedbump instead of an error that has to be propagated forwards. You can also just use <code class="inline-op">&lt;|&gt;</code>:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true"></a><span class="co">-- H, O, Mg, Ne, etc.</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true"></a><span class="ot">symbol ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true"></a>symbol <span class="ot">=</span> <span class="kw">do</span> </span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true"></a>  up <span class="ot">&lt;-</span> upper <span class="co">-- single character</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true"></a>  low <span class="ot">&lt;-</span> maybeToList <span class="op">&lt;$&gt;</span> optional lower <span class="co">-- either [] or a lowercase</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true"></a>  <span class="fu">pure</span> (up <span class="op">:</span> low)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true"></a>  </span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true"></a><span class="ot">num ::</span> <span class="dt">Parse</span> <span class="dt">Int</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true"></a>num <span class="ot">=</span> <span class="fu">read</span> <span class="op">&lt;$&gt;</span> some digit <span class="co">-- will only parse 1 or more digits, so we don't *have* to use readMaybe</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true"></a></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true"></a><span class="kw">type</span> <span class="dt">Atoms</span> <span class="ot">=</span> (<span class="dt">String</span>, <span class="dt">Int</span>)</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true"></a></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true"></a><span class="co">-- &quot;H2&quot; -&gt; (&quot;H&quot;, 2), etc.</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true"></a><span class="ot">atoms ::</span> <span class="dt">Parse</span> <span class="dt">Atoms</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true"></a>atoms <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true"></a>  sym <span class="ot">&lt;-</span> symbol</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true"></a>  n <span class="ot">&lt;-</span> num <span class="op">&lt;|&gt;</span> <span class="fu">pure</span> <span class="dv">1</span> <span class="co">-- no annotation = single atom</span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true"></a>  <span class="fu">pure</span> (sym, n)</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- H, O, Mg, Ne, etc.</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ot">symbol ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>symbol <span class="ot">=</span> <span class="kw">do</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  up <span class="ot">&lt;-</span> upper <span class="co">-- single character</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  low <span class="ot">&lt;-</span> maybeToList <span class="op">&lt;$&gt;</span> optional lower <span class="co">-- either [] or a lowercase</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> (up <span class="op">:</span> low)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="ot">num ::</span> <span class="dt">Parse</span> <span class="dt">Int</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>num <span class="ot">=</span> <span class="fu">read</span> <span class="op">&lt;$&gt;</span> some digit <span class="co">-- will only parse 1 or more digits, so we don't *have* to use readMaybe</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Atoms</span> <span class="ot">=</span> (<span class="dt">String</span>, <span class="dt">Int</span>)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">-- &quot;H2&quot; -&gt; (&quot;H&quot;, 2), etc.</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="ot">atoms ::</span> <span class="dt">Parse</span> <span class="dt">Atoms</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>atoms <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  sym <span class="ot">&lt;-</span> symbol</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> num <span class="op">&lt;|&gt;</span> <span class="fu">pure</span> <span class="dv">1</span> <span class="co">-- no annotation = single atom</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> (sym, n)</span></code></pre></div>
 <p>Let’s try this out now:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> runParse atoms <span class="st">&quot;MgOH2&quot;</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true"></a><span class="dt">Just</span> (<span class="st">&quot;Mg&quot;</span>, <span class="st">&quot;H2O4&quot;</span>)</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> runParse atoms <span class="st">&quot;H2O2&quot;</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true"></a><span class="dt">Just</span> ((<span class="st">&quot;H&quot;</span>, <span class="dv">2</span>), <span class="st">&quot;O2&quot;</span>)</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true"></a></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> runParse atoms <span class="st">&quot;Hi2You!!!&quot;</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true"></a><span class="dt">Just</span> ((<span class="st">&quot;Hi&quot;</span>, <span class="dv">2</span>), <span class="st">&quot;You!!!&quot;</span>)</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true"></a></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true"></a><span class="op">&gt;&gt;&gt;</span> runParse (many atoms) <span class="st">&quot;HaHaUNLeSS10&quot;</span></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true"></a><span class="dt">Just</span> ([(<span class="st">&quot;Ha&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;Ha&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;U&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;N&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;Le&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">10</span>)],<span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> runParse atoms <span class="st">&quot;MgOH2&quot;</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> (<span class="st">&quot;Mg&quot;</span>, <span class="st">&quot;H2O4&quot;</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> runParse atoms <span class="st">&quot;H2O2&quot;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> ((<span class="st">&quot;H&quot;</span>, <span class="dv">2</span>), <span class="st">&quot;O2&quot;</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> runParse atoms <span class="st">&quot;Hi2You!!!&quot;</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> ((<span class="st">&quot;Hi&quot;</span>, <span class="dv">2</span>), <span class="st">&quot;You!!!&quot;</span>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> runParse (many atoms) <span class="st">&quot;HaHaUNLeSS10&quot;</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> ([(<span class="st">&quot;Ha&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;Ha&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;U&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;N&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;Le&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">1</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">10</span>)],<span class="st">&quot;&quot;</span>)</span></code></pre></div>
 <p>Nice. We can parse simple atoms now, and sequences of them at that. We have functions that will incrementally consume streams of input, giving up without munching anything if they fail. Let’s take a deeper look at what’s happening - if we had a parser like</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true"></a><span class="ot">iLike ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true"></a>iLike <span class="ot">=</span> string <span class="st">&quot;i liek &quot;</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true"></a>      <span class="op">&gt;&gt;</span> string <span class="st">&quot;mudkipz&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;parsers&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;pasta&quot;</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true"></a><span class="co">-- /i liek (mudkipz|parsers|pasta)/</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ot">iLike ::</span> <span class="dt">Parse</span> <span class="dt">String</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>iLike <span class="ot">=</span> string <span class="st">&quot;i liek &quot;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>      <span class="op">&gt;&gt;</span> string <span class="st">&quot;mudkipz&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;parsers&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;pasta&quot;</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- /i liek (mudkipz|parsers|pasta)/</span></span></code></pre></div>
 <p>Your parsing process internally would look a little like this:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true"></a>input <span class="op">=</span> <span class="st">&quot;i liek penguin&quot;</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true"></a>Pipeline:</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true"></a>input <span class="op">=&gt;</span> [<span class="kw">string</span> <span class="st">&quot;i liek &quot;</span>] ---&gt; [<span class="kw">string</span> <span class="st">&quot;mudkipz&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;parsers&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;pasta&quot;</span>] <span class="op">=&gt;</span> output</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true"></a></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true"></a>input <span class="op">=&gt;</span> [<span class="kw">string</span> <span class="st">&quot;i liek &quot;</span>] ---&gt; [<span class="kw">string</span> <span class="st">&quot;mudkipz&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;parsers&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;pasta&quot;</span>] <span class="op">=&gt;</span> output</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true"></a>       ^                       ^    </span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true"></a>       |                       |</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true"></a><span class="st">&quot;i liek pasta&quot;</span>                 |</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true"></a>                            <span class="st">&quot;pasta&quot;</span></span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true"></a></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true"></a>Zooming in:</span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true"></a>[<span class="kw">string</span> <span class="st">&quot;mudkipz&quot;</span>] <span class="op">=</span> </span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true"></a>  [<span class="kw">char</span> 'm'] -&gt; [<span class="kw">char</span> 'u'] -&gt; [<span class="kw">char</span> 'd'] -&gt; [<span class="kw">char</span> 'k'] -&gt; [<span class="kw">char</span> 'i'] -&gt; [<span class="kw">char</span> 'p'] -&gt; [<span class="kw">char</span> 'z'] </span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true"></a>         | FAIL -&gt; Nothing</span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true"></a>        <span class="st">&quot;pasta&quot;</span></span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true"></a></span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true"></a>[<span class="kw">string</span> <span class="st">&quot;parsers&quot;</span>] <span class="op">=</span> </span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true"></a>  [<span class="kw">char</span> 'p'] -&gt; [<span class="kw">char</span> 'a'] -&gt; [<span class="kw">char</span> 'r'] -&gt; [<span class="kw">char</span> 's'] -&gt; [<span class="kw">char</span> 'e'] -&gt; [<span class="kw">char</span> 'r'] -&gt; [<span class="kw">char</span> 's']</span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true"></a>         | OK          |             |</span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true"></a>         <span class="st">&quot;pasta&quot;</span>       | OK          |</span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true"></a>                      <span class="st">&quot;asta&quot;</span>         | FAIL -&gt; Nothing</span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true"></a>                                    <span class="st">&quot;sta&quot;</span></span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true"></a></span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true"></a>[<span class="kw">string</span> <span class="st">&quot;pasta&quot;</span>] <span class="op">=</span>  </span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true"></a>  [<span class="kw">char</span> 'p'] -&gt; [<span class="kw">char</span> 'a'] -&gt; [<span class="kw">char</span> 's'] -&gt; [<span class="kw">char</span> 't'] -&gt; [<span class="kw">char</span> 'a']</span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true"></a>         | OK          |             |             |             |  </span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true"></a>         <span class="st">&quot;pasta&quot;</span>       | OK          |             |             |  </span>
-<span id="cb29-29"><a href="#cb29-29" aria-hidden="true"></a>                       <span class="st">&quot;asta&quot;</span>        | OK          |             |  </span>
-<span id="cb29-30"><a href="#cb29-30" aria-hidden="true"></a>                                    <span class="st">&quot;sta&quot;</span>          | OK          |  </span>
-<span id="cb29-31"><a href="#cb29-31" aria-hidden="true"></a>                                                  <span class="st">&quot;ta&quot;</span>           | OK -&gt; (<span class="st">&quot;pasta&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
-<span id="cb29-32"><a href="#cb29-32" aria-hidden="true"></a>                                                                <span class="st">&quot;a&quot;</span> </span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>input <span class="op">=</span> <span class="st">&quot;i liek penguin&quot;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>Pipeline:</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>input <span class="op">=&gt;</span> [<span class="kw">string</span> <span class="st">&quot;i liek &quot;</span>] ---&gt; [<span class="kw">string</span> <span class="st">&quot;mudkipz&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;parsers&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;pasta&quot;</span>] <span class="op">=&gt;</span> output</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>input <span class="op">=&gt;</span> [<span class="kw">string</span> <span class="st">&quot;i liek &quot;</span>] ---&gt; [<span class="kw">string</span> <span class="st">&quot;mudkipz&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;parsers&quot;</span> <span class="op">&lt;</span>|<span class="op">&gt;</span> <span class="kw">string</span> <span class="st">&quot;pasta&quot;</span>] <span class="op">=&gt;</span> output</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>       ^                       ^    </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>       |                       |</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;i liek pasta&quot;</span>                 |</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&quot;pasta&quot;</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>Zooming in:</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>[<span class="kw">string</span> <span class="st">&quot;mudkipz&quot;</span>] <span class="op">=</span> </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  [<span class="kw">char</span> 'm'] -&gt; [<span class="kw">char</span> 'u'] -&gt; [<span class="kw">char</span> 'd'] -&gt; [<span class="kw">char</span> 'k'] -&gt; [<span class="kw">char</span> 'i'] -&gt; [<span class="kw">char</span> 'p'] -&gt; [<span class="kw">char</span> 'z'] </span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>         | FAIL -&gt; Nothing</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;pasta&quot;</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>[<span class="kw">string</span> <span class="st">&quot;parsers&quot;</span>] <span class="op">=</span> </span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  [<span class="kw">char</span> 'p'] -&gt; [<span class="kw">char</span> 'a'] -&gt; [<span class="kw">char</span> 'r'] -&gt; [<span class="kw">char</span> 's'] -&gt; [<span class="kw">char</span> 'e'] -&gt; [<span class="kw">char</span> 'r'] -&gt; [<span class="kw">char</span> 's']</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>         | OK          |             |</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;pasta&quot;</span>       | OK          |</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>                      <span class="st">&quot;asta&quot;</span>         | FAIL -&gt; Nothing</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;sta&quot;</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>[<span class="kw">string</span> <span class="st">&quot;pasta&quot;</span>] <span class="op">=</span>  </span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>  [<span class="kw">char</span> 'p'] -&gt; [<span class="kw">char</span> 'a'] -&gt; [<span class="kw">char</span> 's'] -&gt; [<span class="kw">char</span> 't'] -&gt; [<span class="kw">char</span> 'a']</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>         | OK          |             |             |             |  </span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;pasta&quot;</span>       | OK          |             |             |  </span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;asta&quot;</span>        | OK          |             |  </span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;sta&quot;</span>          | OK          |  </span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>                                                  <span class="st">&quot;ta&quot;</span>           | OK -&gt; (<span class="st">&quot;pasta&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>                                                                <span class="st">&quot;a&quot;</span> </span></code></pre></div>
 <p>If you were writing a compiler from a regular expression down to a DFA, you might want to combine common paths into a trie-like structure to prevent redundant backtracking. After the initial prefix of the string is consumed by the “i liek” parser, the remaining chunk is passed into the choice between three strings: “mudkipz”, “parsers”, “pasta”. The parser function at that point in the pipeline has “pasta” as its input, so we can essentially “save” our position within the string at this nexus. We’re passing a literal string around (a linked list of characters), but this can easily be done with a pointer to a packed string literal as well for efficiency. Backtracking is implicit between choices.</p>
 <p>Let’s recur now and try to tackle the nested repeating groups. It turns out that the problem is even more annoying, because the molecules can use any kind of bracket. <code class="inline-type">K4[ON{SO3}2]2</code> is fair game. It doesn’t make that much of a difference really, we just have to make sure that brackets are paired correctly.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true"></a><span class="ot">choice ::</span> (<span class="dt">Alternative</span> f) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> f a</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true"></a>choice <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">&lt;|&gt;</span>) empty</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true"></a></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true"></a><span class="co">-- take an arbitrary parser, returning a version that parses between matching brackets</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true"></a><span class="ot">bracket ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true"></a>bracket p <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true"></a>  c <span class="ot">&lt;-</span> choice <span class="st">&quot;({[&quot;</span> </span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true"></a>  p <span class="op">&lt;*</span> <span class="kw">case</span> c <span class="kw">of</span> <span class="ch">'('</span> <span class="ot">-&gt;</span> char <span class="ch">')'</span></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true"></a>                 <span class="ch">'{'</span> <span class="ot">-&gt;</span> char <span class="ch">'}'</span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true"></a>                 <span class="ch">'['</span> <span class="ot">-&gt;</span> char <span class="ch">']'</span> </span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ot">choice ::</span> (<span class="dt">Alternative</span> f) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> f a</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>choice <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">&lt;|&gt;</span>) empty</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- take an arbitrary parser, returning a version that parses between matching brackets</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="ot">bracket ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>bracket p <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  c <span class="ot">&lt;-</span> choice <span class="st">&quot;({[&quot;</span> </span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  p <span class="op">&lt;*</span> <span class="kw">case</span> c <span class="kw">of</span> <span class="ch">'('</span> <span class="ot">-&gt;</span> char <span class="ch">')'</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>                 <span class="ch">'{'</span> <span class="ot">-&gt;</span> char <span class="ch">'}'</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                 <span class="ch">'['</span> <span class="ot">-&gt;</span> char <span class="ch">']'</span> </span></code></pre></div>
 <p><code class="inline-op">&lt;*</code> is like the flipped, <code class="inline-type">Applicative</code> version of <code class="inline-op">&gt;&gt;</code>. It runs both actions, ignoring the second’s result but allowing its effects to propagate. If you find yourself doing something like</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true"></a><span class="ot">betweenParens ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true"></a>betweenParens p <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true"></a>  char <span class="ch">'('</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true"></a>  res <span class="ot">&lt;-</span> p</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true"></a>  char <span class="ch">')'</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true"></a>  <span class="fu">pure</span> res</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ot">betweenParens ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>betweenParens p <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  char <span class="ch">'('</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> p</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  char <span class="ch">')'</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> res</span></code></pre></div>
 <p>it helps to refactor using these <code>const</code> operators:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true"></a><span class="ot">betweenParens ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true"></a>betweenParens p <span class="ot">=</span> char <span class="ch">'('</span> <span class="op">*&gt;</span> p <span class="op">&lt;*</span> char <span class="ch">')'</span></span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ot">betweenParens ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>betweenParens p <span class="ot">=</span> char <span class="ch">'('</span> <span class="op">*&gt;</span> p <span class="op">&lt;*</span> char <span class="ch">')'</span></span></code></pre></div>
 <p>I generally prefer <code class="inline-op">(*&gt;)</code> to <code class="inline-op">(&gt;&gt;)</code>, because you don’t <em>always</em> need the power of a monad. We have both, largely because of historical reasons (<code class="inline-type">Applicative</code> came around after <code class="inline-type">Monad</code>).</p>
 <p>Finally, our core, mutually recursive parsers - a functional group (in the chemical sense) is a molecule/atom within a pair of matching brackets, followed by an optional number, like “(OH)2”:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true"></a><span class="ot">funcGroup ::</span> <span class="dt">Parse</span> [<span class="dt">Atoms</span>]</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true"></a>funcGroup <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true"></a>  atomCounts <span class="ot">&lt;-</span> <span class="fu">concat</span> <span class="op">$</span> bracket (some molecule) <span class="co">-- wrap the act of parsing one or more </span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true"></a>  n <span class="ot">&lt;-</span> num <span class="op">&lt;|&gt;</span> <span class="fu">pure</span> <span class="dv">1</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true"></a>  <span class="fu">pure</span> <span class="op">$</span> <span class="fu">map</span> ((<span class="op">*</span> n) <span class="op">&lt;$&gt;</span>) atomCounts</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true"></a>    <span class="co">-- multiply every coefficient by the outer multiplier</span></span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true"></a></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true"></a><span class="ot">molecule ::</span> <span class="dt">Parse</span> [<span class="dt">Atoms</span>]</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true"></a>molecule <span class="ot">=</span> <span class="kw">do</span></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true"></a>  parsedAtoms <span class="ot">&lt;-</span> some ((<span class="fu">pure</span> <span class="op">&lt;$&gt;</span> atoms) <span class="op">&lt;|&gt;</span> funcGroup)</span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true"></a>    <span class="co">-- wrap atoms up in a list to match types</span></span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true"></a>  <span class="fu">pure</span> <span class="op">$</span> <span class="fu">concat</span> parsedAtoms</span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true"></a></span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true"></a><span class="ot">parse ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true"></a>parse p <span class="ot">=</span> runParse allConsumed <span class="op">&gt;=&gt;</span> <span class="fu">pure</span> <span class="op">.</span> <span class="fu">fst</span> <span class="co">-- drop the empty remainder</span></span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true"></a>  <span class="kw">where</span> allConsumed <span class="ot">=</span> p <span class="op">&lt;*</span> eof <span class="co">-- assert input is entirely consumed after parsing</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ot">funcGroup ::</span> <span class="dt">Parse</span> [<span class="dt">Atoms</span>]</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>funcGroup <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  atomCounts <span class="ot">&lt;-</span> <span class="fu">concat</span> <span class="op">$</span> bracket (some molecule) <span class="co">-- wrap the act of parsing one or more </span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> num <span class="op">&lt;|&gt;</span> <span class="fu">pure</span> <span class="dv">1</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> <span class="fu">map</span> ((<span class="op">*</span> n) <span class="op">&lt;$&gt;</span>) atomCounts</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- multiply every coefficient by the outer multiplier</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="ot">molecule ::</span> <span class="dt">Parse</span> [<span class="dt">Atoms</span>]</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>molecule <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  parsedAtoms <span class="ot">&lt;-</span> some ((<span class="fu">pure</span> <span class="op">&lt;$&gt;</span> atoms) <span class="op">&lt;|&gt;</span> funcGroup)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- wrap atoms up in a list to match types</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> <span class="fu">concat</span> parsedAtoms</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="ot">parse ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>parse p <span class="ot">=</span> runParse allConsumed <span class="op">&gt;=&gt;</span> <span class="fu">pure</span> <span class="op">.</span> <span class="fu">fst</span> <span class="co">-- drop the empty remainder</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> allConsumed <span class="ot">=</span> p <span class="op">&lt;*</span> eof <span class="co">-- assert input is entirely consumed after parsing</span></span></code></pre></div>
 <p>This is the power of parser combinators - you can build entire grammars out of simple primitives, and write as if every parser succeeds according to your specification. Traversing the input stream and error handling is abstracted away from you by the underlying monad, so your code ends up looking almost identical to your initial grammar.</p>
 <p>Oh yeah, we need to get the total counts of each atom:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true"></a><span class="ot">condense ::</span> [<span class="dt">Atoms</span>] <span class="ot">-&gt;</span> [<span class="dt">Atoms</span>]</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true"></a>condense <span class="ot">=</span> toList <span class="op">.</span> Map.fromListWith (<span class="op">+</span>)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true"></a></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true"></a><span class="ot">parseMolecule ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [<span class="dt">Atoms</span>]</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true"></a>parseMolecule s <span class="ot">=</span> condense <span class="op">&lt;$&gt;</span> parse molecule s</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ot">condense ::</span> [<span class="dt">Atoms</span>] <span class="ot">-&gt;</span> [<span class="dt">Atoms</span>]</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>condense <span class="ot">=</span> toList <span class="op">.</span> Map.fromListWith (<span class="op">+</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="ot">parseMolecule ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [<span class="dt">Atoms</span>]</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>parseMolecule s <span class="ot">=</span> condense <span class="op">&lt;$&gt;</span> parse molecule s</span></code></pre></div>
 <p>Testing Fremy’s salt:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true"></a><span class="op">&gt;</span> parseMolecule <span class="st">&quot;K4[ON(SO3)2]2&quot;</span> <span class="co">-- Fremy's salt</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true"></a><span class="dt">Just</span> [(<span class="st">&quot;K&quot;</span>,<span class="dv">4</span>),(<span class="st">&quot;O&quot;</span>,<span class="dv">14</span>),(<span class="st">&quot;N&quot;</span>,<span class="dv">2</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">4</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> parseMolecule <span class="st">&quot;K4[ON(SO3)2]2&quot;</span> <span class="co">-- Fremy's salt</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> [(<span class="st">&quot;K&quot;</span>,<span class="dv">4</span>),(<span class="st">&quot;O&quot;</span>,<span class="dv">14</span>),(<span class="st">&quot;N&quot;</span>,<span class="dv">2</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">4</span>)]</span></code></pre></div>
 <p>The state-threading pattern is the underlying basis of most parser combinator libraries like Parsec. Parsec allows you to integrate its parser monad into a monad transformer stack, and there’s a lot more flexibility with regards to the type of your input stream and accumulating state parameter. It’s way cleaner than manually writing specific parsers, and exponentially simpler than <code>bison</code>/<code>happy</code>. Turns out, parsing doesn’t actually have to be hard.</p>
     </section>
 </article>

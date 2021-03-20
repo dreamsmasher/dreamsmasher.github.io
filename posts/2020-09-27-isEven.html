@@ -68,27 +68,27 @@
 <p>You want to check if a number is even, in a language that isn’t type-safe. Your first intuition is to use the <code class="inline-op">%</code> operator, but it doesn’t work. You’re frustrated. Seven beers and 20 syntax errors later, you throw away any hesitation about bloat and decide to just add another dependency. What does it matter?</p>
 <p>There are quite literally, millions of tiny packages on <code>npm</code>. <code>is-even</code> is just one of them. A full package where the metadata, even the <code class="inline-type">README</code> is longer than the code itself.</p>
 <p>Here are the contents of <code>is-even</code> in their entirety (credits to <code>jonschlinkert</code>):</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">var</span> isOdd <span class="op">=</span> <span class="pp">require</span>(<span class="st">'is-odd'</span>)<span class="op">;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> <span class="kw">function</span> <span class="fu">isEven</span>(i) {</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>  <span class="cf">return</span> <span class="op">!</span><span class="fu">isOdd</span>(i)<span class="op">;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>}<span class="op">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> isOdd <span class="op">=</span> <span class="pp">require</span>(<span class="st">'is-odd'</span>)<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> <span class="kw">function</span> <span class="fu">isEven</span>(i) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">!</span><span class="fu">isOdd</span>(i)<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
 <p>When you pull in <code>is-even</code>, you’re not just adding a single package. Dependencies beget dependencies - a package for a package makes the whole world slower. What is <code>is-odd</code>? Another package, of course. <code>is-odd</code> is slightly more complex, since it checks if a value actually is a number (pulling in <code>is-number</code> in the process). In total, you’re pulling in three packages to express operations that are built into the language. Even though Javascript’s type system is fickle, you would think that <code>typeof</code> would solve your problem pretty easily.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="kw">var</span> isNumber <span class="op">=</span> <span class="kw">function</span>(x) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>    <span class="cf">return</span> (<span class="kw">typeof</span> x <span class="op">===</span> <span class="st">'number'</span>)<span class="op">;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> isNumber <span class="op">=</span> <span class="kw">function</span>(x) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="kw">typeof</span> x <span class="op">===</span> <span class="st">'number'</span>)<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>A polymorphic function that works on integers and floats. Done. “But what if it’s <code class="inline-type">NaN</code>!????”, you might be asking:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">var</span> isNumber <span class="op">=</span> <span class="kw">function</span>(x) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">return</span> (<span class="kw">typeof</span> x <span class="op">===</span> <span class="st">'number'</span> <span class="op">&amp;&amp;</span> <span class="pp">isFinite</span>(x))<span class="op">;</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> isNumber <span class="op">=</span> <span class="kw">function</span>(x) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="kw">typeof</span> x <span class="op">===</span> <span class="st">'number'</span> <span class="op">&amp;&amp;</span> <span class="pp">isFinite</span>(x))<span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Finally:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="kw">var</span> is<span class="op">-</span>even <span class="op">=</span> <span class="kw">function</span>(x) {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>    <span class="cf">return</span> (<span class="fu">isNumber</span>(x) <span class="op">&amp;&amp;</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span>)<span class="op">;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>}</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="kw">var</span> is<span class="op">-</span>odd <span class="op">=</span> <span class="kw">function</span>(x) {</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>    <span class="cf">return</span> <span class="op">!</span>(is<span class="op">-</span><span class="fu">even</span>(x))<span class="op">;</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> is<span class="op">-</span>even <span class="op">=</span> <span class="kw">function</span>(x) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="fu">isNumber</span>(x) <span class="op">&amp;&amp;</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> is<span class="op">-</span>odd <span class="op">=</span> <span class="kw">function</span>(x) {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">!</span>(is<span class="op">-</span><span class="fu">even</span>(x))<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Problem solved. This is pretty much what the original code does, but in 20 lines of code. No triplicated metadata and git directories needed. It’s easy to add directly to your projects and your users will thank you for saving them 3 packages in <code>node-modules</code>. Even funnier is that there are 45 similar packages all over npm. <code>is-odd</code> is a dependency of gems such as <code>odd</code>, which gets the odd-numbered items from an array (wow, thanks), and <a href="https://discord.com/acknowledgements">discord</a>. Looking at the reverse and dev dependencies of <code>is-odd</code> shows over 159 packages tangled within this sinister tree of triviality. (credits to <a href="npm.broofa.com">broofa</a> for the visualization tool). How deep does this go?</p>
 <p>Obviously these are trivial examples, and there are much worse examples of the dependency flood that comes with <code>npm</code> modules. My issue with this is that <code>is-even</code> gets over 133,286 downloads per week, according to <code>npm</code> statistics. The Github repo lists over 6.4 MILLION downloads total. How much bandwidth is being wasted on this? (Obviously, not as much as having to redownload jQuery every time you visit a website that uses a different CDN). An article from <a href="https://blog.appsignal.com/2020/04/09/ride-down-the-javascript-dependency-hell.html">AppSignal</a> shows <code>npm</code> has over 1.2 million packages in total. That’s more than <code class="inline-mod">PyPI, RubyGems, Maven, Packagist, Hackage, Crates.io</code>, and <code class="inline-type">NuGet</code> COMBINED. Even though JS is the <a href="https://www.benfrederickson.com/ranking-programming-languages-by-github-users/">majority language</a> in terms of active users on Github, it only beats out Python and Java by around 7% (22.63%, 14.75%, and 14.01%, respectively). How in the hell does the <code>npm</code> ecosystem have over 4x the packages?</p>
 <p>52236 packages on <code>npm</code> relate directly to npm. 1353 packages are for manipulating and working with comments. The <code>npm</code> package itself has 123 direct dependencies, making up 1185 packages. A quick recursive <code>wc -c</code> on my system shows that my npm source directory’s <code>node-modules</code> is wabout 14.12 megabytes, which isn’t too bad considering that some people complain about their <code>node-modules</code> reaching several hundred megabytes. Ignoring meme packages that purposely include an insane amount of dependencies (I’m looking at you, <a href="https://www.npmjs.com/package/bloater">bloater</a>), it seems like the average package doesn’t have that big of a <code>package.json</code>. The most widely-included libraries, like <code>lodash</code> and <code>chalk</code>, are smart to remain self-contained.</p>
@@ -103,33 +103,33 @@
 <li>Javascript is poop.</li>
 </ol>
 <p>Let’s face it, there’s a lot to be desired with respect to the JS ecosystem. Have you ever had to write <code class="inline-mod">Array.isArray()</code> as a separate condition before using a switch statement to determine the type of an argument? Because 130 packages solve this.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="op">&gt;</span> <span class="kw">typeof</span> [<span class="dv">1</span><span class="op">,</span><span class="dv">2</span><span class="op">,</span><span class="dv">3</span>]</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="st">'object'</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">typeof</span> [<span class="dv">1</span><span class="op">,</span><span class="dv">2</span><span class="op">,</span><span class="dv">3</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">'object'</span></span></code></pre></div>
 <p>Have you ever wondered why there are two different equality tests? Why is overloading so inconsistent? 365 packages. (Thanks to John Demetriou for some <a href="http://www.devsanon.com/rants/stupid-javascript/">examples.</a>)</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="op">&gt;</span> <span class="st">'1'</span> <span class="op">+</span> <span class="st">'2'</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="st">'12'</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="op">&gt;</span> <span class="st">'1'</span> <span class="op">-</span> <span class="st">'2'</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="dv">-1</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="op">&gt;</span> <span class="st">'1'</span> <span class="op">+</span> <span class="op">-</span><span class="st">'2'</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="st">'1-2'</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="st">'1'</span> <span class="op">+</span> <span class="st">'2'</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">'12'</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="st">'1'</span> <span class="op">-</span> <span class="st">'2'</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">-</span><span class="dv">1</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="st">'1'</span> <span class="op">+</span> <span class="op">-</span><span class="st">'2'</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="st">'1-2'</span></span></code></pre></div>
 <p>Why are string primitives different from string objects? I mean, just look at this:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">let</span> t <span class="op">=</span> <span class="kw">new</span> <span class="bu">String</span>(<span class="st">'hello'</span>)<span class="op">;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="kw">let</span> s <span class="op">=</span> <span class="st">'hello'</span><span class="op">;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="op">&gt;</span> <span class="kw">typeof</span> t</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a><span class="st">'object'</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="op">&gt;</span> <span class="kw">typeof</span> s</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a><span class="st">'string'</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="op">&gt;</span> t <span class="kw">instanceof</span> <span class="bu">Object</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a><span class="kw">true</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> t <span class="op">=</span> <span class="kw">new</span> <span class="bu">String</span>(<span class="st">'hello'</span>)<span class="op">;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> s <span class="op">=</span> <span class="st">'hello'</span><span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">typeof</span> t</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">'object'</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> <span class="kw">typeof</span> s</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">'string'</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> t <span class="kw">instanceof</span> <span class="bu">Object</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">true</span></span></code></pre></div>
 <p>so it follows that s is an <code>instanceof</code> String, right?</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="op">&gt;</span> s <span class="kw">instanceof</span> <span class="bu">String</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="kw">false</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="op">&gt;</span> t <span class="kw">instanceof</span> <span class="bu">String</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="kw">true</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> s <span class="kw">instanceof</span> <span class="bu">String</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">false</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> t <span class="kw">instanceof</span> <span class="bu">String</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">true</span></span></code></pre></div>
 <p>But you can use <code class="inline-mod">String.prototype</code> methods on string literals, since they’re automatically coerced into objects for the purposes of property lookups (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">source</a>). What?</p>
 <p>The two different data types also return different results when passed to <code>eval</code>. This has tripped me up many more times than I’m proud to admit.</p>
 <p>Given these ridiculous rules, it makes sense that people would put together tons of libraries to try and reconcile these notions into something remotely usable. It’s the same reason that self-help books and seatbelts exist - resourcefulness and invention are the only remedies for chaos.</p>
@@ -143,139 +143,139 @@
 <p>In short, the next time you open <code>package.json</code> or <code>stack.yaml</code>, consider whether or not you’ll actually need that dependency. If it’s just for convenience, it helps to stop for a moment and make sure you’re not inadvertently doubling the size of your <code>node-modules</code>.</p>
 <p>I was stewing over this problem a few weeks ago, and decided that trivial packages should at least be refactored into something less-trivial. I hereby present my <code class="inline-type">Haskell</code> implementation of <code>is-even</code>:</p>
 <p>We start off with some standard imports. Nothing too fancy here.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="ot">{-# LANGUAGE FunctionalDependencies, MultiParamTypeClasses, LambdaCase #-}</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a><span class="kw">module</span> <span class="dt">Data.Numbers.IsEven</span> </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    ( isEven, </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>      isOdd </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>    ) <span class="kw">where</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Control.Monad.Trans.State.Lazy</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Control.Monad</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">System.Random</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Profunctor</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Functor.Contravariant</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.List</span> (foldl')</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a><span class="kw">import</span> <span class="dt">Data.Bits</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE FunctionalDependencies, MultiParamTypeClasses, LambdaCase #-}</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Data.Numbers.IsEven</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    ( isEven, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      isOdd </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.Trans.State.Lazy</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Random</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Profunctor</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Functor.Contravariant</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span> (foldl')</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Bits</span></span></code></pre></div>
 <p>First, a simple recursive solution. <code>is-even(n)</code> is just the opposite of <code>is-even(n - 1)</code>, after all.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="ot">evenRec ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>evenRec <span class="ot">=</span> go <span class="dt">True</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>    <span class="kw">where</span> go b <span class="ot">=</span> \<span class="kw">case</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>            <span class="dv">0</span> <span class="ot">-&gt;</span> b</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>            x <span class="ot">-&gt;</span> go (<span class="fu">pred</span> x) (<span class="fu">not</span> b)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ot">evenRec ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>evenRec <span class="ot">=</span> go <span class="dt">True</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> go b <span class="ot">=</span> \<span class="kw">case</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>            <span class="dv">0</span> <span class="ot">-&gt;</span> b</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>            x <span class="ot">-&gt;</span> go (<span class="fu">pred</span> x) (<span class="fu">not</span> b)</span></code></pre></div>
 <p>Explicit recursion is an anti-pattern.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="ot">evenFold ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>evenFold <span class="ot">=</span> foldl' (<span class="fu">const</span> <span class="op">.</span> <span class="fu">not</span>) <span class="dt">False</span> <span class="op">.</span> <span class="fu">enumFromTo</span> <span class="dv">0</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">evenFold ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>evenFold <span class="ot">=</span> foldl' (<span class="fu">const</span> <span class="op">.</span> <span class="fu">not</span>) <span class="dt">False</span> <span class="op">.</span> <span class="fu">enumFromTo</span> <span class="dv">0</span></span></code></pre></div>
 <p><code>foldl</code> is also an anti-pattern. Let’s get funky.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="ot">evenState ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a>evenState n <span class="ot">=</span> execState (replicateM (<span class="fu">fromIntegral</span> n) flipper) <span class="op">$</span> <span class="dt">True</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>    <span class="kw">where</span> flipper <span class="ot">=</span> state <span class="op">$</span> \b <span class="ot">-&gt;</span> ((), <span class="fu">not</span> b)</span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="ot">evenIt ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a>evenIt <span class="ot">=</span> <span class="fu">fst</span> <span class="op">.</span> (<span class="fu">iterate</span> (<span class="fu">uncurry</span> (<span class="fu">flip</span> (,))) (<span class="dt">True</span>, <span class="dt">False</span>) <span class="op">!!</span>) <span class="op">.</span> <span class="fu">fromIntegral</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ot">evenState ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>evenState n <span class="ot">=</span> execState (replicateM (<span class="fu">fromIntegral</span> n) flipper) <span class="op">$</span> <span class="dt">True</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> flipper <span class="ot">=</span> state <span class="op">$</span> \b <span class="ot">-&gt;</span> ((), <span class="fu">not</span> b)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">evenIt ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>evenIt <span class="ot">=</span> <span class="fu">fst</span> <span class="op">.</span> (<span class="fu">iterate</span> (<span class="fu">uncurry</span> (<span class="fu">flip</span> (,))) (<span class="dt">True</span>, <span class="dt">False</span>) <span class="op">!!</span>) <span class="op">.</span> <span class="fu">fromIntegral</span></span></code></pre></div>
 <p>This was the dirtiest part of my implementation, and I’m really sorry to anyone reading this.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a><span class="ot">evenNaive ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>evenNaive <span class="ot">=</span> <span class="fu">even</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ot">evenNaive ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>evenNaive <span class="ot">=</span> <span class="fu">even</span></span></code></pre></div>
 <p>Laziness or: how I learned to stop worrying and love the garbage collector.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="ot">evenLazy ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>evenLazy <span class="ot">=</span> <span class="fu">last</span> <span class="op">.</span> <span class="fu">zipWith</span> <span class="fu">const</span> z <span class="op">.</span> <span class="fu">enumFromTo</span> <span class="dv">0</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>    <span class="kw">where</span> z <span class="ot">=</span> <span class="dt">True</span> <span class="op">:</span> <span class="dt">False</span> <span class="op">:</span> z</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">evenLazy ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>evenLazy <span class="ot">=</span> <span class="fu">last</span> <span class="op">.</span> <span class="fu">zipWith</span> <span class="fu">const</span> z <span class="op">.</span> <span class="fu">enumFromTo</span> <span class="dv">0</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> z <span class="ot">=</span> <span class="dt">True</span> <span class="op">:</span> <span class="dt">False</span> <span class="op">:</span> z</span></code></pre></div>
 <p>This was my first time using profunctors, and I seriously doubt this is the actual use-case for them. Essentially, we compose from left to right, a series of subsequent applications of <code>not</code> to <code class="inline-type">False</code>.</p>
 <p><code>dimap</code> takes two functions and a profunctor, which is contravariant in its first value and covariant in its second. <code>dimap</code> is honestly redundant here as we accomplish the same thing (applying <code>not</code> n times) in the next block.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">EvenP</span> a b <span class="ot">=</span> <span class="dt">EvenP</span> {</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a><span class="ot">                    contr ::</span> <span class="dt">BoolC</span> a,</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a><span class="ot">                    covar ::</span> b</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a>                       }</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true"></a><span class="kw">newtype</span> <span class="dt">BoolC</span> a <span class="ot">=</span> <span class="dt">BoolC</span> {<span class="ot">runBool ::</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>} </span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true"></a></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Contravariant</span> <span class="dt">BoolC</span> <span class="kw">where</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true"></a>    contramap f (<span class="dt">BoolC</span> g) <span class="ot">=</span> <span class="dt">BoolC</span> (g <span class="op">.</span> f)</span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true"></a></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Profunctor</span> <span class="dt">EvenP</span> <span class="kw">where</span></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true"></a>    dimap f g (<span class="dt">EvenP</span> a b) <span class="ot">=</span> <span class="dt">EvenP</span> (contramap f a) (g b)</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true"></a></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true"></a></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true"></a><span class="ot">evenProf ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true"></a>evenProf n <span class="ot">=</span> <span class="kw">let</span> m <span class="ot">=</span> <span class="dt">EvenP</span> (<span class="dt">BoolC</span> <span class="fu">not</span>) <span class="dv">0</span></span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true"></a>                 dmp <span class="ot">=</span> dimap <span class="fu">not</span> <span class="fu">succ</span> </span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true"></a>              <span class="kw">in</span> (runBool <span class="op">.</span> contr <span class="op">.</span> <span class="fu">head</span> <span class="op">.</span> <span class="fu">dropWhile</span> ((<span class="op">&lt;</span> n) <span class="op">.</span> covar) <span class="op">.</span> <span class="fu">iterate</span> dmp) m <span class="dt">False</span></span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true"></a><span class="co">-- build up a huge stack of nots from the contravariant argument of EvenP, finally applying it to False</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">EvenP</span> a b <span class="ot">=</span> <span class="dt">EvenP</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ot">                    contr ::</span> <span class="dt">BoolC</span> a,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ot">                    covar ::</span> b</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                       }</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">BoolC</span> a <span class="ot">=</span> <span class="dt">BoolC</span> {<span class="ot">runBool ::</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>} </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Contravariant</span> <span class="dt">BoolC</span> <span class="kw">where</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    contramap f (<span class="dt">BoolC</span> g) <span class="ot">=</span> <span class="dt">BoolC</span> (g <span class="op">.</span> f)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Profunctor</span> <span class="dt">EvenP</span> <span class="kw">where</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    dimap f g (<span class="dt">EvenP</span> a b) <span class="ot">=</span> <span class="dt">EvenP</span> (contramap f a) (g b)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="ot">evenProf ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>evenProf n <span class="ot">=</span> <span class="kw">let</span> m <span class="ot">=</span> <span class="dt">EvenP</span> (<span class="dt">BoolC</span> <span class="fu">not</span>) <span class="dv">0</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                 dmp <span class="ot">=</span> dimap <span class="fu">not</span> <span class="fu">succ</span> </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>              <span class="kw">in</span> (runBool <span class="op">.</span> contr <span class="op">.</span> <span class="fu">head</span> <span class="op">.</span> <span class="fu">dropWhile</span> ((<span class="op">&lt;</span> n) <span class="op">.</span> covar) <span class="op">.</span> <span class="fu">iterate</span> dmp) m <span class="dt">False</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">-- build up a huge stack of nots from the contravariant argument of EvenP, finally applying it to False</span></span></code></pre></div>
 <p><em>take me to church</em></p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">data</span> <span class="dt">Peano</span> <span class="ot">=</span> <span class="dt">S</span> <span class="dt">Peano</span> <span class="op">|</span> <span class="dt">Z</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a><span class="ot">addPeano ::</span> <span class="dt">Peano</span> <span class="ot">-&gt;</span> <span class="dt">Peano</span> <span class="ot">-&gt;</span> <span class="dt">Peano</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a>addPeano <span class="dt">Z</span> s <span class="ot">=</span> s</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a>addPeano (<span class="dt">S</span> a) b <span class="ot">=</span> <span class="dt">S</span> (addPeano a b)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Ord</span> <span class="dt">Peano</span> <span class="kw">where</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a>    <span class="dt">Z</span>   <span class="op">&lt;=</span> <span class="dt">S</span> _ <span class="ot">=</span> <span class="dt">True</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a>    <span class="dt">S</span> a <span class="op">&lt;=</span> <span class="dt">S</span> b <span class="ot">=</span> a <span class="op">&lt;=</span> b</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Enum</span> <span class="dt">Peano</span> <span class="kw">where</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true"></a>    <span class="fu">toEnum</span> <span class="ot">=</span> (<span class="fu">iterate</span> (addPeano (<span class="dt">S</span> <span class="dt">Z</span>)) <span class="dt">Z</span> <span class="op">!!</span>)</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true"></a>    <span class="fu">fromEnum</span> <span class="ot">=</span> <span class="fu">length</span> <span class="op">.</span> <span class="fu">takeWhile</span> (<span class="op">/=</span> <span class="dt">Z</span>) <span class="op">.</span> <span class="fu">iterate</span> (\(<span class="dt">S</span> a) <span class="ot">-&gt;</span> a)</span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true"></a></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true"></a><span class="ot">evenPeano ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true"></a>evenPeano <span class="ot">=</span> <span class="kw">let</span> go b <span class="ot">=</span> \<span class="kw">case</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true"></a>                         <span class="dt">Z</span>   <span class="ot">-&gt;</span> b</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true"></a>                         <span class="dt">S</span> a <span class="ot">-&gt;</span> go (<span class="fu">not</span> b) a</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true"></a>             <span class="kw">in</span> go <span class="dt">True</span> <span class="op">.</span> <span class="fu">toEnum</span> <span class="op">.</span> <span class="fu">fromIntegral</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true"></a></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true"></a><span class="kw">newtype</span> <span class="dt">Church</span> a b <span class="ot">=</span> <span class="dt">Church</span> {<span class="ot"> runChurch ::</span> a <span class="ot">-&gt;</span> b }</span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true"></a></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true"></a><span class="ot">toChurch ::</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> <span class="dt">Peano</span> <span class="ot">-&gt;</span> <span class="dt">Church</span> a a</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true"></a>toChurch <span class="ot">=</span> (<span class="dt">Church</span> <span class="op">.</span>) <span class="op">.</span> go</span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true"></a>    <span class="kw">where</span> go h <span class="ot">=</span> \<span class="kw">case</span></span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true"></a>                   <span class="dt">Z</span>   <span class="ot">-&gt;</span> <span class="fu">id</span></span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true"></a>                   <span class="dt">S</span> a <span class="ot">-&gt;</span> h <span class="op">.</span> (go h a)</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true"></a></span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true"></a><span class="ot">evenChurch ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true"></a>evenChurch <span class="ot">=</span> <span class="fu">flip</span> (runChurch <span class="op">.</span> toChurch <span class="fu">not</span> <span class="op">.</span> <span class="fu">toEnum</span> <span class="op">.</span> <span class="fu">fromIntegral</span>) <span class="dt">True</span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true"></a><span class="co">-- toChurch is just a more generalized version of evenPeano generalized to any unary endofunction</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Peano</span> <span class="ot">=</span> <span class="dt">S</span> <span class="dt">Peano</span> <span class="op">|</span> <span class="dt">Z</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ot">addPeano ::</span> <span class="dt">Peano</span> <span class="ot">-&gt;</span> <span class="dt">Peano</span> <span class="ot">-&gt;</span> <span class="dt">Peano</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>addPeano <span class="dt">Z</span> s <span class="ot">=</span> s</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>addPeano (<span class="dt">S</span> a) b <span class="ot">=</span> <span class="dt">S</span> (addPeano a b)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Ord</span> <span class="dt">Peano</span> <span class="kw">where</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Z</span>   <span class="op">&lt;=</span> <span class="dt">S</span> _ <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">S</span> a <span class="op">&lt;=</span> <span class="dt">S</span> b <span class="ot">=</span> a <span class="op">&lt;=</span> b</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Enum</span> <span class="dt">Peano</span> <span class="kw">where</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">toEnum</span> <span class="ot">=</span> (<span class="fu">iterate</span> (addPeano (<span class="dt">S</span> <span class="dt">Z</span>)) <span class="dt">Z</span> <span class="op">!!</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fromEnum</span> <span class="ot">=</span> <span class="fu">length</span> <span class="op">.</span> <span class="fu">takeWhile</span> (<span class="op">/=</span> <span class="dt">Z</span>) <span class="op">.</span> <span class="fu">iterate</span> (\(<span class="dt">S</span> a) <span class="ot">-&gt;</span> a)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="ot">evenPeano ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>evenPeano <span class="ot">=</span> <span class="kw">let</span> go b <span class="ot">=</span> \<span class="kw">case</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>                         <span class="dt">Z</span>   <span class="ot">-&gt;</span> b</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>                         <span class="dt">S</span> a <span class="ot">-&gt;</span> go (<span class="fu">not</span> b) a</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>             <span class="kw">in</span> go <span class="dt">True</span> <span class="op">.</span> <span class="fu">toEnum</span> <span class="op">.</span> <span class="fu">fromIntegral</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Church</span> a b <span class="ot">=</span> <span class="dt">Church</span> {<span class="ot"> runChurch ::</span> a <span class="ot">-&gt;</span> b }</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="ot">toChurch ::</span> (a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> <span class="dt">Peano</span> <span class="ot">-&gt;</span> <span class="dt">Church</span> a a</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>toChurch <span class="ot">=</span> (<span class="dt">Church</span> <span class="op">.</span>) <span class="op">.</span> go</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> go h <span class="ot">=</span> \<span class="kw">case</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">Z</span>   <span class="ot">-&gt;</span> <span class="fu">id</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">S</span> a <span class="ot">-&gt;</span> h <span class="op">.</span> (go h a)</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="ot">evenChurch ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>evenChurch <span class="ot">=</span> <span class="fu">flip</span> (runChurch <span class="op">.</span> toChurch <span class="fu">not</span> <span class="op">.</span> <span class="fu">toEnum</span> <span class="op">.</span> <span class="fu">fromIntegral</span>) <span class="dt">True</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="co">-- toChurch is just a more generalized version of evenPeano generalized to any unary endofunction</span></span></code></pre></div>
 <p>Since we’re pushing the limits of trivial computer science, why not implement a solution at the lowest level? (of abstraction, not usefulness.)</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="ot">evenBits ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>evenBits <span class="ot">=</span> <span class="fu">toEnum</span> <span class="op">.</span> xor <span class="dv">1</span> <span class="op">.</span> (<span class="op">.&amp;.</span> <span class="dv">1</span>) <span class="op">.</span> <span class="fu">fromIntegral</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ot">evenBits ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>evenBits <span class="ot">=</span> <span class="fu">toEnum</span> <span class="op">.</span> xor <span class="dv">1</span> <span class="op">.</span> (<span class="op">.&amp;.</span> <span class="dv">1</span>) <span class="op">.</span> <span class="fu">fromIntegral</span></span></code></pre></div>
 <p>Let’s step it down a notch.</p>
 <p>These infix symbols look close enough to their circuit diagrams, I swear.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="kw">class</span> <span class="dt">Nand</span> a b c <span class="op">|</span> a b <span class="ot">-&gt;</span> c <span class="kw">where</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a><span class="ot">    (|@.) ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Nand</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="kw">where</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a>    <span class="dt">True</span> <span class="op">|@.</span> <span class="dt">True</span> <span class="ot">=</span> <span class="dt">False</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a>    _    <span class="op">|@.</span> _    <span class="ot">=</span> <span class="dt">True</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true"></a></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true"></a><span class="kw">infixr</span> <span class="dv">8</span> <span class="op">|@.</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true"></a><span class="kw">class</span> <span class="dt">Xor</span> a b c <span class="op">|</span> a b <span class="ot">-&gt;</span> c <span class="kw">where</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true"></a><span class="ot">    (||&gt;) ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true"></a></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true"></a><span class="kw">instance</span> <span class="dt">Xor</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="kw">where</span></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true"></a>    a <span class="op">||&gt;</span> b <span class="ot">=</span> (a <span class="op">|@.</span> ab) <span class="op">|@.</span> (b <span class="op">|@.</span> ab)</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true"></a>        <span class="kw">where</span> ab <span class="ot">=</span> a <span class="op">|@.</span> b</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true"></a>              </span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true"></a><span class="ot">evenGates ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true"></a>evenGates <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">||&gt;</span>) <span class="dt">True</span> <span class="op">.</span> <span class="fu">flip</span> <span class="fu">replicate</span> <span class="dt">True</span> <span class="op">.</span> <span class="fu">fromIntegral</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Nand</span> a b c <span class="op">|</span> a b <span class="ot">-&gt;</span> c <span class="kw">where</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    (|@.) ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Nand</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="kw">where</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">True</span> <span class="op">|@.</span> <span class="dt">True</span> <span class="ot">=</span> <span class="dt">False</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    _    <span class="op">|@.</span> _    <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="kw">infixr</span> <span class="dv">8</span> <span class="op">|@.</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Xor</span> a b c <span class="op">|</span> a b <span class="ot">-&gt;</span> c <span class="kw">where</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="ot">    (||&gt;) ::</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Xor</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="dt">Bool</span> <span class="kw">where</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    a <span class="op">||&gt;</span> b <span class="ot">=</span> (a <span class="op">|@.</span> ab) <span class="op">|@.</span> (b <span class="op">|@.</span> ab)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span> ab <span class="ot">=</span> a <span class="op">|@.</span> b</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="ot">evenGates ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>evenGates <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">||&gt;</span>) <span class="dt">True</span> <span class="op">.</span> <span class="fu">flip</span> <span class="fu">replicate</span> <span class="dt">True</span> <span class="op">.</span> <span class="fu">fromIntegral</span></span></code></pre></div>
 <p>Here it is. We’ve defined our toolkit, our framework on top of which we can finally accomplish our goal: to check if a number is even. One-liners be damned.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true"></a><span class="co">-- | Returns True if the number is even.</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true"></a><span class="ot">isEven ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true"></a>isEven n <span class="ot">=</span> <span class="kw">let</span> a <span class="ot">=</span> (<span class="fu">abs</span> <span class="op">.</span> <span class="fu">fromIntegral</span>) n</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true"></a>               g <span class="ot">=</span> mkStdGen a</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true"></a>               f <span class="ot">=</span> <span class="kw">case</span> ((<span class="op">!!</span> a) <span class="op">.</span> randomRs (<span class="dv">0</span><span class="ot"> ::</span> <span class="dt">Int</span>, <span class="dv">11</span>)) g <span class="kw">of</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true"></a>                     <span class="dv">0</span> <span class="ot">-&gt;</span> evenBits</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true"></a>                     <span class="dv">1</span> <span class="ot">-&gt;</span> evenPeano</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true"></a>                     <span class="dv">2</span> <span class="ot">-&gt;</span> evenProf</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true"></a>                     <span class="dv">3</span> <span class="ot">-&gt;</span> evenNaive</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true"></a>                     <span class="dv">4</span> <span class="ot">-&gt;</span> evenRec</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true"></a>                     <span class="dv">5</span> <span class="ot">-&gt;</span> evenFold</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true"></a>                     <span class="dv">6</span> <span class="ot">-&gt;</span> evenState</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true"></a>                     <span class="dv">7</span> <span class="ot">-&gt;</span> evenChurch</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true"></a>                     <span class="dv">8</span> <span class="ot">-&gt;</span> evenLazy</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true"></a>                     <span class="dv">9</span> <span class="ot">-&gt;</span> evenGates</span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true"></a>                     _ <span class="ot">-&gt;</span> evenIt</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true"></a>            <span class="kw">in</span> f a</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Returns True if the number is even.</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ot">isEven ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>isEven n <span class="ot">=</span> <span class="kw">let</span> a <span class="ot">=</span> (<span class="fu">abs</span> <span class="op">.</span> <span class="fu">fromIntegral</span>) n</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>               g <span class="ot">=</span> mkStdGen a</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>               f <span class="ot">=</span> <span class="kw">case</span> ((<span class="op">!!</span> a) <span class="op">.</span> randomRs (<span class="dv">0</span><span class="ot"> ::</span> <span class="dt">Int</span>, <span class="dv">11</span>)) g <span class="kw">of</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">0</span> <span class="ot">-&gt;</span> evenBits</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">1</span> <span class="ot">-&gt;</span> evenPeano</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">2</span> <span class="ot">-&gt;</span> evenProf</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">3</span> <span class="ot">-&gt;</span> evenNaive</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">4</span> <span class="ot">-&gt;</span> evenRec</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">5</span> <span class="ot">-&gt;</span> evenFold</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">6</span> <span class="ot">-&gt;</span> evenState</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">7</span> <span class="ot">-&gt;</span> evenChurch</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">8</span> <span class="ot">-&gt;</span> evenLazy</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">9</span> <span class="ot">-&gt;</span> evenGates</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>                     _ <span class="ot">-&gt;</span> evenIt</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>            <span class="kw">in</span> f a</span></code></pre></div>
 <p>And the last step is defining our library for any integer:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="co">-- | Returns True if the number is odd.</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a><span class="ot">isOdd ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>isOdd <span class="ot">=</span> <span class="fu">not</span> <span class="op">.</span> isEven</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Returns True if the number is odd.</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ot">isOdd ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>isOdd <span class="ot">=</span> <span class="fu">not</span> <span class="op">.</span> isEven</span></code></pre></div>
 <p>Check out the <a href="https://github.com/dreamsmasher/is-even">source code</a> if you like. For obvious reasons, this is staying off Hackage.</p>
     </section>
 </article>
