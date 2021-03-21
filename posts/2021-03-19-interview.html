@@ -191,22 +191,24 @@ Dave
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="ot">one ::</span> <span class="dt">Church</span> a</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>one <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f x <span class="ot">-&gt;</span> f x</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="ot">two ::</span> <span class="dt">Church</span> a</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>two <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f x <span class="ot">-&gt;</span> f (f x)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> (<span class="dt">Church</span> a) <span class="kw">where</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    church <span class="op">&lt;&gt;</span> dhurch <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f <span class="ot">-&gt;</span> runChurch c f <span class="op">.</span> runChurch d f</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> (<span class="dt">Church</span> a) <span class="kw">where</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Church</span> (\_ x <span class="ot">-&gt;</span> x)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="ot">addChurch ::</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>addChurch <span class="ot">=</span> (<span class="op">&lt;&gt;</span>)</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">-- we can &quot;multiply&quot; numbers by just passing in another church numeral</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="ot">mulChurch ::</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>mulChurch a b <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f <span class="ot">-&gt;</span> runChurch a (runChurch b f)</span></code></pre></div>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Church ($)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="ot">two ::</span> <span class="dt">Church</span> a</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>two <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f x <span class="ot">-&gt;</span> f (f x)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> (<span class="dt">Church</span> a) <span class="kw">where</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    church <span class="op">&lt;&gt;</span> dhurch <span class="ot">=</span> <span class="dt">Church</span>  </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>      <span class="op">$</span> \f <span class="ot">-&gt;</span> runChurch church f <span class="op">.</span> runChurch dhurch f</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> (<span class="dt">Church</span> a) <span class="kw">where</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Church</span> (\_ x <span class="ot">-&gt;</span> x)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="ot">addChurch ::</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>addChurch <span class="ot">=</span> (<span class="op">&lt;&gt;</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">-- we can &quot;multiply&quot; numbers by just passing in another church numeral</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="ot">mulChurch ::</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a <span class="ot">-&gt;</span> <span class="dt">Church</span> a</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>mulChurch a b <span class="ot">=</span> <span class="dt">Church</span> <span class="op">$</span> \f <span class="ot">-&gt;</span> runChurch a (runChurch b f)</span></code></pre></div>
 <p>“<em>Ok</em>, I think we’re getting a little sidetracked here.” he says, trying to restore normalcy to his precious conflict-free workspace. You’ve only gotten started.</p>
 <p>“I think I’m ready to code a solution now”, you whisper softly in his ear. Technically, everything you’ve said so far is into his ear since he’s wearing headphones.</p>
 <p>We can create 3 infinite lists, consisting of “Fizz” and “Buzz” in their respective cycles, along with the natural numbers. We zip the “Fizz”es and “Buzzes” together into a single list containing the strings in all their correct places, and fill in a number where there’s a hole.</p>
