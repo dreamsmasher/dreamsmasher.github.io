@@ -63,10 +63,10 @@
 <p><span style="color: yellow">» This is my submission for the 2020 <a href="https://adventofhaskell.com/">Advent of Haskell</a>, an event that aims to showcase some of the cool, unknown features of Haskell that newcomers might not know.</span></p>
 </blockquote>
 <p>Ok, let’s talk about Linked Lists. You’ve likely come across them before, either in Leetcode problems or in a pretentious whiteboard interview. They’re a simple data structure, and a great way to learn how to use <code>struct</code>s or <code class="inline-type">Option&lt;Rc&lt;RefCell&lt;Box&lt;ListNode&gt;&gt;&gt;&gt;</code> when you’re starting out. As a refresher, the canonical definition of a linked list is something like</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> LinkedList {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> val;</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> LinkedList *next;</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>} LinkedList;</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> LinkedList <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> val<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> LinkedList <span class="op">*</span>next<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> LinkedList<span class="op">;</span></span></code></pre></div>
 <p>or</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">List</span> a <span class="ot">=</span> <span class="dt">Nil</span> <span class="op">|</span> <span class="dt">Cons</span> a (<span class="dt">List</span> a)</span></code></pre></div>
 <p>where each node contains a value, and a pointer to the next element in the list. They’re intuitive, and allow you grow/shrink collections of objects without having to shift everything else over or reallocate when you run out of slots. Magic, right? There’s no such thing as a free lunch.</p>
