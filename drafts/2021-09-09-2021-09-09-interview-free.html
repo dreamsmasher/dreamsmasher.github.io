@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link id="favicon" rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color content=" #121111"> 
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="bringing" the backend interview back to basics />
+        
+        <meta name="description" property="og:description" content="nliu.net -> " />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="../images/nliu-logo.png" />
+        
+        <title>bringing the backend interview back to basics - Norman Liu's blog</title>
+        
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        
+
+        
+        
+          <meta name="keywords" content>
+        
+    </head>
+    <body>
+        <header>
+            <div class="logo"> 
+                <a href="../">λ <- neon lambdas</a>
+            </div>
+            <nav>
+                <a href="../">Home</a>
+                
+                <a href="../about.html">About</a>
+
+                <a href="../contact.html">Contact</a>
+
+                <a href="../projects.html">Projects</a>
+
+                <a href="../archive.html">Archive</a>
+
+            </nav>
+            <hr class="head_delim">
+        </header>
+
+          <div id="content">
+        <main role="main">
+                        <article>
+    <section class="header">
+      <h1>bringing the backend interview back to basics</h1>
+      Written: <span class="date">2021-09-09</span> 
+      <!--  -->
+        
+      
+      
+    </section>
+    <section>
+        <div class="sourceCode" id="cb1"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE RankNTypes</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  , TupleSections</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  , InstanceSigs</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  , OverloadedStrings</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ot">  , GADTs</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ot">  , ScopedTypeVariables</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ot">  , LambdaCase</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ot">  , DeriveFunctor</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ot">  , StandaloneDeriving</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ot">  , BlockArguments</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ot">  , TypeOperators</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ot">  , TypeFamilies</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ot">  , FlexibleContexts</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ot">  , FlexibleInstances</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ot">  , DeriveGeneric</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ot">  , GeneralizedNewtypeDeriving</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ot">  , MultiParamTypeClasses </span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="ot">#-}</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">InterviewFree</span> <span class="kw">where</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.IORef</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Functor</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Maybe</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Typeable</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.IO.Class</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">GHC.Generics</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.String</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Applicative</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Traversable</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Dynamic</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.Free</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.Reader</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.State</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.Cont</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.Trans.Cont</span> ( evalContT )</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.Trans.Class</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.Writer</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.IntMap</span> <span class="kw">as</span> <span class="dt">M</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.HashMap.Strict</span> <span class="kw">as</span> <span class="dt">H</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Debug.Trace</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Hashable</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Foldable</span> (traverse_)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>default (<span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">Free</span> <span class="dt">BASICFree</span> ())</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">A</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">B</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">C</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">X</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Y</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Z</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Lit</span> <span class="dt">Int</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Str</span> <span class="dt">String</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">PEEK</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Arith</span> <span class="dt">Char</span> <span class="dt">BASICVar</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Generic</span>)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="ot">(.=) ::</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>(<span class="op">.=</span>) <span class="ot">=</span> <span class="dt">EQL</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">IsString</span> <span class="dt">BASICVar</span> <span class="kw">where</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>  fromString <span class="ot">=</span> <span class="dt">Str</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> <span class="dt">BASICVar</span> <span class="kw">where</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromInteger</span> <span class="ot">=</span> <span class="dt">Lit</span> <span class="op">.</span> <span class="fu">fromIntegral</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>  (<span class="op">+</span>) <span class="ot">=</span> <span class="dt">Arith</span> <span class="ch">'+'</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  (<span class="op">*</span>) <span class="ot">=</span> <span class="dt">Arith</span> <span class="ch">'*'</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span> <span class="ot">=</span> <span class="dt">Arith</span> <span class="ch">'a'</span> <span class="dv">0</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  <span class="fu">signum</span> <span class="ot">=</span> <span class="dt">Arith</span> <span class="ch">'s'</span> <span class="dv">0</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  (<span class="op">-</span>) <span class="ot">=</span> <span class="dt">Arith</span> <span class="ch">'-'</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">TO</span> <span class="ot">=</span> <span class="dt">TO</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">THEN</span> <span class="ot">=</span> <span class="dt">THEN</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">GOTO</span> <span class="dt">Int</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">GOSUB</span> <span class="dt">Int</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">RETURN</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">PRINT</span> <span class="dt">BASICVar</span> </span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">INPUT</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">BASICVar</span> <span class="op">:=</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">FOR</span> <span class="dt">BASICExpr</span> <span class="dt">TO</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">EQL</span> <span class="dt">BASICVar</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">AND</span> <span class="dt">BASICExpr</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">OR</span> <span class="dt">BASICExpr</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">IF</span> <span class="dt">BASICExpr</span> <span class="dt">THEN</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">POKE</span> <span class="dt">BASICVar</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">NEXT</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">STEP</span> <span class="dt">BASICExpr</span> <span class="dt">Int</span></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Inline</span> <span class="dt">BASICExpr</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">END</span></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">DEBUG</span> <span class="dt">Char</span></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a><span class="kw">infixr</span> <span class="dv">5</span> <span class="op">:=</span></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="kw">deriving</span> <span class="kw">instance</span> <span class="dt">Eq</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a><span class="kw">deriving</span> <span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BASICFree</span> a <span class="ot">=</span> <span class="dt">BASICFree</span> <span class="dt">Int</span> <span class="dt">BASICExpr</span> a <span class="kw">deriving</span> <span class="dt">Functor</span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">BASIC</span> <span class="ot">=</span> <span class="dt">Free</span> <span class="dt">BASICFree</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a><span class="ot">liftBASIC ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">BASIC</span> ()</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>liftBASIC n <span class="fu">exp</span> <span class="ot">=</span> liftF <span class="op">$</span> <span class="dt">BASICFree</span> n <span class="fu">exp</span> ()</span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a><span class="co">-- not really forall</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="kw">forall</span> a<span class="op">.</span> (a <span class="op">~</span> ()) <span class="ot">=&gt;</span> <span class="dt">Num</span> (<span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">BASIC</span> a) <span class="kw">where</span></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a><span class="ot">  fromInteger ::</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">BASIC</span> a</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fromInteger</span> n <span class="fu">exp</span> <span class="ot">=</span> liftBASIC (<span class="fu">fromIntegral</span> n) <span class="fu">exp</span> </span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a><span class="co">-- bfSomething :: BASICFree a -&gt; BASIC a</span></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a><span class="co">-- bfSomething bf = liftF bf</span></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a><span class="ot">bfTest ::</span> <span class="dt">BASIC</span> ()</span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>bfTest <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10</span><span class="op">$</span> <span class="dt">GOTO</span> <span class="dv">15</span></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>  <span class="dv">15</span><span class="op">$</span> <span class="dt">X</span> <span class="op">:=</span> <span class="dv">1</span></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>  <span class="dv">20</span><span class="op">$</span> <span class="dt">FOR</span> (<span class="dt">Y</span><span class="op">:=</span><span class="dv">2</span>) <span class="dt">TO</span> <span class="dt">X</span> <span class="ot">`STEP`</span> <span class="dv">3</span> ； <span class="dt">PRINT</span> <span class="st">&quot;Hello, &quot;</span> ； <span class="dt">PRINT</span> <span class="st">&quot;World!&quot;</span></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>  <span class="dv">25</span><span class="op">$</span> <span class="dt">NEXT</span> <span class="dt">Y</span></span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a>  <span class="dv">40</span><span class="op">$</span> <span class="dt">A</span> <span class="op">:=</span> <span class="dt">PEEK</span>(<span class="dt">X</span>)</span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>  <span class="dv">50</span><span class="op">$</span> <span class="dt">POKE</span> <span class="dv">10</span> <span class="dt">X</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>  <span class="dv">60</span><span class="op">$</span> <span class="dt">A</span> <span class="op">:=</span> <span class="dt">PEEK</span>(<span class="dv">10</span>)</span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>  <span class="dv">70</span><span class="op">$</span> <span class="dt">FOR</span> (<span class="dt">Y</span><span class="op">:=</span><span class="dv">0</span>) <span class="dt">TO</span> <span class="dt">X</span> ； <span class="dt">POKE</span> <span class="dt">Y</span> <span class="dt">X</span> ； <span class="dt">PRINT</span> <span class="st">&quot;hi&quot;</span> </span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a><span class="co">-- logging stuff</span></span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Log</span> <span class="ot">=</span> <span class="dt">Log</span> {<span class="ot">getLog ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>}</span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a><span class="ot">output ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Log</span></span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a>output s <span class="ot">=</span> <span class="dt">Log</span> ((<span class="ch">'\n'</span> <span class="op">:</span> s) <span class="op">&lt;&gt;</span>)</span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Log</span> <span class="kw">where</span></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">show</span> <span class="ot">=</span> (<span class="op">$</span> <span class="st">&quot;&quot;</span>) <span class="op">.</span> getLog</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> <span class="dt">Log</span> <span class="kw">where</span></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Log</span> s1 <span class="op">&lt;&gt;</span> <span class="dt">Log</span> s2 <span class="ot">=</span> <span class="dt">Log</span> <span class="op">$</span> s1 <span class="op">.</span> s2</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">Log</span> <span class="kw">where</span></span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mempty</span> <span class="ot">=</span> <span class="dt">Log</span> <span class="fu">id</span></span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a><span class="ot">printAST ::</span> <span class="dt">BASIC</span> () <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>printAST <span class="ot">=</span> (<span class="ot">`getLog`</span> <span class="st">&quot;&quot;</span>) <span class="op">.</span> execWriter <span class="op">.</span> iterA \(<span class="dt">BASICFree</span> n e accum) <span class="ot">-&gt;</span> accum <span class="op">&gt;&gt;</span> tell (fmtLine n e)</span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a><span class="ot">fmtLine ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">Log</span></span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a>fmtLine n <span class="fu">exp</span> <span class="ot">=</span> <span class="dt">Log</span> <span class="op">$</span> ((<span class="fu">show</span> n <span class="op">&lt;&gt;</span> <span class="st">&quot;: &quot;</span> <span class="op">&lt;&gt;</span> <span class="fu">show</span> <span class="fu">exp</span>) <span class="op">&lt;&gt;</span>) <span class="op">.</span> (<span class="ch">'\n'</span> <span class="op">:</span>)</span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a><span class="ot">showBasic ::</span> <span class="dt">BASIC</span> () <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>showBasic <span class="ot">=</span> <span class="fu">mapM_</span> <span class="fu">putStrLn</span> <span class="op">.</span> <span class="fu">reverse</span> <span class="op">.</span> <span class="fu">lines</span> <span class="op">.</span> printAST</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a><span class="co">--</span></span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>forTest <span class="ot">=</span> <span class="dt">FOR</span> (<span class="dt">X</span><span class="op">:=</span><span class="dv">1</span>) <span class="dt">TO</span> <span class="dv">10</span></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>forStepTest <span class="ot">=</span> <span class="dt">FOR</span> (<span class="dt">X</span><span class="op">:=</span><span class="dv">1</span>) <span class="dt">TO</span> <span class="dv">10</span> <span class="ot">`STEP`</span> <span class="dv">3</span></span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">IndexedCont</span> <span class="ot">=</span> <span class="dt">IndexedContinuation</span> {</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a><span class="ot">  basicExp ::</span> <span class="dt">BASICExpr</span>,</span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a><span class="ot">  cont ::</span> <span class="dt">BVM</span> ()</span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Phase</span> <span class="ot">=</span> <span class="dt">Load</span> <span class="op">|</span> <span class="dt">Run</span> <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BASICState</span> <span class="ot">=</span> <span class="dt">BASICState</span> </span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> memory ::</span> <span class="dt">M.IntMap</span> <span class="dt">Int</span></span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> variables ::</span> <span class="dt">H.HashMap</span> <span class="dt">BASICVar</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> instr ::</span> <span class="dt">M.IntMap</span> <span class="dt">IndexedCont</span></span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> stack ::</span> [<span class="dt">BVM</span> ()]</span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> loopStack ::</span> [(<span class="dt">BASICVar</span>, <span class="dt">Int</span>, <span class="dt">Int</span>, <span class="dt">BVM</span> ())]</span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> flagReg ::</span> <span class="dt">Int</span></span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> startCont ::</span> <span class="dt">BVM</span> () </span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> vmPhase ::</span> <span class="dt">Phase</span></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> basicError ::</span> <span class="dt">Maybe</span> <span class="dt">BASICError</span></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>  } </span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a><span class="ot">emptyState ::</span> <span class="dt">BASICState</span></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a>emptyState <span class="ot">=</span> <span class="dt">BASICState</span> <span class="fu">mempty</span> <span class="fu">mempty</span> <span class="fu">mempty</span> [] [] <span class="dv">0</span> (<span class="fu">pure</span> ()) <span class="dt">Load</span> <span class="dt">Nothing</span></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BASICError</span> </span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">UninitializedVar</span> <span class="dt">BASICVar</span></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">NullReference</span></span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">TypeMismatch</span> <span class="dt">String</span> <span class="dt">String</span></span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">HsError</span> <span class="dt">String</span></span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">BVM</span> a <span class="ot">=</span> <span class="dt">BVM</span> {<span class="ot">runBVM ::</span> <span class="dt">ContT</span> () (<span class="dt">StateT</span> <span class="dt">BASICState</span> (<span class="dt">WriterT</span> <span class="dt">Log</span> <span class="dt">IO</span>)) a} </span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> (<span class="dt">Functor</span>, <span class="dt">Applicative</span>, <span class="dt">Monad</span>, <span class="dt">MonadState</span> <span class="dt">BASICState</span>, <span class="dt">MonadCont</span>, <span class="dt">MonadIO</span>)</span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a><span class="ot">bvmTell ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> ()</span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a>bvmTell <span class="ot">=</span> <span class="dt">BVM</span> <span class="op">.</span> lift <span class="op">.</span> lift <span class="op">.</span> tell <span class="op">.</span> output</span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a><span class="co">-- no catching errors in ContT</span></span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a><span class="ot">throwError ::</span> <span class="dt">BASICError</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> a</span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a>throwError e <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>  state <span class="ot">&lt;-</span> get</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a>  modify \bst <span class="ot">-&gt;</span> bst {basicError <span class="ot">=</span> <span class="dt">Just</span> e}</span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>  <span class="dt">BVM</span> <span class="op">$</span> <span class="dt">ContT</span> \_ <span class="ot">-&gt;</span> <span class="fu">pure</span> ()</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">MonadFail</span> <span class="dt">BVM</span> <span class="kw">where</span></span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fail</span> <span class="ot">=</span> throwError <span class="op">.</span> <span class="dt">HsError</span></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a><span class="ot">runBASIC ::</span> <span class="dt">BASIC</span> () <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">BASICError</span> <span class="dt">Log</span>)</span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a>runBASIC <span class="ot">=</span> </span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmap</span> (<span class="fu">uncurry</span> handleErr) </span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span> runWriterT </span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span> (<span class="ot">`execStateT`</span> emptyState) </span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span>  evalContT </span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span> runBVM </span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span> reifyStart </span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span> foldBASIC</span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> handleErr basicState <span class="fu">log</span> <span class="ot">=</span> <span class="fu">maybe</span> (<span class="dt">Right</span> <span class="fu">log</span>) <span class="dt">Left</span> <span class="op">$</span> basicError basicState</span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- interpreter runs in 2 phases: </span></span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a>          <span class="co">-- 1. indexing all BASICExpr+continuations by line number</span></span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a>          <span class="co">-- 2. jumping back to the beginning, and interpreting expressions now that we have the entire program indexed</span></span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a><span class="ot">        reifyStart ::</span> <span class="dt">BVM</span> () <span class="ot">-&gt;</span> <span class="dt">BVM</span> ()</span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>        reifyStart prog <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>          callCC \k <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>            <span class="co">-- reify starting continuation so we can jump back to the top</span></span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>            modify' \bst <span class="ot">-&gt;</span> bst {startCont <span class="ot">=</span> k ()}</span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>          gets vmPhase <span class="op">&gt;&gt;=</span> \<span class="kw">case</span></span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Load</span> <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>              prog</span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>              modify' \bst <span class="ot">-&gt;</span> <span class="kw">let</span></span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a>                (keys, conts) <span class="ot">=</span> <span class="fu">unzip</span> <span class="op">.</span> M.assocs <span class="op">$</span> instr bst</span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a>                <span class="co">-- shift continuations so that their number is aligned with their own cont</span></span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a>                conts' <span class="ot">=</span> M.fromList (<span class="fu">zip</span> (<span class="fu">tail</span> keys) conts)</span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a>                <span class="kw">in</span> bst {vmPhase <span class="ot">=</span> <span class="dt">Run</span>, instr <span class="ot">=</span> conts'}</span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a>              join <span class="op">$</span> gets startCont</span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Run</span> <span class="ot">-&gt;</span> <span class="kw">do</span> </span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a>              instr <span class="ot">&lt;-</span> gets instr</span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a>              prog</span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a><span class="ot">        foldBASIC ::</span> <span class="dt">BASIC</span> () <span class="ot">-&gt;</span> <span class="dt">BVM</span> ()</span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a>        foldBASIC <span class="ot">=</span> foldFree go</span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a><span class="ot">        go ::</span> <span class="dt">BASICFree</span> a <span class="ot">-&gt;</span> <span class="dt">BVM</span> a</span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a>        go (<span class="dt">BASICFree</span> line <span class="fu">exp</span> next) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a>          callCC \k <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a>            gets vmPhase <span class="op">&gt;&gt;=</span> \<span class="kw">case</span></span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a>              <span class="dt">Load</span> <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a>                <span class="kw">let</span> ic <span class="ot">=</span> <span class="dt">IndexedContinuation</span> <span class="fu">exp</span> (k ()) </span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a>                instr' <span class="ot">&lt;-</span> gets (M.insert line ic <span class="op">.</span> instr)</span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>                modify' \bst <span class="ot">-&gt;</span> bst {instr <span class="ot">=</span> instr'}</span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a>              <span class="dt">Run</span> <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a>                interpretBASIC <span class="fu">exp</span></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a>          <span class="fu">pure</span> next</span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a><span class="ot">getCont ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> (<span class="dt">Maybe</span> (<span class="dt">BVM</span> ()))</span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a>getCont n <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a>  conts <span class="ot">&lt;-</span> gets (M.lookup n <span class="op">.</span> instr)</span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="dt">Nothing</span></span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a><span class="ot">handleArith ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> <span class="dt">Int</span></span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a>handleArith <span class="ch">'a'</span> _ v <span class="ot">=</span> <span class="fu">abs</span> <span class="op">&lt;$&gt;</span> derefInt v</span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a>handleArith <span class="ch">'s'</span> _ v <span class="ot">=</span> <span class="fu">signum</span> <span class="op">&lt;$&gt;</span> derefInt v</span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a>handleArith opc a b <span class="ot">=</span> op <span class="op">&lt;$&gt;</span> derefInt a <span class="op">&lt;*&gt;</span> derefInt b</span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> op <span class="ot">=</span> <span class="kw">case</span> opc <span class="kw">of</span> {<span class="ch">'+'</span> <span class="ot">-&gt;</span> (<span class="op">+</span>); <span class="ch">'-'</span> <span class="ot">-&gt;</span> (<span class="op">-</span>); <span class="ch">'*'</span> <span class="ot">-&gt;</span> (<span class="op">*</span>)}</span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a><span class="ot">derefInt ::</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> <span class="dt">Int</span></span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a>derefInt (<span class="dt">PEEK</span> addr) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a>  rawAddr <span class="ot">&lt;-</span> derefInt addr</span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a>  gets (M.lookup rawAddr <span class="op">.</span> memory) <span class="op">&gt;&gt;=</span> <span class="fu">maybe</span> (throwError <span class="dt">NullReference</span>) <span class="fu">pure</span> </span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a>derefInt (<span class="dt">Lit</span> n) <span class="ot">=</span> <span class="fu">pure</span> n</span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a>derefInt (<span class="dt">Str</span> _) <span class="ot">=</span> throwError <span class="op">$</span> <span class="dt">TypeMismatch</span> <span class="st">&quot;String&quot;</span> <span class="st">&quot;Int&quot;</span></span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a>derefInt (<span class="dt">Arith</span> opc a b) <span class="ot">=</span> handleArith opc a b</span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a>derefInt v <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Just</span> n <span class="ot">&lt;-</span> gets (H.lookup v <span class="op">.</span> variables)</span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a>  derefInt n</span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a><span class="ot">runBool ::</span> <span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> <span class="dt">Bool</span></span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a>runBool e <span class="ot">=</span> interpretBASIC e <span class="op">&gt;&gt;</span> ((<span class="op">&lt;</span> <span class="dv">0</span>) <span class="op">&lt;$&gt;</span> gets flagReg)</span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a><span class="ot">runFor ::</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">BASICVar</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> ()</span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>runFor lhs rhs end step <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a>  interpretBASIC (lhs <span class="op">:=</span> rhs)</span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a>  lim <span class="ot">&lt;-</span> derefInt end</span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a>  callCC \k <span class="ot">-&gt;</span> modify \bst <span class="ot">-&gt;</span> bst {loopStack <span class="ot">=</span> (lhs, lim, step, k ()) <span class="op">:</span> loopStack bst}</span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a><span class="ot">interpretBASIC ::</span> <span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> ()</span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a>interpretBASIC <span class="ot">=</span> \<span class="kw">case</span></span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a>  <span class="dt">GOTO</span> line <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a>     <span class="dt">Just</span> (<span class="dt">IndexedContinuation</span> _ cont) <span class="ot">&lt;-</span> gets (M.lookup line <span class="op">.</span> instr)</span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a>     insts <span class="ot">&lt;-</span> gets instr</span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a>     <span class="co">-- jump back to runBASIC::go</span></span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a>     cont</span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a>  <span class="dt">GOSUB</span> line <span class="ot">-&gt;</span> callCC \k <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- push current cont onto the &quot;call stack&quot;</span></span>
+<span id="cb1-290"><a href="#cb1-290" aria-hidden="true" tabindex="-1"></a>    modify' \bst <span class="ot">-&gt;</span> bst{stack <span class="ot">=</span> k () <span class="op">:</span> stack bst}</span>
+<span id="cb1-291"><a href="#cb1-291" aria-hidden="true" tabindex="-1"></a>    interpretBASIC (<span class="dt">GOTO</span> line)</span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a>  <span class="dt">RETURN</span> <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a>    (cont<span class="op">:</span>conts) <span class="ot">&lt;-</span> gets stack</span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a>    modify' \bst <span class="ot">-&gt;</span> bst {stack <span class="ot">=</span> conts}</span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a>    cont</span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a>  <span class="dt">PRINT</span> x <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> printBASIC (<span class="dt">Lit</span> n) <span class="ot">=</span> bvmTell <span class="op">$</span> <span class="fu">show</span> n</span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a>        printBASIC (<span class="dt">Str</span> s) <span class="ot">=</span> bvmTell s</span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a>        printBASIC pk<span class="op">@</span>(<span class="dt">PEEK</span> _) <span class="ot">=</span> derefInt pk <span class="op">&gt;&gt;=</span> bvmTell <span class="op">.</span> <span class="fu">show</span></span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a>        printBASIC bv <span class="ot">=</span> gets (H.lookup bv <span class="op">.</span> variables)</span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a>          <span class="op">&gt;&gt;=</span> traverse_ (bvmTell <span class="op">.</span> <span class="fu">show</span>) </span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a>    printBASIC x</span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a>  <span class="dt">INPUT</span> target <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a>    input <span class="ot">&lt;-</span> <span class="dt">Str</span> <span class="op">&lt;$&gt;</span> liftIO <span class="fu">getLine</span></span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a>    interpretBASIC <span class="op">$</span> target <span class="op">:=</span> input</span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a>  lhs <span class="op">:=</span> rhs <span class="ot">-&gt;</span> <span class="kw">do</span> </span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a>    rhsActual <span class="ot">&lt;-</span> <span class="kw">case</span> rhs <span class="kw">of</span></span>
+<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a>      <span class="dt">PEEK</span> addr <span class="ot">-&gt;</span> <span class="dt">Lit</span> <span class="op">&lt;$&gt;</span> derefInt addr</span>
+<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Arith</span> opc a b <span class="ot">-&gt;</span> <span class="dt">Lit</span> <span class="op">&lt;$&gt;</span> handleArith opc a b</span>
+<span id="cb1-310"><a href="#cb1-310" aria-hidden="true" tabindex="-1"></a>      _ <span class="ot">-&gt;</span> <span class="fu">pure</span> rhs</span>
+<span id="cb1-311"><a href="#cb1-311" aria-hidden="true" tabindex="-1"></a>    vars' <span class="ot">&lt;-</span> gets (H.insert lhs rhsActual <span class="op">.</span> variables)</span>
+<span id="cb1-312"><a href="#cb1-312" aria-hidden="true" tabindex="-1"></a>    modify \bst <span class="ot">-&gt;</span> bst {variables <span class="ot">=</span> vars'}</span>
+<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a>  <span class="dt">FOR</span> (lhs <span class="op">:=</span> rhs) <span class="dt">TO</span> end <span class="ot">-&gt;</span> runFor lhs rhs end <span class="dv">1</span></span>
+<span id="cb1-315"><a href="#cb1-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-316"><a href="#cb1-316" aria-hidden="true" tabindex="-1"></a>  <span class="dt">STEP</span> (<span class="dt">FOR</span> (lhs <span class="op">:=</span> rhs) <span class="dt">TO</span> end) step <span class="ot">-&gt;</span> runFor lhs rhs end step</span>
+<span id="cb1-317"><a href="#cb1-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a>  <span class="dt">NEXT</span> lhs <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a>    ((name, lim, step, cont) <span class="op">:</span> loops) <span class="ot">&lt;-</span> gets loopStack</span>
+<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a>    unless (name <span class="op">==</span> lhs) <span class="op">$</span> throwError (<span class="dt">UninitializedVar</span> lhs)</span>
+<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a>    val <span class="ot">&lt;-</span> derefInt lhs</span>
+<span id="cb1-322"><a href="#cb1-322" aria-hidden="true" tabindex="-1"></a>    unless (val <span class="op">==</span> lim) <span class="op">$</span> modify' (\bst <span class="ot">-&gt;</span> bst {variables <span class="ot">=</span> H.insert lhs (<span class="dt">Lit</span> (val <span class="op">+</span> step)) <span class="op">$</span> variables bst})</span>
+<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a>      <span class="op">&gt;&gt;</span> cont</span>
+<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a>  <span class="dt">POKE</span> addr var <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a>    val <span class="ot">&lt;-</span> derefInt var</span>
+<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a>    addr' <span class="ot">&lt;-</span> derefInt addr</span>
+<span id="cb1-327"><a href="#cb1-327" aria-hidden="true" tabindex="-1"></a>    modify' \bst <span class="ot">-&gt;</span> bst {memory <span class="ot">=</span> M.insert addr' val (memory bst)}</span>
+<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a>  <span class="dt">EQL</span> s t <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-330"><a href="#cb1-330" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> </span>
+<span id="cb1-331"><a href="#cb1-331" aria-hidden="true" tabindex="-1"></a>      eql (<span class="dt">Str</span> s) (<span class="dt">Str</span> t) <span class="ot">=</span> <span class="fu">pure</span> <span class="op">$</span> s <span class="op">==</span> t</span>
+<span id="cb1-332"><a href="#cb1-332" aria-hidden="true" tabindex="-1"></a>      eql (<span class="dt">Str</span> _) _ <span class="ot">=</span> <span class="fu">pure</span> <span class="dt">False</span></span>
+<span id="cb1-333"><a href="#cb1-333" aria-hidden="true" tabindex="-1"></a>      eql _ (<span class="dt">Str</span> _) <span class="ot">=</span> <span class="fu">pure</span> <span class="dt">False</span></span>
+<span id="cb1-334"><a href="#cb1-334" aria-hidden="true" tabindex="-1"></a>      eql (<span class="dt">Lit</span> n) (<span class="dt">Lit</span> m) <span class="ot">=</span> <span class="fu">pure</span> <span class="op">$</span> n <span class="op">==</span> m</span>
+<span id="cb1-335"><a href="#cb1-335" aria-hidden="true" tabindex="-1"></a>      eql a b <span class="ot">=</span> (<span class="op">==</span>) <span class="op">&lt;$&gt;</span> derefInt a <span class="op">&lt;*&gt;</span> derefInt b</span>
+<span id="cb1-336"><a href="#cb1-336" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> eql s t</span>
+<span id="cb1-337"><a href="#cb1-337" aria-hidden="true" tabindex="-1"></a>    modify \bst <span class="ot">-&gt;</span> bst {flagReg <span class="ot">=</span> <span class="kw">if</span> res <span class="kw">then</span> (<span class="op">-</span><span class="dv">1</span>) <span class="kw">else</span> <span class="dv">0</span>}</span>
+<span id="cb1-338"><a href="#cb1-338" aria-hidden="true" tabindex="-1"></a>  <span class="dt">AND</span> a b <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-339"><a href="#cb1-339" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="kw">do</span> </span>
+<span id="cb1-340"><a href="#cb1-340" aria-hidden="true" tabindex="-1"></a>      r1 <span class="ot">&lt;-</span> runBool a</span>
+<span id="cb1-341"><a href="#cb1-341" aria-hidden="true" tabindex="-1"></a>      <span class="kw">if</span> r1 <span class="kw">then</span> runBool b</span>
+<span id="cb1-342"><a href="#cb1-342" aria-hidden="true" tabindex="-1"></a>      <span class="kw">else</span> <span class="fu">pure</span> <span class="dt">False</span></span>
+<span id="cb1-343"><a href="#cb1-343" aria-hidden="true" tabindex="-1"></a>    modify \bst <span class="ot">-&gt;</span> bst {flagReg <span class="ot">=</span> <span class="kw">if</span> res <span class="kw">then</span> (<span class="op">-</span><span class="dv">1</span>) <span class="kw">else</span> <span class="dv">0</span>}</span>
+<span id="cb1-344"><a href="#cb1-344" aria-hidden="true" tabindex="-1"></a>  <span class="dt">OR</span> a b <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb1-345"><a href="#cb1-345" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="kw">do</span></span>
+<span id="cb1-346"><a href="#cb1-346" aria-hidden="true" tabindex="-1"></a>      r1 <span class="ot">&lt;-</span> runBool a </span>
+<span id="cb1-347"><a href="#cb1-347" aria-hidden="true" tabindex="-1"></a>      <span class="kw">if</span> r1 <span class="kw">then</span> <span class="fu">pure</span> <span class="dt">True</span> <span class="kw">else</span> runBool b</span>
+<span id="cb1-348"><a href="#cb1-348" aria-hidden="true" tabindex="-1"></a>    modify \bst <span class="ot">-&gt;</span> bst {flagReg <span class="ot">=</span> <span class="kw">if</span> res <span class="kw">then</span> (<span class="op">-</span><span class="dv">1</span>) <span class="kw">else</span> <span class="dv">0</span>}</span>
+<span id="cb1-349"><a href="#cb1-349" aria-hidden="true" tabindex="-1"></a>  <span class="dt">IF</span> <span class="fu">exp</span> <span class="dt">THEN</span> act <span class="ot">-&gt;</span> <span class="kw">do</span> </span>
+<span id="cb1-350"><a href="#cb1-350" aria-hidden="true" tabindex="-1"></a>    flag <span class="ot">&lt;-</span> runBool <span class="fu">exp</span></span>
+<span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a>    when flag <span class="op">$</span> interpretBASIC act</span>
+<span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Inline</span> act1 act2 <span class="ot">-&gt;</span> interpretBASIC act1 <span class="op">&gt;&gt;</span> interpretBASIC act2</span>
+<span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a>  <span class="dt">END</span> <span class="ot">-&gt;</span> <span class="dt">BVM</span> <span class="op">$</span> <span class="dt">ContT</span> \_ <span class="ot">-&gt;</span> <span class="fu">pure</span> ()</span>
+<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a>  <span class="dt">DEBUG</span> c <span class="ot">-&gt;</span> <span class="kw">do</span> </span>
+<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> <span class="kw">case</span> c <span class="kw">of</span></span>
+<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a>      <span class="ch">'v'</span> <span class="ot">-&gt;</span> <span class="fu">show</span> <span class="op">&lt;$&gt;</span> gets variables</span>
+<span id="cb1-357"><a href="#cb1-357" aria-hidden="true" tabindex="-1"></a>      <span class="ch">'m'</span> <span class="ot">-&gt;</span> <span class="fu">show</span> <span class="op">&lt;$&gt;</span> gets memory</span>
+<span id="cb1-358"><a href="#cb1-358" aria-hidden="true" tabindex="-1"></a>      <span class="ch">'k'</span> <span class="ot">-&gt;</span> <span class="fu">show</span> <span class="op">.</span> M.keys <span class="op">&lt;$&gt;</span> gets instr</span>
+<span id="cb1-359"><a href="#cb1-359" aria-hidden="true" tabindex="-1"></a>      <span class="ch">'f'</span> <span class="ot">-&gt;</span> <span class="fu">show</span> <span class="op">&lt;$&gt;</span> gets flagReg</span>
+<span id="cb1-360"><a href="#cb1-360" aria-hidden="true" tabindex="-1"></a>      <span class="ch">'p'</span> <span class="ot">-&gt;</span> <span class="fu">show</span> <span class="op">&lt;$&gt;</span> gets vmPhase</span>
+<span id="cb1-361"><a href="#cb1-361" aria-hidden="true" tabindex="-1"></a>      <span class="ch">'e'</span> <span class="ot">-&gt;</span> <span class="fu">show</span> <span class="op">&lt;$&gt;</span> gets basicError</span>
+<span id="cb1-362"><a href="#cb1-362" aria-hidden="true" tabindex="-1"></a>    liftIO <span class="op">$</span> <span class="fu">mapM_</span> <span class="fu">putStrLn</span> (<span class="fu">lines</span> s) </span>
+<span id="cb1-363"><a href="#cb1-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-364"><a href="#cb1-364" aria-hidden="true" tabindex="-1"></a>(；)<span class="ot"> ::</span> <span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">BASICExpr</span> <span class="ot">-&gt;</span> <span class="dt">BASICExpr</span></span>
+<span id="cb1-365"><a href="#cb1-365" aria-hidden="true" tabindex="-1"></a>(；) <span class="ot">=</span> <span class="dt">Inline</span></span>
+<span id="cb1-366"><a href="#cb1-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-367"><a href="#cb1-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-368"><a href="#cb1-368" aria-hidden="true" tabindex="-1"></a><span class="ot">tst ::</span> <span class="dt">BASIC</span> ()</span>
+<span id="cb1-369"><a href="#cb1-369" aria-hidden="true" tabindex="-1"></a>tst <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-370"><a href="#cb1-370" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10</span><span class="op">$</span> <span class="dt">FOR</span> (<span class="dt">A</span><span class="op">:=</span><span class="dv">0</span>) <span class="dt">TO</span> <span class="dv">10</span> ； <span class="dt">PRINT</span> <span class="st">&quot;hi&quot;</span> ； <span class="dt">NEXT</span> <span class="dt">A</span></span>
+<span id="cb1-371"><a href="#cb1-371" aria-hidden="true" tabindex="-1"></a>  <span class="dv">15</span><span class="op">$</span> <span class="dt">B</span> <span class="op">:=</span> <span class="dv">128</span></span>
+<span id="cb1-372"><a href="#cb1-372" aria-hidden="true" tabindex="-1"></a>  <span class="dv">20</span><span class="op">$</span> <span class="dt">POKE</span> <span class="dt">B</span> <span class="dv">0</span></span>
+<span id="cb1-373"><a href="#cb1-373" aria-hidden="true" tabindex="-1"></a>  <span class="dv">30</span><span class="op">$</span> <span class="dt">FOR</span> (<span class="dt">A</span><span class="op">:=</span><span class="dv">0</span>) <span class="dt">TO</span> <span class="dv">30</span> <span class="ot">`STEP`</span> <span class="dv">2</span></span>
+<span id="cb1-374"><a href="#cb1-374" aria-hidden="true" tabindex="-1"></a>  <span class="dv">40</span><span class="op">$</span>   <span class="dt">PRINT</span> (<span class="dt">PEEK</span>(<span class="dt">B</span>))</span>
+<span id="cb1-375"><a href="#cb1-375" aria-hidden="true" tabindex="-1"></a>  <span class="dv">45</span><span class="op">$</span>   <span class="dt">POKE</span> <span class="dt">B</span> <span class="dt">A</span></span>
+<span id="cb1-376"><a href="#cb1-376" aria-hidden="true" tabindex="-1"></a>  <span class="dv">50</span><span class="op">$</span> <span class="dt">NEXT</span> <span class="dt">A</span></span>
+<span id="cb1-377"><a href="#cb1-377" aria-hidden="true" tabindex="-1"></a>  <span class="dv">60</span><span class="op">$</span> <span class="dt">X</span><span class="op">:=</span><span class="dv">0</span></span>
+<span id="cb1-378"><a href="#cb1-378" aria-hidden="true" tabindex="-1"></a>  <span class="dv">70</span><span class="op">$</span> <span class="dt">X</span> <span class="op">:=</span> <span class="dt">X</span><span class="op">+</span><span class="dv">1</span></span>
+<span id="cb1-379"><a href="#cb1-379" aria-hidden="true" tabindex="-1"></a>  <span class="dv">75</span><span class="op">$</span> <span class="dt">PRINT</span> <span class="dt">X</span></span>
+<span id="cb1-380"><a href="#cb1-380" aria-hidden="true" tabindex="-1"></a>  <span class="dv">80</span><span class="op">$</span> <span class="dt">IF</span> (<span class="dt">X</span> <span class="op">.=</span> <span class="dv">10</span>) <span class="dt">THEN</span> (<span class="dt">GOTO</span> <span class="dv">100</span>) </span>
+<span id="cb1-381"><a href="#cb1-381" aria-hidden="true" tabindex="-1"></a>  <span class="dv">85</span><span class="op">$</span> <span class="dt">IF</span> (<span class="dt">X</span> <span class="op">.=</span> <span class="dv">5</span>) <span class="dt">THEN</span> (<span class="dt">PRINT</span> <span class="dt">X</span>)</span>
+<span id="cb1-382"><a href="#cb1-382" aria-hidden="true" tabindex="-1"></a>  <span class="dv">90</span><span class="op">$</span> <span class="dt">GOTO</span> <span class="dv">70</span></span>
+<span id="cb1-383"><a href="#cb1-383" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100</span> <span class="dt">END</span></span>
+<span id="cb1-384"><a href="#cb1-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-385"><a href="#cb1-385" aria-hidden="true" tabindex="-1"></a><span class="ot">endTst ::</span> <span class="dt">BASIC</span> ()</span>
+<span id="cb1-386"><a href="#cb1-386" aria-hidden="true" tabindex="-1"></a>endTst <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-387"><a href="#cb1-387" aria-hidden="true" tabindex="-1"></a>  <span class="dv">0</span><span class="op">$</span> <span class="dt">PRINT</span> <span class="st">&quot;HI&quot;</span></span>
+<span id="cb1-388"><a href="#cb1-388" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10</span><span class="op">$</span> <span class="dt">PRINT</span> <span class="st">&quot;BYE&quot;</span></span>
+<span id="cb1-389"><a href="#cb1-389" aria-hidden="true" tabindex="-1"></a>  <span class="dv">12</span><span class="op">$</span> <span class="dt">GOTO</span> <span class="dv">17</span></span>
+<span id="cb1-390"><a href="#cb1-390" aria-hidden="true" tabindex="-1"></a>  <span class="dv">15</span><span class="op">$</span> <span class="dt">END</span></span>
+<span id="cb1-391"><a href="#cb1-391" aria-hidden="true" tabindex="-1"></a>  <span class="dv">17</span><span class="op">$</span> <span class="dt">PRINT</span> <span class="st">&quot;I'm still here&quot;</span></span>
+<span id="cb1-392"><a href="#cb1-392" aria-hidden="true" tabindex="-1"></a>  <span class="dv">20</span><span class="op">$</span> <span class="dt">X</span> <span class="op">:=</span> <span class="dv">0</span></span>
+<span id="cb1-393"><a href="#cb1-393" aria-hidden="true" tabindex="-1"></a>  <span class="dv">30</span><span class="op">$</span> <span class="dt">Y</span> <span class="op">:=</span> <span class="dv">1</span></span>
+<span id="cb1-394"><a href="#cb1-394" aria-hidden="true" tabindex="-1"></a>  <span class="dv">40</span> <span class="dt">END</span></span>
+<span id="cb1-395"><a href="#cb1-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-396"><a href="#cb1-396" aria-hidden="true" tabindex="-1"></a><span class="ot">goSubTest ::</span> <span class="dt">BASIC</span> ()</span>
+<span id="cb1-397"><a href="#cb1-397" aria-hidden="true" tabindex="-1"></a>goSubTest <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-398"><a href="#cb1-398" aria-hidden="true" tabindex="-1"></a>  <span class="dv">0</span><span class="op">$</span> <span class="dt">X</span> <span class="op">:=</span> <span class="dv">0</span> </span>
+<span id="cb1-399"><a href="#cb1-399" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10</span><span class="op">$</span> <span class="dt">IF</span> (<span class="dt">X</span> <span class="op">.=</span> <span class="dv">10</span>) <span class="dt">THEN</span> (<span class="dt">GOTO</span> <span class="dv">30</span>)</span>
+<span id="cb1-400"><a href="#cb1-400" aria-hidden="true" tabindex="-1"></a>  <span class="dv">15</span><span class="op">$</span> <span class="dt">PRINT</span> <span class="dt">X</span></span>
+<span id="cb1-401"><a href="#cb1-401" aria-hidden="true" tabindex="-1"></a>  <span class="dv">20</span><span class="op">$</span> <span class="dt">GOSUB</span> <span class="dv">100</span></span>
+<span id="cb1-402"><a href="#cb1-402" aria-hidden="true" tabindex="-1"></a>  <span class="dv">25</span><span class="op">$</span> <span class="dt">GOTO</span> <span class="dv">10</span></span>
+<span id="cb1-403"><a href="#cb1-403" aria-hidden="true" tabindex="-1"></a>  <span class="dv">30</span><span class="op">$</span> <span class="dt">PRINT</span> <span class="st">&quot;END VALUE OF X: &quot;</span> ； <span class="dt">PRINT</span> <span class="dt">X</span></span>
+<span id="cb1-404"><a href="#cb1-404" aria-hidden="true" tabindex="-1"></a>  <span class="dv">50</span><span class="op">$</span> <span class="dt">END</span></span>
+<span id="cb1-405"><a href="#cb1-405" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100</span><span class="op">$</span> <span class="dt">X</span> <span class="op">:=</span> <span class="dt">X</span> <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb1-406"><a href="#cb1-406" aria-hidden="true" tabindex="-1"></a>  <span class="dv">110</span><span class="op">$</span> <span class="dt">RETURN</span></span></code></pre></div>
+    </section>
+</article>
+
+        </main>
+          </div>
+          <footer>
+            <hr>
+            <div id="footer-container">
+              <div id="footer-text">
+                <a style="color:yellow" href="../drafts.html">λ</a>2022 Norman Liu.  
+                </span> 
+              </div>
+                <a href="mailto:norman@nliu.net" aria-label="Email address">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fas" data-icon="envelope" class="svg-inline--fa fa-envelope fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"></path>
+  </svg>
+</a>
+<a href="https://github.com/dreamsmasher" aria-label="GitHub profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="github-alt" class="svg-inline--fa fa-github-alt fa-w-15" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <path fill="currentColor" d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"></path>
+  </svg>
+</a>
+<a href="https://linkedin.com/in/norman-wuwei-liu" aria-label="Linkedin profile">
+  <svg aria-hidden="true" pointer-events="none" focusable="false" data-prefix="fab" data-icon="linkedin" class="svg-inline--fa fa-linkedin fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"></path>
+  </svg>
+</a>
+            </div>
+          </footer>
+    </body>
+</html>
