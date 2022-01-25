@@ -50,22 +50,23 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>is-even and the horrors of dependency management</h1>
-      Written: <span class="date">2020-09-27</span> 
-      <!--  -->
-      to <span class="date">2020-10-29</span>
-      <!--  -->
-        
-        <br>
-        by <a href="../about.html"><span class="name">Norman Liu</span></a>
-        <br>
-        
-      
-      
-    </section>
-    <section>
-        <p>Let’s have a talk about pulling in packages.</p>
+  <section class="header">
+    <h1>is-even and the horrors of dependency management</h1>
+    Written: <span class="date">2020-09-27</span>
+    <!--  -->
+    to <span class="date">2020-10-29</span>
+    <!--  -->
+    
+    <br>
+    by <a href="../about.html"><span class="name">Norman Liu</span></a>
+    <br>
+    
+
+    
+
+  </section>
+  <section>
+    <p>Let’s have a talk about pulling in packages.</p>
 <p>When is it necessary?</p>
 <p>You want to check if a number is even, in a language that isn’t type-safe. Your first intuition is to use the <code class="inline-op">%</code> operator, but it doesn’t work. You’re frustrated. Seven beers and 20 syntax errors later, you throw away any hesitation about bloat and decide to just add another dependency. What does it matter?</p>
 <p>There are quite literally, millions of tiny packages on <code>npm</code>. <code>is-even</code> is just one of them. A full package where the metadata, even the <code class="inline-type">README</code> is longer than the code itself.</p>
@@ -279,9 +280,8 @@
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ot">isOdd ::</span> (<span class="dt">Integral</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>isOdd <span class="ot">=</span> <span class="fu">not</span> <span class="op">.</span> isEven</span></code></pre></div>
 <p>Check out the <a href="https://github.com/dreamsmasher/is-even">source code</a> if you like. For obvious reasons, this is staying off Hackage.</p>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>

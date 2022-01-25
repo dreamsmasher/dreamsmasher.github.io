@@ -48,16 +48,17 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>a type cosmonaut's guide to effects systems</h1>
-      Written: <span class="date">2022-01-15</span> 
-      <!--  -->
-        
-      
-      
-    </section>
-    <section>
-        <p>I’ve been playing around with type-level <del>fuckery</del> programming lately, and something in my head finally clicked when it came to libraries like <a href="https://hackage.haskell.org/package/freer-simple">freer-simple</a> and <a href="https://hackage.haskell.org/package/polysemy">polysemy</a>. For context, Haskell applications usually take one of a few approaches to managing complex contextual interactions, like unlifting everything to <code class="inline-type">ReaderT + IO</code>, monad transformer stacks, or algebraic effects systems. I’m partial to monad transformers for their composability, but there are a few issues that impact UX and extensibility.</p>
+  <section class="header">
+    <h1>a type cosmonaut's guide to effects systems</h1>
+    Written: <span class="date">2022-01-15</span>
+    <!--  -->
+    
+
+    
+
+  </section>
+  <section>
+    <p>I’ve been playing around with type-level <del>fuckery</del> programming lately, and something in my head finally clicked when it came to libraries like <a href="https://hackage.haskell.org/package/freer-simple">freer-simple</a> and <a href="https://hackage.haskell.org/package/polysemy">polysemy</a>. For context, Haskell applications usually take one of a few approaches to managing complex contextual interactions, like unlifting everything to <code class="inline-type">ReaderT + IO</code>, monad transformer stacks, or algebraic effects systems. I’m partial to monad transformers for their composability, but there are a few issues that impact UX and extensibility.</p>
 <p>Let’s say you had a simple CRUD app, that needs to be able to log errors, make database calls, and respond to HTTP requests.</p>
 <p>You might define a typeclass like:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">HasConnection</span> m <span class="kw">where</span></span>
@@ -666,9 +667,8 @@ something something free lunch
 <span id="cb47-35"><a href="#cb47-35" aria-hidden="true" tabindex="-1"></a>      <span class="dt">PrintLn</span> line a <span class="ot">-&gt;</span> liftIO (<span class="fu">print</span> line) <span class="op">$&gt;</span> a</span>
 <span id="cb47-36"><a href="#cb47-36" aria-hidden="true" tabindex="-1"></a>      <span class="dt">GetLine</span> k <span class="ot">-&gt;</span> k <span class="op">&lt;$&gt;</span> <span class="fu">getLine</span></span></code></pre></div>
 <p>todo make interpret polymorphic so we can handle error effects properly talk about dependency injection/mocking</p>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>

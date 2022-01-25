@@ -48,18 +48,19 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>magical shell utilities: tsort</h1>
-      Written: <span class="date">2020-10-30</span> 
-      <!--  -->
-      to <span class="date">2020-10-31</span>
-      <!--  -->
-        
-      
-      
-    </section>
-    <section>
-        <p>Graph theory comes up a lot more often than you think. Whenever you run a search, download packages, or do anything on the Internet really, you’re reaping its benefits without even realizing. You might be familiar with <code>sort</code> if you’ve done any work in the shell beyond <code>rm -rf /*</code>. It’s useful for working with huge unsorted files, and it’s pretty much an essential tool for any serious scripting. There’s another program with similar intentions, but completely different usecases - <code>tsort</code>. It’s a relative newcomer to the <code class="inline-mod">POSIX.1</code> standard that was only canonized in 2017, although it’s been around since 1979.</p>
+  <section class="header">
+    <h1>magical shell utilities: tsort</h1>
+    Written: <span class="date">2020-10-30</span>
+    <!--  -->
+    to <span class="date">2020-10-31</span>
+    <!--  -->
+    
+
+    
+
+  </section>
+  <section>
+    <p>Graph theory comes up a lot more often than you think. Whenever you run a search, download packages, or do anything on the Internet really, you’re reaping its benefits without even realizing. You might be familiar with <code>sort</code> if you’ve done any work in the shell beyond <code>rm -rf /*</code>. It’s useful for working with huge unsorted files, and it’s pretty much an essential tool for any serious scripting. There’s another program with similar intentions, but completely different usecases - <code>tsort</code>. It’s a relative newcomer to the <code class="inline-mod">POSIX.1</code> standard that was only canonized in 2017, although it’s been around since 1979.</p>
 <p><code>tsort</code> takes any number of space-separated pairs that represent directed edges in a graph, and outputs each node in topologically sorted order. Its original purpose was for use in <code>ld</code>, the UNIX standard linker. Back in the days when <code>tar</code> actually referred to tape archives, the linker could only do a single pass over a series of object files, in order. With this processing format, problems would arise when the linker tried to figure out symbols or functions that were invoked before they were defined. The solution for this? Represent a program as a directed graph, and generate a topological sorting of symbol references first.</p>
 <p>What’s a topological sort?</p>
 <p>If you’re unfamiliar with graph theory, here’s a short refresher. A directed graph is a collection of nodes with arrows between each other, pointing towards another node.</p>
@@ -226,9 +227,8 @@
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">list</span>(<span class="bu">map</span>(<span class="bu">int</span>, tsorted.splitlines()))</span></code></pre></div>
 <p>Beautiful.</p>
 <p>It turns out that <code>tsort</code> isn’t used in <code>ld</code> anymore (<code>grep</code>ped for it just now), but it’s a cool utility that can come in handy. Don’t listen to <a href="https://docstore.mik.ua/orelly/unix/unixnut/c02_222.htm">O’Reilly</a> and their pessimism. Next time you run into a problem where you have to consider the relationships between objects within a category, see if you can reduce it to graph traversal. This is usually my go-to intuition when I’m doing Leetcode problems, but the site is biased towards graph-type questions anyway.</p>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>

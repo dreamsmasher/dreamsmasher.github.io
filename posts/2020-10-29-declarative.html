@@ -50,22 +50,23 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>declarative is a buzzword</h1>
-      Written: <span class="date">2020-10-29</span> 
-      <!--  -->
-      to <span class="date">2020-10-30</span>
-      <!--  -->
-        
-        <br>
-        by <a href="../about.html"><span class="name">Norman Liu</span></a>
-        <br>
-        
-      
-      
-    </section>
-    <section>
-        <p>I feel like I’ve been putting in way more effort into this site than it’s actually worth. I’ve spent close to 24 hours on the CSS in total, and it’s still somewhat broken on mobile and narrow screens.</p>
+  <section class="header">
+    <h1>declarative is a buzzword</h1>
+    Written: <span class="date">2020-10-29</span>
+    <!--  -->
+    to <span class="date">2020-10-30</span>
+    <!--  -->
+    
+    <br>
+    by <a href="../about.html"><span class="name">Norman Liu</span></a>
+    <br>
+    
+
+    
+
+  </section>
+  <section>
+    <p>I feel like I’ve been putting in way more effort into this site than it’s actually worth. I’ve spent close to 24 hours on the CSS in total, and it’s still somewhat broken on mobile and narrow screens.</p>
 <p>If you haven’t noticed, the footer element is still avoiding the bottom of the viewport on short pages. I don’t know how to fix this, so I’m going to accept it as an aesthetic consequence for now. If anyone has any advice, please let me know.</p>
 <p>To be honest, I see frontend development as a completely stochastic and chaotic process - <code class="inline-type">HTML</code> and <code class="inline-type">CSS</code> are supposed to be declarative, but there’s an insane margin of error. There’s no concrete way to debug CSS sometimes other than manually clicking through properties in DevTools, and even then, you’ll often find that the source of your bug was somewhere completely unexpected. For instance, the nav bar you see above you was broken for a few days in terms of indentation. I spent close to 20 minutes trying every possible permutation of options that could have broken it, only to realize that my issue was setting it as an inline element. There is zero intuitive indication that <code>text-align</code> doesn’t apply directly to inline elements, but rather to inline elements within a block element. It took me longer than I’m proud to admit to figure this out.</p>
 <p>The idea behind declarative languages is that you can write a specification of your logic, trusting in the language’s implementation to actually do what you have in mind. If I say there’s a <code>&lt;p&gt;</code>, there should be a paragraph. If I want <code>&lt;p style="color: red"&gt;</code>, that <code>&lt;p&gt;</code> had better be red. <code class="inline-type">SQL</code> is declarative too - if you wanna get the <code class="inline-type">Users</code> table from your database, filtered by age, you can reasonably expect that the output will follow that specification. You don’t care about how the filtering or search actually goes down. You especially don’t want to care about whether your search will suddenly change the results of your next search.</p>
@@ -117,9 +118,8 @@
 <p>I think that it would be amazing if there was a version of CSS out there where illogical states couldn’t even be represented. In its current form, most built-in properties have a specific domain of allowed settings. <code>word-wrap</code> can only ever be one of <code>[normal, break-word, initial, inherit]</code>. Any sane programmer would implement these as enumerated data types. However, the only way you’ll be able to catch an illegal value in <code class="inline-type">CSS</code> is if you’re using a linter or if you manually inspect the element yourself. The browser will still let your site load, just fine. If you unscrupulously change a <code>flex</code> element to a <code>grid</code>, you might find that your entire website’s width has grown past the boundaries of your viewport and sanity. Any attempts to define a constant <code>width</code> will be met by an error, but not in your IDE or editor. You’ll have to manually seek out your mistake by yourself. It’s like we’re still living in the 80’s.</p>
 <p>And before you tell me to just use a site template, realize that the only modicum of JS on this site is in code examples. I already feel bad for embedding fonts and wasting people’s bandwidth.</p>
 <p>Overall, <code class="inline-type">CSS</code> is obviously designed with redundancy and error-recovery in mind. When you have a language where it’s so easy to make obscure mistakes, it’s a good thing that your mistakes are forgiven. The problem is, this forgiveness isn’t transparent. Rampant inheritance leads to side-effects and unexpected consequences from your declarations. The point of declaration is to express logic authoritatively, without having to worry about how your code affects the state of a system. Writing <code class="inline-type">CSS</code> feels like a weird struggle between you and the browser, steadfast in its refusal to let you center that <code>&lt;div&gt;</code>. Obviously, this makes for a more reliable internet. But all the hacks that proper web design requires, only accumulates technical debt for the future. You can either try to write it right, or right your writes. It’s a rite, right?</p>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>

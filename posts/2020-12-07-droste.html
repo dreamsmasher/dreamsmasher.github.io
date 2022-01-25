@@ -50,22 +50,44 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>advent of code 2020, day 7: droste and bourke</h1>
-      Written: <span class="date">2020-12-07</span> 
-      <!--  -->
-      to <span class="date">2020-12-07</span>
-      <!--  -->
-        
-        <br>
-        by <a href="../about.html"><span class="name">Norman Liu</span></a>
-        <br>
-        
+  <section class="header">
+    <h1>advent of code 2020, day 7: droste and bourke</h1>
+    Written: <span class="date">2020-12-07</span>
+    <!--  -->
+    to <span class="date">2020-12-07</span>
+    <!--  -->
+    
+    <br>
+    by <a href="../about.html"><span class="name">Norman Liu</span></a>
+    <br>
+    
+
+    
+    <br>
+    <span style="color:yellow">
+      Part <span style="color:cyan">2</span> of <span style="color:cyan">2</span> in this series.
+       <!-- <a href=/series/advent2020.html>2-part series.</a> -->
+    </span>
+
+    <br>
+    <span>
       
+      <a href="../posts/2020-12-02-toboggan.html" alt="Previous post">[prev]</a>
       
-    </section>
-    <section>
-        <p>The previous few days of <a href="https://adventofcode.com">Advent</a> have been kinda boring - day 4 was regex, then binary search, then set intersections. We’re finally back to graph traversals, and so I felt like this was worth a post.</p>
+
+      <a href="../series/advent2020.html" alt="Series index">[index]</a>
+
+      
+      [next]
+      
+    </span>
+    <br>
+
+    
+
+  </section>
+  <section>
+    <p>The previous few days of <a href="https://adventofcode.com">Advent</a> have been kinda boring - day 4 was regex, then binary search, then set intersections. We’re finally back to graph traversals, and so I felt like this was worth a post.</p>
 <p>The problem goes as follows - you’ve sledded to the airport, made it past security, boarded your plane, and gotten through customs. Now that you’re out of the North Pole and at your layover, bizarre baggage rules are only the next obstacle on your trip.</p>
 <p>Specifically, bags must be colour-coded and must contain <a href="https://adventofcode.com/2020/day/7">specific quantities of other colour-coded bags</a>. The input consists of several hundred lines that each describe the colour of a bag, and its required contents, like</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>shiny red bags contain <span class="dv">5</span> muted pink bags, <span class="dv">1</span> faded green bag<span class="op">.</span></span>
@@ -152,9 +174,8 @@
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ot">day7Pt2 ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>day7Pt2 <span class="ot">=</span> fromInput <span class="op">&gt;&gt;&gt;</span> (<span class="fu">pred</span> <span class="op">.</span> <span class="fu">flip</span> innerBags <span class="st">&quot;shiny gold&quot;</span>)</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- pred because a shiny gold bag can't contain itself</span></span></code></pre></div>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>

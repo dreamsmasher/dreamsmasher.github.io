@@ -50,22 +50,23 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>write you a parser for okay acceptable!</h1>
-      Written: <span class="date">2021-01-05</span> 
-      <!--  -->
-      to <span class="date">2021-02-26</span>
-      <!--  -->
-        
-        <br>
-        by <a href="../about.html"><span class="name">Norman Liu</span></a>
-        <br>
-        
-      
-      
-    </section>
-    <section>
-        <p>Parsec is a beautiful library, but it’s DIFFICULT. Every time I’m working on a problem that requires an actual parser beyond regex, I die a little inside. I used Parsec for my <a href="https://github.com/dreamsmasher/meme">Scheme interpreter</a>, and it was probably the most frustrating part of the project.</p>
+  <section class="header">
+    <h1>write you a parser for okay acceptable!</h1>
+    Written: <span class="date">2021-01-05</span>
+    <!--  -->
+    to <span class="date">2021-02-26</span>
+    <!--  -->
+    
+    <br>
+    by <a href="../about.html"><span class="name">Norman Liu</span></a>
+    <br>
+    
+
+    
+
+  </section>
+  <section>
+    <p>Parsec is a beautiful library, but it’s DIFFICULT. Every time I’m working on a problem that requires an actual parser beyond regex, I die a little inside. I used Parsec for my <a href="https://github.com/dreamsmasher/meme">Scheme interpreter</a>, and it was probably the most frustrating part of the project.</p>
 <p>This isn’t the fault of the authors, though. Parsers are complicated beasts, and I definitely didn’t know what I was doing the first time around.</p>
 <p>There’s an interesting problem on <a href="https://www.codewars.com/kata/52f831fa9d332c6591000511">Codewars</a> - given an arbitrary molecule string, return the count of each constituent atom.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">CH3CO2H</span> <span class="co">-- acetate</span></span></code></pre></div>
@@ -364,9 +365,8 @@
 <div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> parseMolecule <span class="st">&quot;K4[ON(SO3)2]2&quot;</span> <span class="co">-- Fremy's salt</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> [(<span class="st">&quot;K&quot;</span>,<span class="dv">4</span>),(<span class="st">&quot;O&quot;</span>,<span class="dv">14</span>),(<span class="st">&quot;N&quot;</span>,<span class="dv">2</span>),(<span class="st">&quot;S&quot;</span>,<span class="dv">4</span>)]</span></code></pre></div>
 <p>The state-threading pattern is the underlying basis of most parser combinator libraries like Parsec. Parsec allows you to integrate its parser monad into a monad transformer stack, and there’s a lot more flexibility with regards to the type of your input stream and accumulating state parameter. It’s way cleaner than manually writing specific parsers, and exponentially simpler than <code>bison</code>/<code>happy</code>. Turns out, parsing doesn’t actually have to be hard.</p>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>

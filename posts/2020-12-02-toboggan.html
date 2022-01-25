@@ -50,22 +50,44 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>advent of code 2020, day 3: lazy tobogganing</h1>
-      Written: <span class="date">2020-12-02</span> 
-      <!--  -->
-      to <span class="date">2020-12-02</span>
-      <!--  -->
-        
-        <br>
-        by <a href="../about.html"><span class="name">Norman Liu</span></a>
-        <br>
-        
+  <section class="header">
+    <h1>advent of code 2020, day 3: lazy tobogganing</h1>
+    Written: <span class="date">2020-12-02</span>
+    <!--  -->
+    to <span class="date">2020-12-02</span>
+    <!--  -->
+    
+    <br>
+    by <a href="../about.html"><span class="name">Norman Liu</span></a>
+    <br>
+    
+
+    
+    <br>
+    <span style="color:yellow">
+      Part <span style="color:cyan">1</span> of <span style="color:cyan">2</span> in this series.
+       <!-- <a href=/series/advent2020.html>2-part series.</a> -->
+    </span>
+
+    <br>
+    <span>
       
+      [prev]
       
-    </section>
-    <section>
-        <p>It’s December, so you know what that means.</p>
+
+      <a href="../series/advent2020.html" alt="Series index">[index]</a>
+
+      
+      <a href="../posts/2020-12-07-droste.html" alt="Next post">[next]</a>
+      
+    </span>
+    <br>
+
+    
+
+  </section>
+  <section>
+    <p>It’s December, so you know what that means.</p>
 <p>Debt? Maybe. Alcoholism? No time. Time to save Santa again? Yep.</p>
 <p><a href="https://adventofcode.com">Advent of Code</a> is finally back, and so everybody’s in full motion trying to contort their favourite languages into workable problem-solving tools, me included. I’ve been a huge fan of Advent of Code ever since I started programming, and I love going back and working on old problems when Leetcode and Codewars get boring. I’m hoping for some problems spread out over several days that involve incremental and visible progress, like last year’s <a href="https://adventofcode.com/2019/day/2">Intcode computer</a>.</p>
 <p>Today’s problem is relatively simple - after saving Christmas for the past five years, you’ve earned yourself a little tropical vacation. Even though you’ve travelled through <a href="https://adventofcode.com/2019/day/1">space</a>, <a href="https://adventofcode.com/2018/day/1">time</a>, and into <a href="https://adventofcode.com/2017/day/1">Santa’s computer</a>, you still have to rely on sled-based transportation to get to the airport. This is a task fraught with danger, because trees litter the landscape more than potholes mark the 401. Given an ASCII map of the area and two integers denoting rise and run, your task is to figure out how many trees you’ll collide with on your path.</p>
@@ -165,9 +187,8 @@ Part 2: Trees galore
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>day3Pt2 <span class="ot">=</span> format <span class="op">&gt;&gt;&gt;</span> <span class="fu">uncurry</span> <span class="op">.</span> stepSlope <span class="op">&gt;&gt;&gt;</span> (<span class="op">&lt;$&gt;</span> slopes) <span class="op">&gt;&gt;&gt;</span> <span class="fu">product</span></span></code></pre></div>
 <p>We wrap <code>stepSlope</code> up in <code>uncurry</code> so that it works on tuples, pass it in as our <code>map</code>ping function, and that’s it. For every pair <code>(run, rise)</code>, we split the input rows by <code>rise</code> steps, taking the first row of every chunk, and starting our “diagonal” traversal.</p>
 <p>That’s it for day 3, hopefully it gets even more interesting from here!</p>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>

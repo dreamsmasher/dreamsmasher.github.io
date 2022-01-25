@@ -48,18 +48,19 @@
           <div id="content">
         <main role="main">
                         <article>
-    <section class="header">
-      <h1>magical shell utilities: ld</h1>
-      Written: <span class="date">2020-10-31</span> 
-      <!--  -->
-      to <span class="date">2021-03-04</span>
-      <!--  -->
-        
-      
-      
-    </section>
-    <section>
-        <p>A surprisingly huge amount of problems can be reduced to simple graph traversal. Every time you order your compiler to build your spaghetti projects, that mess of function calls has to be <code>tsort</code>ed in order for the linker to figure out where your code actually jumps to. Even well-organized projects will have their functions separated into distinct modules. This makes it easier for the programmer to reason about how their code fits together, but creates a difficult challenge for the compiler to figure out.</p>
+  <section class="header">
+    <h1>magical shell utilities: ld</h1>
+    Written: <span class="date">2020-10-31</span>
+    <!--  -->
+    to <span class="date">2021-03-04</span>
+    <!--  -->
+    
+
+    
+
+  </section>
+  <section>
+    <p>A surprisingly huge amount of problems can be reduced to simple graph traversal. Every time you order your compiler to build your spaghetti projects, that mess of function calls has to be <code>tsort</code>ed in order for the linker to figure out where your code actually jumps to. Even well-organized projects will have their functions separated into distinct modules. This makes it easier for the programmer to reason about how their code fits together, but creates a difficult challenge for the compiler to figure out.</p>
 <p><code>tsort</code> itself was originally created as a linker utility, according to the <a href="https://www.gnu.org/software/coreutils/manual/html_node/tsort-background.html">GNU team</a>. Unless you’re compiling everything <a href="https://sta.li">statically</a>, like a true <code>suckless</code> adherent, you’re leaving a lot of work for <code>ld</code> to do. The linker has to do a LOT in order to resolve undefined symbols when duct-taping your object files together into an executable. Having function signatures in header files is what allows <code>ld</code> to have some notion of what goes where.</p>
 <p>You don’t have to reimplement <code>printf</code> every time you write a new project, because dynamic linking lets you abstract away from the problem of integrating shared libraries into your program. <code>stdio.h</code> itself doesn’t implement <code>printf</code> either. It’s only 160 lines. This blew my mind when I was first learning C, because I was under the impression that all programs were statically linked. I knew that the <code>#include &lt;file&gt;</code> pragma literally just copy-pasted the entirety of <code>&lt;file&gt;</code> into your source code, but I figured <code>#include &lt;stdio.h&gt;</code> just vomited 2000+ lines for each library function you added into your code.</p>
 <p>Why do we need to write header files at all? Isn’t</p>
@@ -119,9 +120,8 @@
 <p>When object files are combined together, their data occurs sequentially within the resulting executable’s data. The linker takes the addresses of each function definition and calculates a new offset based on where it spits the function body into the executable. This order doesn’t have to necessarily follow the original order within each object file - functions might be inlined depending on how often they get called, they might be placed closer together or <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_node/ld_22.html">overlaid</a> for cache locality, etc. As <code>ld</code> builds the executable, it’s unclear what the offset of the next function, or the one after that, will be. All it knows is the offset of the program header, data, and everything it’s added in so far. <code>ld</code> provides a lot of fine-grained control to the programmer when specifying how a program should be linked, since there’s so much metadata contained in each object file. The compiler didn’t break when it was translating everything to assembly, the assembler didn’t whine, and so <code>ld</code> gets to do its thing now.</p>
 <p>What’s cool is that <code>ld</code> is <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html#SEC12">lazy</a> in binding functions now. Since the compiler was able to find a valid traversal through your program, the only thing left to be done for your program to run is to actually write the addresses into the executable. This doesn’t have to be done until you try to run your program, and it’s how dynamic linking allows you to save literally <strong>KILOBYTES</strong> of memory by allowing different programs to share the same library functions in memory. This wasn’t the case back in the 1970’s. In the infancy of UNIX, <code>ld</code> had a lot more responsibility. Static analysis wasn’t as feasible as it was today, so tasks like dead-code elimination were up to the linker. In particular, <code>ld</code> used to only do a single pass over a <code>tar</code>ball of objects in their predefined order. This is where it was crucial that a traversal-order permutation of symbols was obtained.</p>
 <p><img src="../images/tsort/yesbabe.png" class="pic" /></p>
-    </section>
+  </section>
 </article>
-
         </main>
           </div>
           <footer>
