@@ -14,7 +14,7 @@
         <meta property="og:type" content="website" />
         <meta property="og:image" content="../images/nliu-logo.png" />
         
-        <title>a type cosmonaut's guide to effects systems - Norman Liu's blog</title>
+        <title>a type cosmonaut's guide to effects systems - naomi liu's blog</title>
         
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/syntax.css" />
@@ -199,21 +199,17 @@ introducing extensible effects, operationally
 </h2>
 <p>So what exactly is an “effect”? It doesn’t really make sense for a purely functional language to modify the surrounding world, destructively update global variables, etc.</p>
 <p>I like to think of effects more as passing around/manipulating contexts - in the monad transformer approach, every “layer” of your stack carries some semantic information:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- here's an environment you can use for your monadic computation</span></span>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- I have a monadic action that needs an environment `r`</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ReaderT'</span> r m a <span class="ot">=</span> <span class="dt">ReaderT'</span> (r <span class="ot">-&gt;</span> m a)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- here's a state, gimme back a value and a new state</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- I have a monadic action that affects some implicit state `s`, so gimme one</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">StateT'</span> s m a <span class="ot">=</span> <span class="dt">StateT'</span> (s <span class="ot">-&gt;</span> m (a, s))</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- your computation might fail with an error `e`</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- I have an action that might fail with an error `e`</span></span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ExceptT'</span> e m a <span class="ot">=</span> <span class="dt">ExceptT'</span> (m (<span class="dt">Either</span> e a))</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- give me something to do with an `a` and I'll do that with an `a`</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ContT'</span> r m a <span class="ot">=</span> <span class="dt">ContT'</span> ((a <span class="ot">-&gt;</span> m r) <span class="ot">-&gt;</span> m r)</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">-- give me ANYTHING you wanna do with an `a`, I promise I have one</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">-- good luck trying to callCC though :^)</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">CodensityT'</span> m a <span class="ot">=</span> <span class="dt">CodensityT'</span> (<span class="kw">forall</span> r<span class="op">.</span> (a <span class="ot">-&gt;</span> m r) <span class="ot">-&gt;</span> m r)</span></code></pre></div>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- I have an `a`, gimme something to do with it</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ContT'</span> r m a <span class="ot">=</span> <span class="dt">ContT'</span> ((a <span class="ot">-&gt;</span> m r) <span class="ot">-&gt;</span> m r)</span></code></pre></div>
 <p>and the <em>composition</em> of those layers creates a stack of contexts that interact generically:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ot">readerExcState ::</span> </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ReaderT'</span> <span class="dt">String</span> </span>
@@ -308,7 +304,7 @@ decomposing more than a single type
 <p>The gist of the paper is that you can define a simple coproduct (aka a disjoint union) of two functors:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- compare with Either (f a) (g a)</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- the inhabitants of (f :+: g) a = count(f a) + count(g a)</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> (f <span class="op">:+:</span> g) a <span class="ot">=</span> <span class="dt">InL</span> (f a) <span class="op">|</span> <span class="dt">InR</span> (g a) <span class="kw">deriving</span> <span class="dt">Functor</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> (f <span class="op">:+:</span> g) a <span class="ot">=</span> <span class="dt">InL</span> (f a) <span class="op">|</span> <span class="dt">InR</span> (g a) <span class="kw">deriving</span> (<span class="dt">Functor</span>, <span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="kw">infixr</span> <span class="dv">7</span> <span class="op">:+:</span></span></code></pre></div>
 <p>Along with a fixed point over functors:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- try expressing this in Rust if you hate your computer</span></span>
@@ -334,18 +330,24 @@ decomposing more than a single type
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">ValOrAddOrMul</span> <span class="ot">=</span> (<span class="dt">Val</span> <span class="op">:+:</span> <span class="dt">Add</span> <span class="op">:+:</span> <span class="dt">Mul</span>)</span></code></pre></div>
 <p>Similar to our monad transformer stacks, the order of our effects is just the order of our coproduct. The difference is that we’ve centralized things to revolve around compositions of <code>:+:</code>, instead of treating each node as a distinct type with its own effect AND implementation.</p>
 <p>For clarity, we know that given a coproduct <code>f :+: g</code>, we can always inject an <code>f</code> into that coproduct, but can’t always get an <code>f</code> back out.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> (<span class="dt">Functor</span> sub, <span class="dt">Functor</span> sup) <span class="ot">=&gt;</span> sub <span class="op">:&lt;:</span> sup <span class="kw">where</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- inject</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  inj ::</span> sub a <span class="ot">-&gt;</span> sup a</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- project</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="ot">  prj ::</span> sup a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (sub a)</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- compare with `lift` from `MonadTrans`</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> f <span class="op">:&lt;:</span> (f <span class="op">:+:</span> g) <span class="kw">where</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  inj <span class="ot">=</span> <span class="dt">InL</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InL</span> fa) <span class="ot">=</span> <span class="dt">Just</span> fa</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InR</span> ga) <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
-<p>We can inject a functor into an imaginary coproduct containing only itself, and always get it back out:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> (<span class="dt">Functor</span> sub, <span class="dt">Functor</span> sup) <span class="ot">=&gt;</span> sub <span class="op">:&lt;:</span> sup <span class="kw">where</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- inject</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  inj ::</span> sub a <span class="ot">-&gt;</span> sup a</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- project</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="ot">  prj ::</span> sup a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (sub a)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- (:&lt;:) is basically a `Prism` over coproducts,</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- you can always lift and sometimes unlift</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- coprod :: forall sub sup a. (Functor sub, Functor sup, sub :&lt;: sup) =&gt; Prism' (sup a) (sub a)</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co">-- coprod = prism inj \sup -&gt; maybe (Left sup) Right (prj sup)</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co">-- compare with `lift` from `MonadTrans`</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Functor</span> f, <span class="dt">Functor</span> g) <span class="ot">=&gt;</span> f <span class="op">:&lt;:</span> (f <span class="op">:+:</span> g) <span class="kw">where</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  inj <span class="ot">=</span> <span class="dt">InL</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InL</span> fa) <span class="ot">=</span> <span class="dt">Just</span> fa</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InR</span> ga) <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
+<p>We can inject a functor into an singleton coproduct containing only itself, and always get it back out:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- reflexivity</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Functor</span> f) <span class="ot">=&gt;</span> f <span class="op">:&lt;:</span> f <span class="kw">where</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  inj <span class="ot">=</span> <span class="fu">id</span></span>
@@ -362,7 +364,7 @@ decomposing more than a single type
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  inj <span class="ot">=</span> <span class="dt">InR</span> <span class="op">.</span> inj</span>
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InL</span> _ ) <span class="ot">=</span> <span class="dt">Nothing</span></span>
 <span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InR</span> ta) <span class="ot">=</span> prj ta</span></code></pre></div>
-<p>Within a chain <code>f :+: g :+: h :+: ...</code>, there’s only ever a single value. We’re defining the equivalent of <code>union</code>s in other languages, but with some more structure.</p>
+<p>Within a chain <code>f :+: g :+: h :+: ...</code>, there’s only ever a single value. We’re defining the equivalent of <code>union</code>s in other languages, but with some more structure in terms of type order.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- called `inject` in the original paper</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ot">liftFix ::</span> (g <span class="op">:&lt;:</span> f) <span class="ot">=&gt;</span> g (<span class="dt">Fix</span> f) <span class="ot">-&gt;</span> <span class="dt">Fix</span> f</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>liftFix <span class="ot">=</span> <span class="dt">Fix</span> <span class="op">.</span> inj</span>
@@ -675,7 +677,7 @@ something something free lunch
             <hr>
             <div id="footer-container">
               <div id="footer-text">
-                <a style="color:yellow" href="../drafts.html">λ</a>2022 Norman Liu.  
+                <a style="color:yellow" href="../drafts.html">λ</a>2022 Naomi Liu.  
                 </span> 
               </div>
                 <a href="mailto:norman@nliu.net" aria-label="Email address">
