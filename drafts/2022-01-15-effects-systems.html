@@ -58,8 +58,18 @@
 
   </section>
   <section>
-    <p>I’ve been playing around with type-level <del>fuckery</del> programming lately, and something in my head finally clicked when it came to libraries like <a href="https://hackage.haskell.org/package/freer-simple">freer-simple</a> and <a href="https://hackage.haskell.org/package/polysemy">polysemy</a>. For context, Haskell applications usually take one of a few approaches to managing complex contextual interactions, like unlifting everything to <code class="inline-type">ReaderT + IO</code>, monad transformer stacks, or algebraic effects systems. I’m partial to monad transformers for their composability, but there are a few issues that impact UX and extensibility.</p>
-<p>Let’s say you had a simple CRUD app, that needs to be able to log errors, make database calls, and respond to HTTP requests.</p>
+    <p>I’ve been playing around with type-level <del>fuckery</del>
+programming lately, and something in my head finally clicked when it
+came to libraries like <a href="https://hackage.haskell.org/package/freer-simple">freer-simple</a>
+and <a href="https://hackage.haskell.org/package/polysemy">polysemy</a>.
+For context, Haskell applications usually take one of a few approaches
+to managing complex contextual interactions, like unlifting everything
+to <code class="inline-type">ReaderT + IO</code>, monad transformer
+stacks, or algebraic effects systems. I’m partial to monad transformers
+for their composability, but there are a few issues that impact UX and
+extensibility.</p>
+<p>Let’s say you had a simple CRUD app, that needs to be able to log
+errors, make database calls, and respond to HTTP requests.</p>
 <p>You might define a typeclass like:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">HasConnection</span> m <span class="kw">where</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  getConnection ::</span> m <span class="dt">Connection</span></span>
@@ -67,7 +77,9 @@
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- or if you're fancy:</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- class HasConnection env wheree</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">--   getConnection :: Lens' env Connection</span></span></code></pre></div>
-<p>and then write any DB-accessing code to be polymorphic over the surrounding context, as long as there’s a way to access a database connection:</p>
+<p>and then write any DB-accessing code to be polymorphic over the
+surrounding context, as long as there’s a way to access a database
+connection:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">selectFrom ::</span> (<span class="dt">HasConnection</span> m, <span class="dt">MonadIO</span> m) <span class="ot">=&gt;</span> <span class="dt">Table</span> a <span class="ot">-&gt;</span> m [a]</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>selectFrom table <span class="ot">=</span> <span class="kw">do</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  conn <span class="ot">&lt;-</span> getConnection</span>
@@ -81,7 +93,8 @@
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>getUserById <span class="fu">id</span> <span class="ot">=</span> <span class="kw">do</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  users <span class="ot">&lt;-</span> selectFrom userTable </span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> find ((<span class="fu">id</span> <span class="op">==</span>) <span class="op">.</span> userId) users</span></code></pre></div>
-<p>To run your app, you could then wrap up any required context into a product type and thread that data along implicitly using a <code class="inline-type">ReaderT</code> effect:</p>
+<p>To run your app, you could then wrap up any required context into a
+product type and thread that data along implicitly using a <code class="inline-type">ReaderT</code> effect:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- class MonadReader r m | m -&gt; r where</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">--   asks :: (r -&gt; a) -&gt; m a</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">--   ask :: m r</span></span>
@@ -99,7 +112,8 @@
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">MonadReader</span> <span class="dt">AppCtx</span> m <span class="ot">=&gt;</span> <span class="dt">HasConnection</span> m <span class="kw">where</span></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  getConnection <span class="ot">=</span> asks _dbConn</span></code></pre></div>
-<p>And let’s assume that there are some other ops in the meantime that can fail, so we want some way of exiting early. Cue <code class="inline-type">ExceptT</code> and <code class="inline-type">MonadError</code>:</p>
+<p>And let’s assume that there are some other ops in the meantime that
+can fail, so we want some way of exiting early. Cue <code class="inline-type">ExceptT</code> and <code class="inline-type">MonadError</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- class MonadError err m where </span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">--   throwError :: forall a. e -&gt; m a</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">--   catchError :: m a -&gt; (e -&gt; m a) -&gt; m a </span></span>
@@ -107,7 +121,8 @@
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>server </span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ot">  ::</span> (<span class="dt">HasConnection</span> m, <span class="dt">MonadIO</span> m, <span class="dt">MonadError</span> <span class="dt">String</span> m)</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=&gt;</span> m ()</span></code></pre></div>
-<p>Monad transformers are meant to stack, so after creating your app context:</p>
+<p>Monad transformers are meant to stack, so after creating your app
+context:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">connectDB ::</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> <span class="dt">SomeConnection</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ot">mkAppCtx ::</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> <span class="dt">AppCtx</span>)</span>
@@ -116,7 +131,8 @@
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  forM eitherConn \conn <span class="ot">-&gt;</span> <span class="kw">do</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    threads <span class="ot">&lt;-</span> getNumCapabilities</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> <span class="op">$</span> <span class="dt">AppCtx</span> conn threads tok</span></code></pre></div>
-<p>It’s a simple matter of instantiating the exact order of effects you want, then tearing those pieces down until you reach IO:</p>
+<p>It’s a simple matter of instantiating the exact order of effects you
+want, then tearing those pieces down until you reach IO:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- ignoring other details because I'm lazy</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ot">runApp ::</span> <span class="dt">IO</span> ()</span>
@@ -126,13 +142,15 @@
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ExceptT String (ReaderT AppCtx IO) ()</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  serverRes <span class="ot">&lt;-</span> runExceptT <span class="op">$</span> runReaderT server ctx</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">either</span> <span class="fu">putStrLn</span> <span class="fu">pure</span> serverRes </span></code></pre></div>
-<p>You could also flip this stack around since <code>mkAppCtx</code> returns an <code class="inline-mod">IO (Either ..)</code> value:</p>
+<p>You could also flip this stack around since <code>mkAppCtx</code>
+returns an <code class="inline-mod">IO (Either ..)</code> value:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">runApp' ::</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> ())</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>runApp' <span class="ot">=</span> runExceptT <span class="kw">do</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  ctx <span class="ot">&lt;-</span> <span class="dt">ExceptT</span> <span class="op">$</span> mkAppCtx <span class="st">&quot;some token&quot;</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- server :: ReaderT AppCtx (ExceptT String IO) ()</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  runReaderT server ctx</span></code></pre></div>
-<p>Semantically and representationally, <code>server</code> in both cases is the same, even though their (wrapped) types differ.</p>
+<p>Semantically and representationally, <code>server</code> in both
+cases is the same, even though their (wrapped) types differ.</p>
 <p>Expanding <code>server</code> from both examples:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">server1 ::</span> <span class="dt">ExceptT</span> <span class="dt">String</span> (<span class="dt">ReaderT</span> <span class="dt">AppCtx</span> <span class="dt">IO</span>) ()</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a> <span class="ot">=</span> <span class="dt">ReaderT</span> <span class="dt">AppCtx</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> ()) </span>
@@ -141,7 +159,9 @@
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ot">server2 ::</span> <span class="dt">ReaderT</span> <span class="dt">AppCtx</span> (<span class="dt">ExceptT</span> <span class="dt">String</span> <span class="dt">IO</span>) ()</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a> <span class="ot">=</span> <span class="dt">ReaderT</span> <span class="dt">AppCtx</span> (<span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> ()))</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a> <span class="ot">=</span> (<span class="dt">AppCtx</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> ()))</span></code></pre></div>
-<p>The problem is that not every permutation of a series of monad transformers is equivalent. Let’s say you had some stateful effect that could throw an error, like running a block cipher, parsing, etc:</p>
+<p>The problem is that not every permutation of a series of monad
+transformers is equivalent. Let’s say you had some stateful effect that
+could throw an error, like running a block cipher, parsing, etc:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- newtype StateT s m a </span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">--  = StateT {runStateT :: s -&gt; m (a, s)}</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- evalStateT :: StateT s m a -&gt; m a</span></span>
@@ -164,7 +184,9 @@
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ot">res2 ::</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> (), <span class="dt">SomeState</span>)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">=</span> runStateT (runExceptT someStateOp) (<span class="dt">SomeState</span> <span class="dv">0</span>)</span></code></pre></div>
-<p>What the hell?? Flipping the order of the two effects results in two different types, and differing semantics altogether. If <code class="inline-type">StateT</code> is on the outside, we run the risk of losing our state entirely if an error is thrown.</p>
+<p>What the hell?? Flipping the order of the two effects results in two
+different types, and differing semantics altogether. If <code class="inline-type">StateT</code> is on the outside, we run the risk of
+losing our state entirely if an error is thrown.</p>
 <p>Expanded:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">stateOp1 ::</span> <span class="dt">StateT</span> <span class="dt">SomeState</span> (<span class="dt">ExceptT</span> <span class="dt">String</span> <span class="dt">IO</span>) ()</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">SomeState</span> <span class="ot">-&gt;</span> <span class="dt">ExceptT</span> <span class="dt">String</span> <span class="dt">IO</span> ((), <span class="dt">SomeState</span>)</span>
@@ -173,7 +195,15 @@
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ot">stateOp2 ::</span> <span class="dt">ExceptT</span> <span class="dt">String</span> (<span class="dt">StateT</span> <span class="dt">SomeState</span> <span class="dt">IO</span>) ()</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">StateT</span> <span class="dt">SomeState</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> ())</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">SomeState</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> (), <span class="dt">SomeState</span>)</span></code></pre></div>
-<p>There’s also the issue of extensibility - <code>mtl</code>-style transformer stacks are implemented using a type class for each effect (<code class="inline-type">MonadState</code>, <code class="inline-type">MonadError</code>, <code class="inline-type">MonadCont</code>, etc.). Monad transformers are parameterized by the ability to <code>lift</code> an operation from a lower monad into a higher one, and polymorphism is obtained by creating instances for each transformer, for each effect. If you have a <code class="inline-type">StateT s</code> wrapper somewhere in your stack, then the stack implements <code class="inline-type">MonadState s</code> at that level. A <code class="inline-type">ReaderT env</code> on top of that <code class="inline-type">StateT</code> would provide <code class="inline-type">MonadReader env</code>, as well as <code class="inline-type">MonadState s</code> through an instance on <code class="inline-type">ReaderT env</code>. Here’s an example:</p>
+<p>There’s also the issue of extensibility - <code>mtl</code>-style
+transformer stacks are implemented using a type class for each effect
+(<code class="inline-type">MonadState</code>, <code class="inline-type">MonadError</code>, <code class="inline-type">MonadCont</code>, etc.). Monad transformers are
+parameterized by the ability to <code>lift</code> an operation from a
+lower monad into a higher one, and polymorphism is obtained by creating
+instances for each transformer, for each effect. If you have a <code class="inline-type">StateT s</code> wrapper somewhere in your stack,
+then the stack implements <code class="inline-type">MonadState s</code>
+at that level. A <code class="inline-type">ReaderT env</code> on top of
+that <code class="inline-type">StateT</code> would provide <code class="inline-type">MonadReader env</code>, as well as <code class="inline-type">MonadState s</code> through an instance on <code class="inline-type">ReaderT env</code>. Here’s an example:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- class MonadTrans (t :: (Type -&gt; Type) -&gt; Type -&gt; Type) where</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">--   lift :: m a -&gt; t m a</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -192,13 +222,22 @@
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  catchError (<span class="dt">IdT</span> act) k <span class="ot">=</span> lift <span class="op">$</span> catchError act (getIdT <span class="op">.</span> k)</span>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">-- and so on</span></span></code></pre></div>
-<p>It’s pretty easy to see that this is a ton of boilerplate, and introducing a new effect means writing another row of (pretty trivial) instances. Work on the order of <code>n^2</code> is pretty bad. This is worse when you add <code class="inline-type">MonadIO</code> into the mix, requiring another set of identical <code>liftIO = lift . liftIO</code> instance bodies.</p>
+<p>It’s pretty easy to see that this is a ton of boilerplate, and
+introducing a new effect means writing another row of (pretty trivial)
+instances. Work on the order of <code>n^2</code> is pretty bad. This is
+worse when you add <code class="inline-type">MonadIO</code> into the
+mix, requiring another set of identical
+<code>liftIO = lift . liftIO</code> instance bodies.</p>
 <hr>
 <h2>
 introducing extensible effects, operationally
 </h2>
-<p>So what exactly is an “effect”? It doesn’t really make sense for a purely functional language to modify the surrounding world, destructively update global variables, etc.</p>
-<p>I like to think of effects more as passing around/manipulating contexts - in the monad transformer approach, every “layer” of your stack carries some semantic information:</p>
+<p>So what exactly is an “effect”? It doesn’t really make sense for a
+purely functional language to modify the surrounding world,
+destructively update global variables, etc.</p>
+<p>I like to think of effects more as passing around/manipulating
+contexts - in the monad transformer approach, every “layer” of your
+stack carries some semantic information:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- I have a monadic action that needs an environment `r`</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ReaderT'</span> r m a <span class="ot">=</span> <span class="dt">ReaderT'</span> (r <span class="ot">-&gt;</span> m a)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -210,7 +249,8 @@ introducing extensible effects, operationally
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- I have an `a`, gimme something to do with it</span></span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ContT'</span> r m a <span class="ot">=</span> <span class="dt">ContT'</span> ((a <span class="ot">-&gt;</span> m r) <span class="ot">-&gt;</span> m r)</span></code></pre></div>
-<p>and the <em>composition</em> of those layers creates a stack of contexts that interact generically:</p>
+<p>and the <em>composition</em> of those layers creates a stack of
+contexts that interact generically:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ot">readerExcState ::</span> </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ReaderT'</span> <span class="dt">String</span> </span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">ExceptT'</span> <span class="dt">String</span> </span>
@@ -225,8 +265,17 @@ introducing extensible effects, operationally
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">-- these definitions are isomorphic</span></span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="ot">flattenedReadExcSt ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">Either</span> <span class="dt">String</span> (), <span class="dt">Int</span>)</span>
 <span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>flattenedReadExcSt <span class="ot">=</span> coerce readerExcState</span></code></pre></div>
-<p>The idea behind extensible effects is a sort of inversion of control - while monad transformers capture this idea of “here’s a context, and a set of operations you can do on that context”, effects libraries expand that to “here’s a set of operations I want to do, figure out a context for that and how to achieve them”. We can achieve a first iteration using an <a href="https://themonadreader.files.wordpress.com/2010/01/issue15.pdf#page=37&amp;zoom=auto,-13,725">Operational</a> monad, transforming things into a more inspectable form.</p>
-<p>Let’s say you wanted to encode a stateful operation. Instead of using a black-box function from a state <code>s</code> to a result and new state <code>(a, s)</code>, you can distill your intention down to two commands:</p>
+<p>The idea behind extensible effects is a sort of inversion of control
+- while monad transformers capture this idea of “here’s a context, and a
+set of operations you can do on that context”, effects libraries expand
+that to “here’s a set of operations I want to do, figure out a context
+for that and how to achieve them”. We can achieve a first iteration
+using an <a href="https://themonadreader.files.wordpress.com/2010/01/issue15.pdf#page=37&amp;zoom=auto,-13,725">Operational</a>
+monad, transforming things into a more inspectable form.</p>
+<p>Let’s say you wanted to encode a stateful operation. Instead of using
+a black-box function from a state <code>s</code> to a result and new
+state <code>(a, s)</code>, you can distill your intention down to two
+commands:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">StateCmd</span> s a <span class="kw">where</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Get</span><span class="ot"> ::</span> <span class="dt">StateCmd</span> s s</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Put</span><span class="ot"> ::</span> s <span class="ot">-&gt;</span> <span class="dt">StateCmd</span> s ()</span></code></pre></div>
@@ -267,7 +316,10 @@ introducing extensible effects, operationally
 <span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>  curState <span class="ot">&lt;-</span> <span class="dt">Command</span> <span class="dt">Get</span></span>
 <span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Command</span> <span class="op">$</span> <span class="dt">Put</span> (<span class="kw">if</span> <span class="fu">even</span> curState <span class="kw">then</span> curState <span class="ot">`div`</span> <span class="dv">2</span> <span class="kw">else</span> curState <span class="op">-</span> <span class="dv">1</span>)</span>
 <span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Pure</span> (curState <span class="op">*</span> <span class="dv">3</span>)</span></code></pre></div>
-<p>With your defunctionalized monad, you’re now free to interpret that AST into whatever monad you wanted. If you want to emulate the regular <code class="inline-type">State</code> monad, you could just pass around a state manually:</p>
+<p>With your defunctionalized monad, you’re now free to interpret that
+AST into whatever monad you wanted. If you want to emulate the regular
+<code class="inline-type">State</code> monad, you could just pass around
+a state manually:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ot">interpretState ::</span> <span class="dt">Prog</span> (<span class="dt">StateCmd</span> s) a <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> (a, s) </span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>interpretState (<span class="dt">Pure</span> a) s <span class="ot">=</span> (a, s)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>interpretState (<span class="dt">Bind</span> prog next) s <span class="ot">=</span> </span>
@@ -277,7 +329,11 @@ introducing extensible effects, operationally
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- the GADT definitions give us witnesses for the type of `a`</span></span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>interpretState (<span class="dt">Command</span> <span class="dt">Get</span>) s <span class="ot">=</span> (s, s)</span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>interpretState (<span class="dt">Command</span> (<span class="dt">Put</span> newState)) _ <span class="ot">=</span> ((), newState)</span></code></pre></div>
-<p>Or you could interpret it using a mutable reference in the <code class="inline-type">ST</code> monad, which can be much <a href="https://www.reddit.com/r/haskell/comments/1rcc8t/performance_of_the_st_monad_over_the_state_monad/">faster due to lower GC pressure</a>. On a side note, there’s a strong similarity here to a simple <code class="inline-type">ReaderT (STRef st s) (ST st) a</code>. Instead of threading immutable values, we use an immutable reference to one mutable variable:</p>
+<p>Or you could interpret it using a mutable reference in the <code class="inline-type">ST</code> monad, which can be much <a href="https://www.reddit.com/r/haskell/comments/1rcc8t/performance_of_the_st_monad_over_the_state_monad/">faster
+due to lower GC pressure</a>. On a side note, there’s a strong
+similarity here to a simple <code class="inline-type">ReaderT (STRef st s) (ST st) a</code>. Instead of
+threading immutable values, we use an immutable reference to one mutable
+variable:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ot">interpretST ::</span> <span class="kw">forall</span> a s<span class="op">.</span> <span class="dt">Prog</span> (<span class="dt">StateCmd</span> s) a <span class="ot">-&gt;</span> s <span class="ot">-&gt;</span> (a, s)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>interpretST prog initial <span class="ot">=</span> runST foldProg <span class="kw">where</span> </span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- we need explicit type signatures because of runST's Rank 2 type</span></span>
@@ -295,13 +351,22 @@ introducing extensible effects, operationally
 <span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> loop prog</span>
 <span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    finalState <span class="ot">&lt;-</span> readSTRef stateRef</span>
 <span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> (res, finalState)</span></code></pre></div>
-<p>This approach works just fine, but if we want to compete with monad transformers, we need a way to express <em>multiple</em> effects.</p>
+<p>This approach works just fine, but if we want to compete with monad
+transformers, we need a way to express <em>multiple</em> effects.</p>
 <hr>
 <h3>
 decomposing more than a single type
 </h3>
-<p>There’s been a ton of research/functional pearls published on the use of a combination of type-indexed functors and free monads to write expressive code with minimal boilerplate. My first intro to the topic was <a href="http://www.cs.ru.nl/~W.Swierstra/Publications/DataTypesALaCarte.pdf">Data types a la carte</a> by Wouter Sweirstra - he explores the use of fixed-points over functors along with typed unions to create syntax trees that can be interpreted generically, introspected, and open for extension as needed.</p>
-<p>The gist of the paper is that you can define a simple coproduct (aka a disjoint union) of two functors:</p>
+<p>There’s been a ton of research/functional pearls published on the use
+of a combination of type-indexed functors and free monads to write
+expressive code with minimal boilerplate. My first intro to the topic
+was <a href="http://www.cs.ru.nl/~W.Swierstra/Publications/DataTypesALaCarte.pdf">Data
+types a la carte</a> by Wouter Sweirstra - he explores the use of
+fixed-points over functors along with typed unions to create syntax
+trees that can be interpreted generically, introspected, and open for
+extension as needed.</p>
+<p>The gist of the paper is that you can define a simple coproduct (aka
+a disjoint union) of two functors:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- compare with Either (f a) (g a)</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- the inhabitants of (f :+: g) a = count(f a) + count(g a)</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> (f <span class="op">:+:</span> g) a <span class="ot">=</span> <span class="dt">InL</span> (f a) <span class="op">|</span> <span class="dt">InR</span> (g a) <span class="kw">deriving</span> (<span class="dt">Functor</span>, <span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
@@ -309,11 +374,19 @@ decomposing more than a single type
 <p>Along with a fixed point over functors:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- try expressing this in Rust if you hate your computer</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Fix</span> f <span class="ot">=</span> <span class="dt">Fix</span> (f (<span class="dt">Fix</span> f)) </span></code></pre></div>
-<p>to create what’s essentially a list of nested contexts. This list can be folded into a summary value using an <a href="https://www.schoolofhaskell.com/user/bartosz/understanding-algebras">F-algebra</a>, much in the same way as regular lists:</p>
+<p>to create what’s essentially a list of nested contexts. This list can
+be folded into a summary value using an <a href="https://www.schoolofhaskell.com/user/bartosz/understanding-algebras">F-algebra</a>,
+much in the same way as regular lists:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ot">foldExpr ::</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> (f a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> <span class="dt">Fix</span> f <span class="ot">-&gt;</span> a</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>foldExpr fold (<span class="dt">Fix</span> f) <span class="ot">=</span> fold (foldExpr fold <span class="op">&lt;$&gt;</span> f)</span></code></pre></div>
-<p>Here’s some <a href="https://bartoszmilewski.com/2020/04/09/initial-algebra-as-directed-colimit/">further</a> <a href="https://bartoszmilewski.com/2017/02/28/f-algebras/">reading</a> from epic-polish-category-theory-man if you’re interested.</p>
-<p>Now I bet you’re thinking, “how does this even terminate???”, and you’re right if <code>f</code> is instantiated to some functor like <code class="inline-type">Identity</code>. The trick is to use functors with a phantom type as your base case (forming the leaves of the expression):</p>
+<p>Here’s some <a href="https://bartoszmilewski.com/2020/04/09/initial-algebra-as-directed-colimit/">further</a>
+<a href="https://bartoszmilewski.com/2017/02/28/f-algebras/">reading</a>
+from epic-polish-category-theory-man if you’re interested.</p>
+<p>Now I bet you’re thinking, “how does this even terminate???”, and
+you’re right if <code>f</code> is instantiated to some functor like
+<code class="inline-type">Identity</code>. The trick is to use functors
+with a phantom type as your base case (forming the leaves of the
+expression):</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Val</span> a <span class="ot">=</span> <span class="dt">Val</span> <span class="dt">Int</span> </span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> <span class="kw">newtype</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Num</span>)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> stock <span class="dt">Functor</span></span></code></pre></div>
@@ -321,15 +394,24 @@ decomposing more than a single type
 <div class="sourceCode" id="cb23"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Add</span> a <span class="ot">=</span> <span class="dt">Add</span> a a <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Functor</span>)</span></code></pre></div>
 <p>Now the coproduct of these two types is:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">ValOrAdd</span> <span class="ot">=</span> (<span class="dt">Val</span> <span class="op">:+:</span> <span class="dt">Add</span>)</span></code></pre></div>
-<p>This type is isomorphic to what we’d usually reach for in these situations, a simple unified sum type:</p>
+<p>This type is isomorphic to what we’d usually reach for in these
+situations, a simple unified sum type:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">AST</span> <span class="ot">=</span> <span class="dt">ASTVal</span> <span class="dt">Int</span> <span class="op">|</span> <span class="dt">ASTAdd</span> <span class="dt">AST</span> <span class="dt">AST</span></span></code></pre></div>
-<p>Notice that we’re basically just defining extensible, open sum types instead of putting everything in one place.</p>
-<p>If we want to add another operation, we can burrito up another layer inductively since <code>(:+:)</code> is itself a functor:</p>
+<p>Notice that we’re basically just defining extensible, open sum types
+instead of putting everything in one place.</p>
+<p>If we want to add another operation, we can burrito up another layer
+inductively since <code>(:+:)</code> is itself a functor:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Mul</span> a <span class="ot">=</span> <span class="dt">Mul</span> a a <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Functor</span>)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">ValOrAddOrMul</span> <span class="ot">=</span> (<span class="dt">Val</span> <span class="op">:+:</span> <span class="dt">Add</span> <span class="op">:+:</span> <span class="dt">Mul</span>)</span></code></pre></div>
-<p>Similar to our monad transformer stacks, the order of our effects is just the order of our coproduct. The difference is that we’ve centralized things to revolve around compositions of <code>:+:</code>, instead of treating each node as a distinct type with its own effect AND implementation.</p>
-<p>For clarity, we know that given a coproduct <code>f :+: g</code>, we can always inject an <code>f</code> into that coproduct, but can’t always get an <code>f</code> back out.</p>
+<p>Similar to our monad transformer stacks, the order of our effects is
+just the order of our coproduct. The difference is that we’ve
+centralized things to revolve around compositions of <code>:+:</code>,
+instead of treating each node as a distinct type with its own effect AND
+implementation.</p>
+<p>For clarity, we know that given a coproduct <code>f :+: g</code>, we
+can always inject an <code>f</code> into that coproduct, but can’t
+always get an <code>f</code> back out.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> (<span class="dt">Functor</span> sub, <span class="dt">Functor</span> sup) <span class="ot">=&gt;</span> sub <span class="op">:&lt;:</span> sup <span class="kw">where</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- inject</span></span>
@@ -347,12 +429,14 @@ decomposing more than a single type
 <span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  inj <span class="ot">=</span> <span class="dt">InL</span></span>
 <span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InL</span> fa) <span class="ot">=</span> <span class="dt">Just</span> fa</span>
 <span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InR</span> ga) <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
-<p>We can inject a functor into an singleton coproduct containing only itself, and always get it back out:</p>
+<p>We can inject a functor into an singleton coproduct containing only
+itself, and always get it back out:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- reflexivity</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Functor</span> f) <span class="ot">=&gt;</span> f <span class="op">:&lt;:</span> f <span class="kw">where</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  inj <span class="ot">=</span> <span class="fu">id</span></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  prj <span class="ot">=</span> <span class="dt">Just</span></span></code></pre></div>
-<p>And define these injections on arbitrarily nested coproducts, given that the functor we want to inject exists somewhere:</p>
+<p>And define these injections on arbitrarily nested coproducts, given
+that the functor we want to inject exists somewhere:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- induction on a list of functors: `f` isn't at the front, but exists in the rest of the list</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="ot">{-# OVERLAPPABLE #-}</span> </span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  ( <span class="dt">Functor</span> f</span>
@@ -364,7 +448,10 @@ decomposing more than a single type
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  inj <span class="ot">=</span> <span class="dt">InR</span> <span class="op">.</span> inj</span>
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InL</span> _ ) <span class="ot">=</span> <span class="dt">Nothing</span></span>
 <span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  prj (<span class="dt">InR</span> ta) <span class="ot">=</span> prj ta</span></code></pre></div>
-<p>Within a chain <code>f :+: g :+: h :+: ...</code>, there’s only ever a single value. We’re defining the equivalent of <code>union</code>s in other languages, but with some more structure in terms of type order.</p>
+<p>Within a chain <code>f :+: g :+: h :+: ...</code>, there’s only ever
+a single value. We’re defining the equivalent of <code>union</code>s in
+other languages, but with some more structure in terms of type
+order.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- called `inject` in the original paper</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ot">liftFix ::</span> (g <span class="op">:&lt;:</span> f) <span class="ot">=&gt;</span> g (<span class="dt">Fix</span> f) <span class="ot">-&gt;</span> <span class="dt">Fix</span> f</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>liftFix <span class="ot">=</span> <span class="dt">Fix</span> <span class="op">.</span> inj</span>
@@ -376,7 +463,9 @@ decomposing more than a single type
 <span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- a binary AST node</span></span>
 <span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="ot">add ::</span> <span class="dt">Add</span> <span class="op">:&lt;:</span> f <span class="ot">=&gt;</span> <span class="dt">Fix</span> f <span class="ot">-&gt;</span> <span class="dt">Fix</span> f <span class="ot">-&gt;</span> <span class="dt">Fix</span> f</span>
 <span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>add l r <span class="ot">=</span> liftFix (<span class="dt">Add</span> l r)</span></code></pre></div>
-<p>Now, we can use type classes to implement our effects in a manner that only requires <code>n</code> instances. That’s a whole order of magnitude less, wew:</p>
+<p>Now, we can use type classes to implement our effects in a manner
+that only requires <code>n</code> instances. That’s a whole order of
+magnitude less, wew:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Eval</span> f <span class="kw">where</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  evalAlg ::</span> f <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -398,7 +487,12 @@ decomposing more than a single type
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- &gt;&gt;&gt; evalFix ten</span></span>
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- 10</span></span></code></pre></div>
-<p>Yes, this is just <a href="http://www.cs.nott.ac.uk/~pszgmh/exceptions.pdf">Hutton’s Razor</a> with extra steps. A lot of extra steps. But consider a more complicated case where we had more constructors to deal with, and more operations. Adding another constructor would affect every single pattern match site in your code, and lead to a refactoring annoyance, if not a nightmare for larger projects.</p>
+<p>Yes, this is just <a href="http://www.cs.nott.ac.uk/~pszgmh/exceptions.pdf">Hutton’s
+Razor</a> with extra steps. A lot of extra steps. But consider a more
+complicated case where we had more constructors to deal with, and more
+operations. Adding another constructor would affect every single pattern
+match site in your code, and lead to a refactoring annoyance, if not a
+nightmare for larger projects.</p>
 <p>In contrast, let’s implement multiplication now:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Eval</span> <span class="dt">Mul</span> <span class="kw">where</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  evalAlg (<span class="dt">Mul</span> l r) <span class="ot">=</span> l <span class="op">*</span> r</span>
@@ -411,19 +505,29 @@ decomposing more than a single type
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- &gt;&gt;&gt; evalFix nice</span></span>
 <span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="co">-- 420</span></span></code></pre></div>
-<p>Any point in your codebase that uses only <code class="inline-type">Add</code> or <code class="inline-type">Val</code> will be untouched, and you’re free to keep hacking away knowing that you haven’t left any unhandled cases in your wake.</p>
+<p>Any point in your codebase that uses only <code class="inline-type">Add</code> or <code class="inline-type">Val</code>
+will be untouched, and you’re free to keep hacking away knowing that you
+haven’t left any unhandled cases in your wake.</p>
 <hr>
 <h2>
 something something free lunch
 </h2>
-<p>Now that we’ve written the basis for an extensible, low-boilerplate effects system, it’s time to scrap everything and do something cooler.</p>
-<p>You might have noticed that <code class="inline-type">Fix</code> is just one half of another type that’s gotten a lot of attention lately, the <code class="inline-type">Free</code> monad:</p>
+<p>Now that we’ve written the basis for an extensible, low-boilerplate
+effects system, it’s time to scrap everything and do something
+cooler.</p>
+<p>You might have noticed that <code class="inline-type">Fix</code> is
+just one half of another type that’s gotten a lot of attention lately,
+the <code class="inline-type">Free</code> monad:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Free</span> f a</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">Pure</span> a</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Free</span> (f (<span class="dt">Free</span> f a))</span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> <span class="dt">Functor</span></span></code></pre></div>
-<p>which you can think of as <code class="inline-type">Fix f</code> plus a terminating value, solving the problem of types like <code class="inline-type">Fix Identity</code> being truly infinite.</p>
-<p>I won’t go too deeply into free monads since there are <a href="https://www.tweag.io/blog/2018-02-05-free-monads/">plenty</a> of <a href="https://iohk.io/en/blog/posts/2018/08/07/from-free-algebras-to-free-monads/">resources</a> <a href="http://comonad.com/reader/2008/monads-for-free/">already</a> on the topic. The gist of it is that the name <code class="inline-type">Free</code> is pretty literal; you get a <code class="inline-type">Monad</code> for free from any <code class="inline-type">Functor</code>.</p>
+<p>which you can think of as <code class="inline-type">Fix f</code> plus
+a terminating value, solving the problem of types like <code class="inline-type">Fix Identity</code> being truly infinite.</p>
+<p>I won’t go too deeply into free monads since there are <a href="https://www.tweag.io/blog/2018-02-05-free-monads/">plenty</a> of
+<a href="https://iohk.io/en/blog/posts/2018/08/07/from-free-algebras-to-free-monads/">resources</a>
+<a href="http://comonad.com/reader/2008/monads-for-free/">already</a> on
+the topic. The gist of it is that the name <code class="inline-type">Free</code> is pretty literal; you get a <code class="inline-type">Monad</code> for free from any <code class="inline-type">Functor</code>.</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Applicative</span> (<span class="dt">Free</span> f) <span class="kw">where</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="ot">=</span> <span class="dt">Pure</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  (<span class="op">&lt;*&gt;</span>) <span class="ot">=</span> ap</span>
@@ -431,14 +535,20 @@ something something free lunch
 <span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Monad</span> (<span class="dt">Free</span> f) <span class="kw">where</span></span>
 <span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Pure</span> a <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> f a</span>
 <span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Free</span> fa <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">Free</span> ((<span class="op">&gt;&gt;=</span> f) <span class="op">&lt;$&gt;</span> fa)</span></code></pre></div>
-<p>This is the traditional representation, and some of its flaws are pretty apparent from the implementation: left-associative <code class="inline-op">(&gt;&gt;=)</code>’s require you to traverse down the entire stack, pissing off both the garbage collector and your QA team. It’s akin to treating our lists like Python’s “lists”:</p>
+<p>This is the traditional representation, and some of its flaws are
+pretty apparent from the implementation: left-associative <code class="inline-op">(&gt;&gt;=)</code>’s require you to traverse down the
+entire stack, pissing off both the garbage collector and your QA team.
+It’s akin to treating our lists like Python’s “lists”:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>goodListIdentity,<span class="ot"> badListIdentity ::</span> [a] <span class="ot">-&gt;</span> [a]</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- O(n)</span></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>goodListIdentity <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">:</span>) []</span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- O(n^2)</span></span>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>badListIdentity  <span class="ot">=</span> <span class="fu">foldl</span> (\a x <span class="ot">-&gt;</span> a <span class="op">&lt;&gt;</span> [x]) []</span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- foldl' won't save you</span></span></code></pre></div>
-<p>You can use a combination of F-algebras and the <code class="inline-type">Yoneda</code> lemma to encode a free monad much more cheaply from the bottom-up, given that function composition is cheap as heck (credits to <a href="http://comonad.com/reader/2011/free-monads-for-less-2/">Edward Kmett’s blog</a>):</p>
+<p>You can use a combination of F-algebras and the <code class="inline-type">Yoneda</code> lemma to encode a free monad much more
+cheaply from the bottom-up, given that function composition is cheap as
+heck (credits to <a href="http://comonad.com/reader/2011/free-monads-for-less-2/">Edward
+Kmett’s blog</a>):</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- the spookiest isomorphism in category theory</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- basically a suspended fmap, allowing for traversals through `f` to be delayed until you need them</span></span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Yoneda</span> f a <span class="ot">=</span> <span class="dt">Yoneda</span> {<span class="ot">runYoneda ::</span> <span class="kw">forall</span> b<span class="op">.</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> f b}</span>
@@ -454,7 +564,8 @@ something something free lunch
 <span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">FAlg</span> f r <span class="ot">=</span> <span class="dt">FAlg</span> {<span class="ot">runFAlg ::</span> (f r <span class="ot">-&gt;</span> r) <span class="ot">-&gt;</span> r}</span>
 <span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Free'</span> f a <span class="ot">=</span> <span class="dt">Free'</span> (<span class="dt">Yoneda</span> (<span class="dt">FAlg</span> f) a)</span></code></pre></div>
-<p>but triply nested newtypes are annoying, so let’s expand things into our final representation:</p>
+<p>but triply nested newtypes are annoying, so let’s expand things into
+our final representation:</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Free</span> f a <span class="ot">=</span> <span class="dt">Free</span> </span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> runFree ::</span> <span class="kw">forall</span> r<span class="op">.</span> </span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    (a <span class="ot">-&gt;</span> r) <span class="co">-- extract a pure value</span></span>
@@ -478,9 +589,17 @@ something something free lunch
 <span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>       runFree fa </span>
 <span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>        (\a <span class="ot">-&gt;</span> runFree (f a) br frr) </span>
 <span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>        frr</span></code></pre></div>
-<p>By ‘flipping’ our representation around into one that threads around continuations, we end up with pretty heavy asymptotic improvements over the naive form. The F-algebra ((<code>f r -&gt; r</code>), previously the <code class="inline-type">FAlg f r</code> component) is unused in these instances, but it’s going to form the basis for how we’ll end up interpreting effects later on.</p>
-<p>Now that we have a better way of constructing syntax trees, let’s look at our previous encoding of type-level unions. Why not improve our ergonomics a bit?</p>
-<p>Side note, this document is a Literate Haskell file and I’ve had to enable like 2000000 extensions by this point. Kindly turn on <code class="inline-type">GADTs</code>, <code class="inline-type">PolyKinds</code>, <code class="inline-type">DataKinds</code>, and <code class="inline-type">KindSignatures</code> if you’re following along.</p>
+<p>By ‘flipping’ our representation around into one that threads around
+continuations, we end up with pretty heavy asymptotic improvements over
+the naive form. The F-algebra ((<code>f r -&gt; r</code>), previously
+the <code class="inline-type">FAlg f r</code> component) is unused in
+these instances, but it’s going to form the basis for how we’ll end up
+interpreting effects later on.</p>
+<p>Now that we have a better way of constructing syntax trees, let’s
+look at our previous encoding of type-level unions. Why not improve our
+ergonomics a bit?</p>
+<p>Side note, this document is a Literate Haskell file and I’ve had to
+enable like 2000000 extensions by this point. Kindly turn on <code class="inline-type">GADTs</code>, <code class="inline-type">PolyKinds</code>, <code class="inline-type">DataKinds</code>, and <code class="inline-type">KindSignatures</code> if you’re following along.</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- does every type in the list satisfy the constraint?</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">ForAll</span><span class="ot"> ::</span> (k <span class="ot">-&gt;</span> <span class="dt">Constraint</span>) <span class="ot">-&gt;</span> [k] <span class="ot">-&gt;</span> <span class="dt">Constraint</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="kw">family</span> <span class="dt">ForAll</span> cs items <span class="kw">where</span></span>
@@ -494,8 +613,15 @@ something something free lunch
 <span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">There</span><span class="ot"> ::</span> (<span class="dt">Functor</span> f) <span class="ot">=&gt;</span> (f <span class="op">:+:</span> <span class="dt">Union</span> fs) a <span class="ot">-&gt;</span> <span class="dt">Union</span> (f '<span class="op">:</span> fs) a</span>
 <span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="kw">deriving</span> <span class="kw">instance</span> <span class="dt">Functor</span> <span class="ot">`ForAll`</span> fs <span class="ot">=&gt;</span> <span class="dt">Functor</span> (<span class="dt">Union</span> fs)</span></code></pre></div>
-<p>Previously, our instances for finding a subtype <code>f</code> within a coproduct <code>f :+: g</code> assumed that the coproduct was built right-associatively, that is, <code>f :+: g :+: h</code> implies <code>f :+: (g :+: h)</code>. Encoding things with a GADT has two advantages: this structure is enforced, and it’s easier to type <code>[Maybe, Either Char, IO, ...]</code> than <code>(Maybe :+: Either Char :+: IO :+: ...)</code>.</p>
-<p>Let’s define another class for finding <code class="inline-type">Union</code> membership too, although we could reuse <code>(:&lt;:)</code> for this:</p>
+<p>Previously, our instances for finding a subtype <code>f</code> within
+a coproduct <code>f :+: g</code> assumed that the coproduct was built
+right-associatively, that is, <code>f :+: g :+: h</code> implies
+<code>f :+: (g :+: h)</code>. Encoding things with a GADT has two
+advantages: this structure is enforced, and it’s easier to type
+<code>[Maybe, Either Char, IO, ...]</code> than
+<code>(Maybe :+: Either Char :+: IO :+: ...)</code>.</p>
+<p>Let’s define another class for finding <code class="inline-type">Union</code> membership too, although we could reuse
+<code>(:&lt;:)</code> for this:</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> (<span class="dt">Functor</span> f , <span class="dt">Functor</span> <span class="ot">`ForAll`</span> fs) <span class="ot">=&gt;</span> <span class="dt">Member</span> (<span class="ot">f ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span>) (<span class="ot">fs ::</span> [<span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span>]) <span class="kw">where</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  inject ::</span> f a <span class="ot">-&gt;</span> <span class="dt">Union</span> fs a </span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  project ::</span> <span class="dt">Union</span> fs a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (f a)</span>
@@ -514,7 +640,9 @@ something something free lunch
 <span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>  project (<span class="dt">There</span> (<span class="dt">InR</span> fa)) <span class="ot">=</span> project fa</span>
 <span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>  project _ <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
-<p>This is a ton of code at this point with no testing, so let’s prove that the implementation of <code class="inline-type">Union</code> is well-typed:</p>
+<p>This is a ton of code at this point with no testing, so let’s prove
+that the implementation of <code class="inline-type">Union</code> is
+well-typed:</p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ot">someUnion ::</span> <span class="dt">Union</span> [<span class="dt">Either</span> <span class="dt">String</span>, <span class="dt">Maybe</span>, <span class="dt">IO</span>, <span class="dt">Add</span>, <span class="dt">Mul</span>] <span class="dt">Int</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>someUnion <span class="ot">=</span> inject (<span class="dt">Just</span> <span class="dv">1</span>) </span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- There $ InR $ There $ InL (Just 1)</span></span>
@@ -541,9 +669,15 @@ something something free lunch
 <span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a><span class="co">-- type error: No instance for Member (Either Text) '[]</span></span>
 <span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a><span class="co">-- someEitherText :: Maybe (Either Text Int)</span></span>
 <span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a><span class="co">-- someEitherText = project someUnion</span></span></code></pre></div>
-<p>It might seem inefficient to have to traverse through the same list repeatedly, but we’re giving the compiler plenty of info on the exact path of each type within a <code class="inline-type">Union</code>, so we don’t need to worry too much.</p>
-<p>Now it’s finally time to put it all together. First, let’s build some utils for our effects library:</p>
-<p>We’re only ever going to use <code class="inline-type">Free</code> parameterized over some <code class="inline-type">Union</code> of functors, so let’s fix our core monad to that type:</p>
+<p>It might seem inefficient to have to traverse through the same list
+repeatedly, but we’re giving the compiler plenty of info on the exact
+path of each type within a <code class="inline-type">Union</code>, so we
+don’t need to worry too much.</p>
+<p>Now it’s finally time to put it all together. First, let’s build some
+utils for our effects library:</p>
+<p>We’re only ever going to use <code class="inline-type">Free</code>
+parameterized over some <code class="inline-type">Union</code> of
+functors, so let’s fix our core monad to that type:</p>
 <div class="sourceCode" id="cb43"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Eff</span> (<span class="ot">fs ::</span> [<span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span>]) a <span class="ot">=</span> <span class="dt">Eff</span> </span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> runEff ::</span> <span class="kw">forall</span> r<span class="op">.</span> </span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    (a <span class="ot">-&gt;</span> r) </span>
@@ -601,7 +735,10 @@ something something free lunch
 <span id="cb44-46"><a href="#cb44-46" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Here</span> fx <span class="ot">-&gt;</span> fx</span>
 <span id="cb44-47"><a href="#cb44-47" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- compiler can't infer that the list will never be non-empty</span></span>
 <span id="cb44-48"><a href="#cb44-48" aria-hidden="true" tabindex="-1"></a>  _ <span class="ot">-&gt;</span> <span class="fu">error</span> <span class="st">&quot;Unreachable&quot;</span></span></code></pre></div>
-<p>Congrats, now you have a fully-featured effects system in 200 lines of code. It’s <strong>finally</strong> time to try out some effects now, so we’ll use the classic <code class="inline-type">Teletype</code> example that everyone likes to reach for:</p>
+<p>Congrats, now you have a fully-featured effects system in 200 lines
+of code. It’s <strong>finally</strong> time to try out some effects now,
+so we’ll use the classic <code class="inline-type">Teletype</code>
+example that everyone likes to reach for:</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Teletype</span> a</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">PrintLn</span> <span class="dt">String</span> a</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">GetLine</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> a)</span>
@@ -668,7 +805,8 @@ something something free lunch
 <span id="cb47-34"><a href="#cb47-34" aria-hidden="true" tabindex="-1"></a>    interpretTTY <span class="ot">=</span> liftIO <span class="op">.</span> \<span class="kw">case</span></span>
 <span id="cb47-35"><a href="#cb47-35" aria-hidden="true" tabindex="-1"></a>      <span class="dt">PrintLn</span> line a <span class="ot">-&gt;</span> liftIO (<span class="fu">print</span> line) <span class="op">$&gt;</span> a</span>
 <span id="cb47-36"><a href="#cb47-36" aria-hidden="true" tabindex="-1"></a>      <span class="dt">GetLine</span> k <span class="ot">-&gt;</span> k <span class="op">&lt;$&gt;</span> <span class="fu">getLine</span></span></code></pre></div>
-<p>todo make interpret polymorphic so we can handle error effects properly talk about dependency injection/mocking</p>
+<p>todo make interpret polymorphic so we can handle error effects
+properly talk about dependency injection/mocking</p>
   </section>
 </article>
         </main>

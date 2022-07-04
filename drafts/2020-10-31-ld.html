@@ -60,17 +60,85 @@
 
   </section>
   <section>
-    <p>A surprisingly huge amount of problems can be reduced to simple graph traversal. Every time you order your compiler to build your spaghetti projects, that mess of function calls has to be <code>tsort</code>ed in order for the linker to figure out where your code actually jumps to. Even well-organized projects will have their functions separated into distinct modules. This makes it easier for the programmer to reason about how their code fits together, but creates a difficult challenge for the compiler to figure out.</p>
-<p><code>tsort</code> itself was originally created as a linker utility, according to the <a href="https://www.gnu.org/software/coreutils/manual/html_node/tsort-background.html">GNU team</a>. Unless you’re compiling everything <a href="https://sta.li">statically</a>, like a true <code>suckless</code> adherent, you’re leaving a lot of work for <code>ld</code> to do. The linker has to do a LOT in order to resolve undefined symbols when duct-taping your object files together into an executable. Having function signatures in header files is what allows <code>ld</code> to have some notion of what goes where.</p>
-<p>You don’t have to reimplement <code>printf</code> every time you write a new project, because dynamic linking lets you abstract away from the problem of integrating shared libraries into your program. <code>stdio.h</code> itself doesn’t implement <code>printf</code> either. It’s only 160 lines. This blew my mind when I was first learning C, because I was under the impression that all programs were statically linked. I knew that the <code>#include &lt;file&gt;</code> pragma literally just copy-pasted the entirety of <code>&lt;file&gt;</code> into your source code, but I figured <code>#include &lt;stdio.h&gt;</code> just vomited 2000+ lines for each library function you added into your code.</p>
+    <p>A surprisingly huge amount of problems can be reduced to simple graph
+traversal. Every time you order your compiler to build your spaghetti
+projects, that mess of function calls has to be <code>tsort</code>ed in
+order for the linker to figure out where your code actually jumps to.
+Even well-organized projects will have their functions separated into
+distinct modules. This makes it easier for the programmer to reason
+about how their code fits together, but creates a difficult challenge
+for the compiler to figure out.</p>
+<p><code>tsort</code> itself was originally created as a linker utility,
+according to the <a href="https://www.gnu.org/software/coreutils/manual/html_node/tsort-background.html">GNU
+team</a>. Unless you’re compiling everything <a href="https://sta.li">statically</a>, like a true <code>suckless</code>
+adherent, you’re leaving a lot of work for <code>ld</code> to do. The
+linker has to do a LOT in order to resolve undefined symbols when
+duct-taping your object files together into an executable. Having
+function signatures in header files is what allows <code>ld</code> to
+have some notion of what goes where.</p>
+<p>You don’t have to reimplement <code>printf</code> every time you
+write a new project, because dynamic linking lets you abstract away from
+the problem of integrating shared libraries into your program.
+<code>stdio.h</code> itself doesn’t implement <code>printf</code>
+either. It’s only 160 lines. This blew my mind when I was first learning
+C, because I was under the impression that all programs were statically
+linked. I knew that the <code>#include &lt;file&gt;</code> pragma
+literally just copy-pasted the entirety of <code>&lt;file&gt;</code>
+into your source code, but I figured
+<code>#include &lt;stdio.h&gt;</code> just vomited 2000+ lines for each
+library function you added into your code.</p>
 <p>Why do we need to write header files at all? Isn’t</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> launchMissiles<span class="op">(</span><span class="dt">char</span> <span class="op">**</span>targets<span class="op">,</span> <span class="dt">uint32_t</span> <span class="op">*</span>launchCodes<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span> <span class="op">.</span> <span class="op">.</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>enough information for the compiler? It shows how much space needs to be allocated for its body, how many bytes needs to be pushed onto the stack for its arguments, and how many meaningful bytes will be <code>mov</code>ed into <code class="inline-type">RAX</code> when it returns. Why do you have to write that twice? Once in the implementation, and again in a separate header file. You need to <code>#include</code> that header in any other module that you want to launch missiles from.</p>
-<p>Imagine your program as a tree, rooted at <code>main.c</code> or whatever module includes <code>main()</code>. Your program’s entry point is primitive, in the sense that <code>main()</code> doesn’t require a header. Your program will always start from <code>main()</code>. That’s your onramp onto the highway, and it’s the point from which every other symbol lookup and function call will stem. All the declarations made in a header file form a collection of edges emanating from that header file to compiled object files. The ultimate goal of a linker is to have every <code>jmp</code> and <code>call</code> instruction point somewhere in a program’s address space. This involves traversing a complex web of object files and figuring out which modules and subroutines depend on what. <code>ld</code> needs to know where <code>launchMissiles()</code> is defined <em>before</em> it can add a location to jump to when the function is invoked. Sound familiar?</p>
-<p>The <code class="inline-type">ELF</code> format for executable files consists of a <a href="https://refspecs.linuxbase.org/elf/gabi4+/ch4.intro.html">few important parts</a>. The order tends to vary between environments, but the idea remains the same. There’s a header that tells you it’s an ELF file. Next is a program header table with information to the OS on how the program should be run. Then a series of sections where your program’s data lies - space for static variables, string literals, opcodes for your CPU to crunch, etc. These come from your individual object files. The clues on where your functions are actually defined lie in the section header table. There are a few interesting entries in the section header table, like redirection addresses for sections that are too big to fit, the total offsets for each section’s location relative to your program’s address space, various flags, the size of symbols, etc.</p>
-<p>Before linking, every object file corresponds to a single source file. If there’s a function call within a source file whose implementation is elsewhere, the compiler basically just adds a little <code class="inline-type">TODO</code> for the linker to figure out. This is assuming that the function has been mentioned somewhere, of course. <code class="inline-type">GCC</code> will throw an error if it’s unknown. This is also where those cryptic <code>implicit declaration of function 'foo' is invalid</code> errors come from - if you try to call <code>foo()</code> before it’s mentioned, the compiler doesn’t know what you’re talking about. <code class="inline-type">GCC</code> doesn’t maintain any context between translating different source files. It sees a file, and does what it does. Try it for yourself.</p>
+<p>enough information for the compiler? It shows how much space needs to
+be allocated for its body, how many bytes needs to be pushed onto the
+stack for its arguments, and how many meaningful bytes will be
+<code>mov</code>ed into <code class="inline-type">RAX</code> when it
+returns. Why do you have to write that twice? Once in the
+implementation, and again in a separate header file. You need to
+<code>#include</code> that header in any other module that you want to
+launch missiles from.</p>
+<p>Imagine your program as a tree, rooted at <code>main.c</code> or
+whatever module includes <code>main()</code>. Your program’s entry point
+is primitive, in the sense that <code>main()</code> doesn’t require a
+header. Your program will always start from <code>main()</code>. That’s
+your onramp onto the highway, and it’s the point from which every other
+symbol lookup and function call will stem. All the declarations made in
+a header file form a collection of edges emanating from that header file
+to compiled object files. The ultimate goal of a linker is to have every
+<code>jmp</code> and <code>call</code> instruction point somewhere in a
+program’s address space. This involves traversing a complex web of
+object files and figuring out which modules and subroutines depend on
+what. <code>ld</code> needs to know where <code>launchMissiles()</code>
+is defined <em>before</em> it can add a location to jump to when the
+function is invoked. Sound familiar?</p>
+<p>The <code class="inline-type">ELF</code> format for executable files
+consists of a <a href="https://refspecs.linuxbase.org/elf/gabi4+/ch4.intro.html">few
+important parts</a>. The order tends to vary between environments, but
+the idea remains the same. There’s a header that tells you it’s an ELF
+file. Next is a program header table with information to the OS on how
+the program should be run. Then a series of sections where your
+program’s data lies - space for static variables, string literals,
+opcodes for your CPU to crunch, etc. These come from your individual
+object files. The clues on where your functions are actually defined lie
+in the section header table. There are a few interesting entries in the
+section header table, like redirection addresses for sections that are
+too big to fit, the total offsets for each section’s location relative
+to your program’s address space, various flags, the size of symbols,
+etc.</p>
+<p>Before linking, every object file corresponds to a single source
+file. If there’s a function call within a source file whose
+implementation is elsewhere, the compiler basically just adds a little
+<code class="inline-type">TODO</code> for the linker to figure out. This
+is assuming that the function has been mentioned somewhere, of course.
+<code class="inline-type">GCC</code> will throw an error if it’s
+unknown. This is also where those cryptic
+<code>implicit declaration of function 'foo' is invalid</code> errors
+come from - if you try to call <code>foo()</code> before it’s mentioned,
+the compiler doesn’t know what you’re talking about. <code class="inline-type">GCC</code> doesn’t maintain any context between
+translating different source files. It sees a file, and does what it
+does. Try it for yourself.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  foo<span class="op">();</span> <span class="co">// won't compile</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
@@ -79,7 +147,8 @@
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> foo<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  puts<span class="op">(</span><span class="st">&quot;hello world!&quot;</span><span class="op">)</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p><code>foo</code>’s definition is only 4 lines down, but <code class="inline-type">GCC</code> doesn’t know that. You’re giving that black box way too much credit. What about this?</p>
+<p><code>foo</code>’s definition is only 4 lines down, but <code class="inline-type">GCC</code> doesn’t know that. You’re giving that
+black box way too much credit. What about this?</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> foo<span class="op">(</span><span class="dt">void</span><span class="op">);</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
@@ -90,7 +159,19 @@
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> foo<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  puts<span class="op">(</span><span class="st">&quot;hello world!&quot;</span><span class="op">)</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>Remember what I said about <code>#include</code> just vomiting text into your file? Your header files contain these function declarations for a reason - to give <code class="inline-type">GCC</code> a clue of which instructions are necessary in order to call these functions. Depending on the compiler and environment, arguments might all be passed on the stack, or in partly in registers. This also means you need to know in advance how many arguments there are, and the size of each argument. In terms of handling, a function with the arguments <code>(uint32_t x, uint64_t y)</code> is <strong>not</strong> the same as <code>(uint64_t x, uint32_t y)</code>. Sure, the two values have the same combined size, and the space allocated is equal in both cases. But if you’re passing the arguments on the stack, the offsets for each value are completely different.</p>
+<p>Remember what I said about <code>#include</code> just vomiting text
+into your file? Your header files contain these function declarations
+for a reason - to give <code class="inline-type">GCC</code> a clue of
+which instructions are necessary in order to call these functions.
+Depending on the compiler and environment, arguments might all be passed
+on the stack, or in partly in registers. This also means you need to
+know in advance how many arguments there are, and the size of each
+argument. In terms of handling, a function with the arguments
+<code>(uint32_t x, uint64_t y)</code> is <strong>not</strong> the same
+as <code>(uint64_t x, uint32_t y)</code>. Sure, the two values have the
+same combined size, and the space allocated is equal in both cases. But
+if you’re passing the arguments on the stack, the offsets for each value
+are completely different.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>f1 <span class="op">|</span>  f2</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">========</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">X</span>     y</span>
@@ -106,8 +187,22 @@
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>y     <span class="dt">X</span></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>y     <span class="dt">X</span></span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">-- rest of the stack --</span></span></code></pre></div>
-<p>The compiler needs to know <strong>exactly</strong> how much space each variable takes up, because it matters. You might need a <code>popq</code> or a <code>popl</code> in order to get that data off the stack, but the only way to know is to have some idea of what data you’re working with. Imagine if your compiler was prone to making hasty conclusions and guessing about data size. What if it created one version of <code>launchMissiles</code> that took arguments like <code>(char targets, uint8_t launchCodes)</code>, and another version with the original arguments? You’d be writing and overwriting data all over the place, and we’d probably be dead.</p>
-<p>Back to the linker. Now that we know <em>why</em> header files are required (right?), let’s look at how these function definitions are actually resolved. Every object file ends up with a <a href="https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html">symbol table</a> (assume 64-bit because we’re not living in the 90’s anymore). The symbol table is an array of <code class="inline-type">Elf64_Sym</code>, each corresponding to one function:</p>
+<p>The compiler needs to know <strong>exactly</strong> how much space
+each variable takes up, because it matters. You might need a
+<code>popq</code> or a <code>popl</code> in order to get that data off
+the stack, but the only way to know is to have some idea of what data
+you’re working with. Imagine if your compiler was prone to making hasty
+conclusions and guessing about data size. What if it created one version
+of <code>launchMissiles</code> that took arguments like
+<code>(char targets, uint8_t launchCodes)</code>, and another version
+with the original arguments? You’d be writing and overwriting data all
+over the place, and we’d probably be dead.</p>
+<p>Back to the linker. Now that we know <em>why</em> header files are
+required (right?), let’s look at how these function definitions are
+actually resolved. Every object file ends up with a <a href="https://docs.oracle.com/cd/E23824_01/html/819-0690/chapter6-79797.html">symbol
+table</a> (assume 64-bit because we’re not living in the 90’s anymore).
+The symbol table is an array of <code class="inline-type">Elf64_Sym</code>, each corresponding to one
+function:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> <span class="op">{</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    Elf64_Word      st_name<span class="op">;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unsigned</span> <span class="dt">char</span>   st_info<span class="op">;</span></span>
@@ -116,9 +211,49 @@
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    Elf64_Addr      st_value<span class="op">;</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    Elf64_Xword     st_size<span class="op">;</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> Elf64_Sym<span class="op">;</span></span></code></pre></div>
-<p><code class="inline-type">Elf64_Word</code> and <code class="inline-type">Elf64_Xword</code> are just <code>typedef</code> aliases for <code>uint32_t</code> and <code>uint64_t</code>, <a href="http://web.mit.edu/freebsd/head/sys/sys/elf64.h">respectively</a>. <code class="inline-type">Elf64_Addr</code> is, as you guessed it, an unsigned 64-bit pointer (<code>uint64_t</code>). <code>st_name</code> isn’t a string, but an index into a string table within the object file that contains the function’s string representation. <code>st_info</code> is a bitmask that contains metadata about whether the symbol is local or global, and some other bookkeeping stuff. The most crucial bits of info here are <code>st_name, st_info, st_size,</code> and <code>st_value</code>. With this, the linker now has everything it needs to be able to redirect any invocations of the function to its exact location within its resident object file.</p>
-<p>When object files are combined together, their data occurs sequentially within the resulting executable’s data. The linker takes the addresses of each function definition and calculates a new offset based on where it spits the function body into the executable. This order doesn’t have to necessarily follow the original order within each object file - functions might be inlined depending on how often they get called, they might be placed closer together or <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_node/ld_22.html">overlaid</a> for cache locality, etc. As <code>ld</code> builds the executable, it’s unclear what the offset of the next function, or the one after that, will be. All it knows is the offset of the program header, data, and everything it’s added in so far. <code>ld</code> provides a lot of fine-grained control to the programmer when specifying how a program should be linked, since there’s so much metadata contained in each object file. The compiler didn’t break when it was translating everything to assembly, the assembler didn’t whine, and so <code>ld</code> gets to do its thing now.</p>
-<p>What’s cool is that <code>ld</code> is <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html#SEC12">lazy</a> in binding functions now. Since the compiler was able to find a valid traversal through your program, the only thing left to be done for your program to run is to actually write the addresses into the executable. This doesn’t have to be done until you try to run your program, and it’s how dynamic linking allows you to save literally <strong>KILOBYTES</strong> of memory by allowing different programs to share the same library functions in memory. This wasn’t the case back in the 1970’s. In the infancy of UNIX, <code>ld</code> had a lot more responsibility. Static analysis wasn’t as feasible as it was today, so tasks like dead-code elimination were up to the linker. In particular, <code>ld</code> used to only do a single pass over a <code>tar</code>ball of objects in their predefined order. This is where it was crucial that a traversal-order permutation of symbols was obtained.</p>
+<p><code class="inline-type">Elf64_Word</code> and <code class="inline-type">Elf64_Xword</code> are just <code>typedef</code>
+aliases for <code>uint32_t</code> and <code>uint64_t</code>, <a href="http://web.mit.edu/freebsd/head/sys/sys/elf64.h">respectively</a>.
+<code class="inline-type">Elf64_Addr</code> is, as you guessed it, an
+unsigned 64-bit pointer (<code>uint64_t</code>). <code>st_name</code>
+isn’t a string, but an index into a string table within the object file
+that contains the function’s string representation. <code>st_info</code>
+is a bitmask that contains metadata about whether the symbol is local or
+global, and some other bookkeeping stuff. The most crucial bits of info
+here are <code>st_name, st_info, st_size,</code> and
+<code>st_value</code>. With this, the linker now has everything it needs
+to be able to redirect any invocations of the function to its exact
+location within its resident object file.</p>
+<p>When object files are combined together, their data occurs
+sequentially within the resulting executable’s data. The linker takes
+the addresses of each function definition and calculates a new offset
+based on where it spits the function body into the executable. This
+order doesn’t have to necessarily follow the original order within each
+object file - functions might be inlined depending on how often they get
+called, they might be placed closer together or <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_node/ld_22.html">overlaid</a>
+for cache locality, etc. As <code>ld</code> builds the executable, it’s
+unclear what the offset of the next function, or the one after that,
+will be. All it knows is the offset of the program header, data, and
+everything it’s added in so far. <code>ld</code> provides a lot of
+fine-grained control to the programmer when specifying how a program
+should be linked, since there’s so much metadata contained in each
+object file. The compiler didn’t break when it was translating
+everything to assembly, the assembler didn’t whine, and so
+<code>ld</code> gets to do its thing now.</p>
+<p>What’s cool is that <code>ld</code> is <a href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html#SEC12">lazy</a>
+in binding functions now. Since the compiler was able to find a valid
+traversal through your program, the only thing left to be done for your
+program to run is to actually write the addresses into the executable.
+This doesn’t have to be done until you try to run your program, and it’s
+how dynamic linking allows you to save literally
+<strong>KILOBYTES</strong> of memory by allowing different programs to
+share the same library functions in memory. This wasn’t the case back in
+the 1970’s. In the infancy of UNIX, <code>ld</code> had a lot more
+responsibility. Static analysis wasn’t as feasible as it was today, so
+tasks like dead-code elimination were up to the linker. In particular,
+<code>ld</code> used to only do a single pass over a
+<code>tar</code>ball of objects in their predefined order. This is where
+it was crucial that a traversal-order permutation of symbols was
+obtained.</p>
 <p><img src="../images/tsort/yesbabe.png" class="pic" /></p>
   </section>
 </article>

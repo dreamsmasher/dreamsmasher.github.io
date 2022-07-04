@@ -66,28 +66,63 @@
 
   </section>
   <section>
-    <p><span style="color: yellow">Inspired by <a href="https://aphyr.com/posts/340-reversing-the-technical-interview">Kyle Kingsbury’s</a> <a href="https://aphyr.com/posts/341-hexing-the-technical-interview">series</a> <a href="https://aphyr.com/posts/342-typing-the-technical-interview">on</a> <a href="https://aphyr.com/posts/353-rewriting-the-technical-interview">software</a> <a href="https://aphyr.com/posts/354-unifying-the-technical-interview">magick</a>.</span></p>
-<p>You hear back from Dave a week later. It turns out that the engineering team really liked your approach to <a href="./2021-03-19-interview.html">FizzBuzz</a>. They’ve invited you back for a second round, and you’re excited to take the next steps toward gainful employment.</p>
-<p>The day finally comes. Logging into Zoom, you take a deep breath and draw current from the atmosphere to refresh your senses. The gentle hum of your PSU fans drone gently, the sparks emanating from your fingertips. You greet Dave again. He looks a lot more alert today, as if he’s mentally prepped himself for what’s to come.</p>
-<p>“Let’s get started, alright?” He says with a smile. You grin back, although it looks more like an evil smirk.</p>
+    <p><span style="color: yellow">Inspired by <a href="https://aphyr.com/posts/340-reversing-the-technical-interview">Kyle
+Kingsbury’s</a> <a href="https://aphyr.com/posts/341-hexing-the-technical-interview">series</a>
+<a href="https://aphyr.com/posts/342-typing-the-technical-interview">on</a>
+<a href="https://aphyr.com/posts/353-rewriting-the-technical-interview">software</a>
+<a href="https://aphyr.com/posts/354-unifying-the-technical-interview">magick</a>.</span></p>
+<p>You hear back from Dave a week later. It turns out that the
+engineering team really liked your approach to <a href="./2021-03-19-interview.html">FizzBuzz</a>. They’ve invited you
+back for a second round, and you’re excited to take the next steps
+toward gainful employment.</p>
+<p>The day finally comes. Logging into Zoom, you take a deep breath and
+draw current from the atmosphere to refresh your senses. The gentle hum
+of your PSU fans drone gently, the sparks emanating from your
+fingertips. You greet Dave again. He looks a lot more alert today, as if
+he’s mentally prepped himself for what’s to come.</p>
+<p>“Let’s get started, alright?” He says with a smile. You grin back,
+although it looks more like an evil smirk.</p>
 <hr />
-<h2 id="two-sum"><span style="color: cyan; font-size: 2rem">Two Sum!</span></h2>
-<p>Given an array of numbers, and a target, return whether two numbers exist in the array that add up to the target.</p>
+<h2 id="two-sum"><span style="color: cyan; font-size: 2rem">Two
+Sum!</span></h2>
+<p>Given an array of numbers, and a target, return whether two numbers
+exist in the array that add up to the target.</p>
 <hr />
 <p>You blink. What the hell is an array? You ask for clarification.</p>
-<p>“An array? It’s a sequence of items stored contiguously in memory.” he says, perplexed. A faint vision pops up in your consciousness, as your linked lists begin to transform. The primordial linkages of cons cells within their functional ether start to glow, slowly dimming and disappearing into the void. Their pointers are cleaved off, leaving bare values in their stead. The world begins to flatten, as the naked primitives twirl and shift, arranging themselves into a single line segment. As they pack themselves into an orderly axis, the space between them is replaced by unboxed values joined together in a tight arrangement, connected not by reference, but by position.</p>
-<p>Ah, an array. Short for “arrangement of yusable things”. You wonder what the use case would be for this kind of data configuration. Maybe if RAM was expensive again?</p>
-<p>A single word comes to your mind, and you silently whisper it to yourself.</p>
+<p>“An array? It’s a sequence of items stored contiguously in memory.”
+he says, perplexed. A faint vision pops up in your consciousness, as
+your linked lists begin to transform. The primordial linkages of cons
+cells within their functional ether start to glow, slowly dimming and
+disappearing into the void. Their pointers are cleaved off, leaving bare
+values in their stead. The world begins to flatten, as the naked
+primitives twirl and shift, arranging themselves into a single line
+segment. As they pack themselves into an orderly axis, the space between
+them is replaced by unboxed values joined together in a tight
+arrangement, connected not by reference, but by position.</p>
+<p>Ah, an array. Short for “arrangement of yusable things”. You wonder
+what the use case would be for this kind of data configuration. Maybe if
+RAM was expensive again?</p>
+<p>A single word comes to your mind, and you silently whisper it to
+yourself.</p>
 <p><em>imperative</em>.</p>
-<p>“Let’s get started.”, you tell Dave. “First off, arrays aren’t a real thing. Please don’t gaslight your candidates”. Secondly, it seems like we’ll need a way to iterate through a collection of numbers.”</p>
-<p>You know that dependencies are going out of style, and you want to show Dave that you care about code bloat as much as the next developer. It’s clear that this is a problem that needs to be solved from the ground-up.</p>
-<p>“Sequential evaluation of instructions doesn’t make sense in an actual programming language, so we’ll need a way to simulate that abstractl-”, you say excitedly. Dave turns his head, expect you to continue. More specifically, he’s waiting for you to give him a <a href="https://stackoverflow.com/questions/3322540/how-and-why-does-the-haskell-cont-monad-work">continuation</a>.</p>
+<p>“Let’s get started.”, you tell Dave. “First off, arrays aren’t a real
+thing. Please don’t gaslight your candidates”. Secondly, it seems like
+we’ll need a way to iterate through a collection of numbers.”</p>
+<p>You know that dependencies are going out of style, and you want to
+show Dave that you care about code bloat as much as the next developer.
+It’s clear that this is a problem that needs to be solved from the
+ground-up.</p>
+<p>“Sequential evaluation of instructions doesn’t make sense in an
+actual programming language, so we’ll need a way to simulate that
+abstractl-”, you say excitedly. Dave turns his head, expect you to
+continue. More specifically, he’s waiting for you to give him a <a href="https://stackoverflow.com/questions/3322540/how-and-why-does-the-haskell-cont-monad-work">continuation</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE InstanceSigs #-}</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ContT</span> r m a <span class="ot">=</span> <span class="dt">ContT</span> {<span class="ot"> runContT ::</span> (a <span class="ot">-&gt;</span> m r) <span class="ot">-&gt;</span> m r} </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ot">lift ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> m a <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m a</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>lift ma <span class="ot">=</span> <span class="dt">ContT</span> (ma <span class="op">&gt;&gt;=</span>)</span></code></pre></div>
-<p>“The <code>r</code> stands for result!”, you interject before he asks.</p>
+<p>“The <code>r</code> stands for result!”, you interject before he
+asks.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> (<span class="dt">ContT</span> r m) <span class="kw">where</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- (a -&gt; b) -&gt; ((a -&gt; m r) -&gt; m r) -&gt; ((b -&gt; m r) -&gt; m r)</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ot">    fmap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m a <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m b</span>
@@ -115,19 +150,44 @@
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    contA <span class="op">&gt;&gt;=</span> f <span class="ot">=</span> <span class="dt">ContT</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">$</span> \bmr <span class="ot">-&gt;</span> runContT contA</span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">$</span> \a <span class="ot">-&gt;</span> runContT (f a) bmr</span></code></pre></div>
-<p>You stop typing for a moment and turn your head toward your other monitor. “The only way we can guarantee sequential evaluation is by using monads. Now - Haskell is a black box, and we’re operating in a strange non-category called Hask.” Dave sighs.</p>
-<p>“Things could crash or infinitely loop at any time, so we need to be careful about what we try to compute. We need our statements to execute in order, and the only way to do that is generate that ordering explicitly through callbacks. At the same time, callback hell is a real place, so we need a way to stay pure and veer as far away from it as possible.” He laughs for a moment because he thinks you’re joking.</p>
-<p>Some of your ancestors are still wallowing in those sulfur pits. Not cool, Dave.</p>
-<p>You brush off his slight, and get back to work. The first inklings of your time machine are finished. You close your eyes for a moment, and visualize the spell you’re about to cast. Morphisms and points, previously twirling through an abstract cosmos, suddenly begin to entangle with each other, their arrows tightly bound together by iridescent strands of composition. Dave doesn’t know about the <code class="inline-type">Cont</code> monad, the <a href="https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/the-mother-of-all-monads">mother of all monads</a> (she’s your aunt!), the omnipresent abstraction that unifies effects themselves.</p>
-<p>The foundations are in place, and you inscribe the last incantations into bytes. You have a few parentheses left over from last month, so you decide to splurge a little bit.</p>
+<p>You stop typing for a moment and turn your head toward your other
+monitor. “The only way we can guarantee sequential evaluation is by
+using monads. Now - Haskell is a black box, and we’re operating in a
+strange non-category called Hask.” Dave sighs.</p>
+<p>“Things could crash or infinitely loop at any time, so we need to be
+careful about what we try to compute. We need our statements to execute
+in order, and the only way to do that is generate that ordering
+explicitly through callbacks. At the same time, callback hell is a real
+place, so we need a way to stay pure and veer as far away from it as
+possible.” He laughs for a moment because he thinks you’re joking.</p>
+<p>Some of your ancestors are still wallowing in those sulfur pits. Not
+cool, Dave.</p>
+<p>You brush off his slight, and get back to work. The first inklings of
+your time machine are finished. You close your eyes for a moment, and
+visualize the spell you’re about to cast. Morphisms and points,
+previously twirling through an abstract cosmos, suddenly begin to
+entangle with each other, their arrows tightly bound together by
+iridescent strands of composition. Dave doesn’t know about the <code class="inline-type">Cont</code> monad, the <a href="https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/the-mother-of-all-monads">mother
+of all monads</a> (she’s your aunt!), the omnipresent abstraction that
+unifies effects themselves.</p>
+<p>The foundations are in place, and you inscribe the last incantations
+into bytes. You have a few parentheses left over from last month, so you
+decide to splurge a little bit.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">callCC ::</span> ((a <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m b) <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m a) <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m a</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>callCC f <span class="ot">=</span> <span class="dt">ContT</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    (\amr <span class="ot">-&gt;</span> runContT</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        (f (\a <span class="ot">-&gt;</span> <span class="dt">ContT</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            (\_ <span class="ot">-&gt;</span> amr a)))</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        amr)</span></code></pre></div>
-<p>Dave is definitely more oriented towards objects, and he seems pretty lost. That’s alright - you felt lost too, back when you were figuring out the secrets of time travel. You stop to explain what <code>callCC</code> really means.</p>
-<p><code>callCC</code> works the same way that <code>call-with-current-continuation</code> does in <code class="inline-type">Scheme</code>. The only difference is that we’re not doing any explicit manipulation of the call stack. All we’ve done is reify our continuations as data, so we can play around with them. Let’s go over these types:</p>
+<p>Dave is definitely more oriented towards objects, and he seems pretty
+lost. That’s alright - you felt lost too, back when you were figuring
+out the secrets of time travel. You stop to explain what
+<code>callCC</code> really means.</p>
+<p><code>callCC</code> works the same way that
+<code>call-with-current-continuation</code> does in <code class="inline-type">Scheme</code>. The only difference is that we’re not
+doing any explicit manipulation of the call stack. All we’ve done is
+reify our continuations as data, so we can play around with them. Let’s
+go over these types:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">callCC ::</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- a function that takes a function (a -&gt; ContT r m b)</span></span>
@@ -138,7 +198,8 @@
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- finally returning that different object in the end</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ot">-&gt;</span> <span class="dt">ContT</span> r m a</span></code></pre></div>
-<p>Let’s ignore the <code>m</code> argument and expand out some types:</p>
+<p>Let’s ignore the <code>m</code> argument and expand out some
+types:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- type Cont r a = ContT r Identity a</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Cont</span> r a <span class="ot">=</span> <span class="dt">Cont</span> {<span class="ot">runCont ::</span> (a <span class="ot">-&gt;</span> r) <span class="ot">-&gt;</span> r}</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -158,8 +219,10 @@
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="ot">ar ::</span> (a <span class="ot">-&gt;</span> r)</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="ot">a ::</span> a</span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>(ar a)<span class="ot"> ::</span> r</span></code></pre></div>
-<p>Where does the <code>b</code> come from??? It’s shadowed and completely ignored, so why is it there?</p>
-<p>At its core, all a <code class="inline-type">Cont</code> actually does is function application.</p>
+<p>Where does the <code>b</code> come from??? It’s shadowed and
+completely ignored, so why is it there?</p>
+<p>At its core, all a <code class="inline-type">Cont</code> actually
+does is function application.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ot">someA ::</span> a</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ot">someCont ::</span> <span class="dt">Cont</span> r a</span>
@@ -173,8 +236,18 @@
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="ot">r ::</span> r</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>r <span class="ot">=</span> arr ar</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>r <span class="ot">=</span> ((\(<span class="dt">Cont</span> arToR) <span class="ot">-&gt;</span> arToR) someCont) ar</span></code></pre></div>
-<p>When we’re in the <code class="inline-type">Cont</code> monad, we’re explicitly manipulating control flow by dynamically choosing which continuations get called. Values in the rightmost position of the <code class="inline-type">Cont r a</code> signature just represent a value stored in the container, that can only be accessed by passing another continuation to be applied to it. You can get out of the <code class="inline-type">Cont</code> monad by passing <code>id</code> at the end, or by using the <code class="inline-type">Identity</code> monad for <code class="inline-type">ContT</code>.</p>
-<p>This gives us the ability to exit early from our <code>do</code>-blocks, since the monadic context we’re abstracting over is what exactly to do <em>after</em> a function returns. We can just ignore the continuation, which will do exactly that - skip the remainder of the computation.</p>
+<p>When we’re in the <code class="inline-type">Cont</code> monad, we’re
+explicitly manipulating control flow by dynamically choosing which
+continuations get called. Values in the rightmost position of the <code class="inline-type">Cont r a</code> signature just represent a value
+stored in the container, that can only be accessed by passing another
+continuation to be applied to it. You can get out of the <code class="inline-type">Cont</code> monad by passing <code>id</code> at the
+end, or by using the <code class="inline-type">Identity</code> monad for
+<code class="inline-type">ContT</code>.</p>
+<p>This gives us the ability to exit early from our
+<code>do</code>-blocks, since the monadic context we’re abstracting over
+is what exactly to do <em>after</em> a function returns. We can just
+ignore the continuation, which will do exactly that - skip the remainder
+of the computation.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">quitT ::</span> r <span class="ot">-&gt;</span> <span class="dt">ContT</span> r m b</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>quitT <span class="ot">=</span> <span class="dt">ContT</span> (\f <span class="ot">-&gt;</span> <span class="fu">pure</span> x)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -189,7 +262,9 @@
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    unless (resp <span class="op">==</span> <span class="st">&quot;nuke me plz OwO&quot;</span>) <span class="op">$</span> quitT <span class="dt">False</span></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    launchMissiles [<span class="st">&quot;Canada&quot;</span>, <span class="st">&quot;USA&quot;</span>, <span class="st">&quot;Russia&quot;</span>]</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> <span class="dt">True</span></span></code></pre></div>
-<p>It’s clear that the <code>b</code> in <code>callCC</code> can be anything then, since we’re ignoring it. It’s confusing, I know. We’re like 3 levels of higher-order functions deep.</p>
+<p>It’s clear that the <code>b</code> in <code>callCC</code> can be
+anything then, since we’re ignoring it. It’s confusing, I know. We’re
+like 3 levels of higher-order functions deep.</p>
 <p>An example of how <code>callCC</code> might be used in practice:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">haltingProblemSolver ::</span> <span class="dt">Cont</span> r <span class="dt">String</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>haltingProblemSolver <span class="ot">=</span> <span class="kw">do</span></span>
@@ -199,7 +274,14 @@
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pure</span> <span class="dt">True</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> <span class="op">$</span> <span class="st">&quot;Turing was &quot;</span> </span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>         <span class="op">&lt;&gt;</span> <span class="kw">if</span> halted <span class="kw">then</span> <span class="st">&quot;WRONG&quot;</span> <span class="kw">else</span> <span class="st">&quot;right, I guess&quot;</span></span></code></pre></div>
-<p>In this case, the function <code>\halt -&gt; Cont ...</code> is the first argument of <code>callCC</code>, of type <code>((a -&gt; Cont r b) -&gt; Cont r a)</code>. <code>halt</code> is just a named argument, that itself is a continuation that will exit the block we’re in. The key is that we’re in a nested block, isolated from the outer do-block. We’re just calling <code>quitT</code> from the lambda, so we end up jumping back to the call site of <code>callCC</code>.</p>
+<p>In this case, the function <code>\halt -&gt; Cont ...</code> is the
+first argument of <code>callCC</code>, of type
+<code>((a -&gt; Cont r b) -&gt; Cont r a)</code>. <code>halt</code> is
+just a named argument, that itself is a continuation that will exit the
+block we’re in. The key is that we’re in a nested block, isolated from
+the outer do-block. We’re just calling <code>quitT</code> from the
+lambda, so we end up jumping back to the call site of
+<code>callCC</code>.</p>
 <p>Let’s go back to the definition of <code>callCC</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>callCC f <span class="ot">=</span> <span class="dt">Cont</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    (\ar <span class="ot">-&gt;</span> runCont</span>
@@ -216,9 +298,21 @@
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">$</span> \halt <span class="ot">-&gt;</span> forever <span class="op">$</span> <span class="kw">do</span>  <span class="op">|-</span>a<span class="op">-|</span></span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    when (z <span class="op">==</span> <span class="dv">100</span>) <span class="op">$</span> halt <span class="dt">False</span></span>
 <span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> <span class="dt">True</span></span></code></pre></div>
-<p>Since we’re looping forever, the only way we can “exit” this block is by calling <code>halt</code> with an argument. “Exit” is in quotes because we’re not really exiting - we’re just tail-calling another function that will never return to where we were, but that’s just semantics. Whatever the <code>halt</code> function is called with, will end up being the return value of <code>callCC</code> in this case. If you’re in a block that DOES terminate, then either the argument to <code>halt</code>or the last value in the chain will be the return value, in which case they need to be the same type.</p>
-<p>This is powerful because we’re working in nested monad closures, so we can still capture the surrounding computation using scoping. We’ve essentially designed a structured GOTO, which is universally considered to be harmless.</p>
-<p>Dave’s eyes look glassed over. You decide it’s about time to hammer out a solution before your lecture brings him over retirement age.</p>
+<p>Since we’re looping forever, the only way we can “exit” this block is
+by calling <code>halt</code> with an argument. “Exit” is in quotes
+because we’re not really exiting - we’re just tail-calling another
+function that will never return to where we were, but that’s just
+semantics. Whatever the <code>halt</code> function is called with, will
+end up being the return value of <code>callCC</code> in this case. If
+you’re in a block that DOES terminate, then either the argument to
+<code>halt</code>or the last value in the chain will be the return
+value, in which case they need to be the same type.</p>
+<p>This is powerful because we’re working in nested monad closures, so
+we can still capture the surrounding computation using scoping. We’ve
+essentially designed a structured GOTO, which is universally considered
+to be harmless.</p>
+<p>Dave’s eyes look glassed over. You decide it’s about time to hammer
+out a solution before your lecture brings him over retirement age.</p>
 <p>It’s time to go imperative.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.IORef</span></span>
@@ -266,9 +360,23 @@
 <span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>if_ p b <span class="ot">=</span> <span class="kw">do</span></span>
 <span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    px <span class="ot">&lt;-</span> p</span>
 <span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    when px b</span></code></pre></div>
-<p>You stop for a second to see if Dave is still with you. His expression is a combination of intrigue at what you’re doing, annoyance at how you’re doing it, and curiosity at why you’re like this. You didn’t really overengineer this time, did you?</p>
-<p>“DSL’s are a great way to create maintainable interfaces for niche problems, and they’re one of the biggest strengths of functional languages”, you say. He doesn’t seem convinced.</p>
-<p>You take a deep breath, closing your eyes, and visualize the bastardized, Kafkaesque universe you’ve molded. The morphisms of infinitely composable points collapse into a single path, a solitary walkway through endless non-deterministic traversals. You step confidently through the void, your footsteps lighting up the ground with faint flashes of light as universal constants start to change. Recursion is replaced by hard loops. Data starts to become mutable and mushy. Stone bricks of concrete categories arrange themselves into brutalist skyscrapers, and a tie materializes around your neck. Looks like it’s time to get to business.</p>
+<p>You stop for a second to see if Dave is still with you. His
+expression is a combination of intrigue at what you’re doing, annoyance
+at how you’re doing it, and curiosity at why you’re like this. You
+didn’t really overengineer this time, did you?</p>
+<p>“DSL’s are a great way to create maintainable interfaces for niche
+problems, and they’re one of the biggest strengths of functional
+languages”, you say. He doesn’t seem convinced.</p>
+<p>You take a deep breath, closing your eyes, and visualize the
+bastardized, Kafkaesque universe you’ve molded. The morphisms of
+infinitely composable points collapse into a single path, a solitary
+walkway through endless non-deterministic traversals. You step
+confidently through the void, your footsteps lighting up the ground with
+faint flashes of light as universal constants start to change. Recursion
+is replaced by hard loops. Data starts to become mutable and mushy.
+Stone bricks of concrete categories arrange themselves into brutalist
+skyscrapers, and a tie materializes around your neck. Looks like it’s
+time to get to business.</p>
 <p>“Take a look - I’m just about ready to solve the problem.”</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">twoSum ::</span> ([<span class="dt">Int</span>], <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Bool</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>twoSum(nums, target) <span class="ot">=</span> begin <span class="op">$</span> <span class="kw">do</span> </span>
@@ -285,7 +393,12 @@
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> peek(exists);</span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> res;</span></code></pre></div>
-<p>Dave thanks you for your time, and answers a few lingering questions you had about retirement fund contributions and PTO. He lets out a final sigh, as the universe in your mind’s eye begins to decompose back into the freely decoupled ether you’re familiar with. The blood stops leaking out of your walls. You take a deep sip of coffee, thanking him for his time.</p>
+<p>Dave thanks you for your time, and answers a few lingering questions
+you had about retirement fund contributions and PTO. He lets out a final
+sigh, as the universe in your mind’s eye begins to decompose back into
+the freely decoupled ether you’re familiar with. The blood stops leaking
+out of your walls. You take a deep sip of coffee, thanking him for his
+time.</p>
 <p>You didn’t get the job.</p>
   </section>
 </article>

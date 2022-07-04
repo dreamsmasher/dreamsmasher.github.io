@@ -60,26 +60,92 @@
 
   </section>
   <section>
-    <p>Graph theory comes up a lot more often than you think. Whenever you run a search, download packages, or do anything on the Internet really, you’re reaping its benefits without even realizing. You might be familiar with <code>sort</code> if you’ve done any work in the shell beyond <code>rm -rf /*</code>. It’s useful for working with huge unsorted files, and it’s pretty much an essential tool for any serious scripting. There’s another program with similar intentions, but completely different usecases - <code>tsort</code>. It’s a relative newcomer to the <code class="inline-mod">POSIX.1</code> standard that was only canonized in 2017, although it’s been around since 1979.</p>
-<p><code>tsort</code> takes any number of space-separated pairs that represent directed edges in a graph, and outputs each node in topologically sorted order. Its original purpose was for use in <code>ld</code>, the UNIX standard linker. Back in the days when <code>tar</code> actually referred to tape archives, the linker could only do a single pass over a series of object files, in order. With this processing format, problems would arise when the linker tried to figure out symbols or functions that were invoked before they were defined. The solution for this? Represent a program as a directed graph, and generate a topological sorting of symbol references first.</p>
+    <p>Graph theory comes up a lot more often than you think. Whenever you
+run a search, download packages, or do anything on the Internet really,
+you’re reaping its benefits without even realizing. You might be
+familiar with <code>sort</code> if you’ve done any work in the shell
+beyond <code>rm -rf /*</code>. It’s useful for working with huge
+unsorted files, and it’s pretty much an essential tool for any serious
+scripting. There’s another program with similar intentions, but
+completely different usecases - <code>tsort</code>. It’s a relative
+newcomer to the <code class="inline-mod">POSIX.1</code> standard that
+was only canonized in 2017, although it’s been around since 1979.</p>
+<p><code>tsort</code> takes any number of space-separated pairs that
+represent directed edges in a graph, and outputs each node in
+topologically sorted order. Its original purpose was for use in
+<code>ld</code>, the UNIX standard linker. Back in the days when
+<code>tar</code> actually referred to tape archives, the linker could
+only do a single pass over a series of object files, in order. With this
+processing format, problems would arise when the linker tried to figure
+out symbols or functions that were invoked before they were defined. The
+solution for this? Represent a program as a directed graph, and generate
+a topological sorting of symbol references first.</p>
 <p>What’s a topological sort?</p>
-<p>If you’re unfamiliar with graph theory, here’s a short refresher. A directed graph is a collection of nodes with arrows between each other, pointing towards another node.</p>
-<p>I made these figures in <code class="inline-type">Snapchat</code>, bear with me.</p>
+<p>If you’re unfamiliar with graph theory, here’s a short refresher. A
+directed graph is a collection of nodes with arrows between each other,
+pointing towards another node.</p>
+<p>I made these figures in <code class="inline-type">Snapchat</code>,
+bear with me.</p>
 <p>If we have two nodes like so,</p>
 <p><img src="../images/tsort/twonodes.jpg" class="pic" /></p>
-<p>We can turn it into a directed graph by drawing an arrow that points from A to B. You can look at these arrows as family trees, flow-charts, morphisms, or sloppy artwork.</p>
+<p>We can turn it into a directed graph by drawing an arrow that points
+from A to B. You can look at these arrows as family trees, flow-charts,
+morphisms, or sloppy artwork.</p>
 <p><img src="../images/tsort/twonodesedge.jpg" class="pic" /></p>
-<p>A special subset of directed graphs are directed acyclic graphs, where you can travel along every path emanating from a node and eventually run out of paths to take. This turns out to be extremely useful in a ton of domains. Whenever you compile a project, you’re creating a dependency graph of modules. Your <code class="inline-type">Main</code> module might depend on <code class="inline-type">Lib</code>, which in turns depends on <code class="inline-type">Bloat, Parse</code>, and <code>is-even</code>. Any dependent relationship between modules forms a directed edge in the overall graph representing the set of all your modules.</p>
-<p>When we have cycles in our graph, however, that’s when issues arise. If you don’t keep track of which nodes you’ve been to, you’ll end up going around in circles as you walk the graph. You’ll go from <code class="inline-type">A</code> to <code class="inline-type">B</code>, see that there’s a path from <code class="inline-type">B</code> to <code class="inline-type">A</code>, and keep going. This is a trivial example obviously. You might be thinking, “I’m not that stupid, I’ll just keep track of which nodes I’ve been to.” Sure, but what if the graph was bigger? How could you represent this graph as a 1-dimensional array?</p>
+<p>A special subset of directed graphs are directed acyclic graphs,
+where you can travel along every path emanating from a node and
+eventually run out of paths to take. This turns out to be extremely
+useful in a ton of domains. Whenever you compile a project, you’re
+creating a dependency graph of modules. Your <code class="inline-type">Main</code> module might depend on <code class="inline-type">Lib</code>, which in turns depends on <code class="inline-type">Bloat, Parse</code>, and <code>is-even</code>. Any
+dependent relationship between modules forms a directed edge in the
+overall graph representing the set of all your modules.</p>
+<p>When we have cycles in our graph, however, that’s when issues arise.
+If you don’t keep track of which nodes you’ve been to, you’ll end up
+going around in circles as you walk the graph. You’ll go from <code class="inline-type">A</code> to <code class="inline-type">B</code>, see
+that there’s a path from <code class="inline-type">B</code> to <code class="inline-type">A</code>, and keep going. This is a trivial example
+obviously. You might be thinking, “I’m not that stupid, I’ll just keep
+track of which nodes I’ve been to.” Sure, but what if the graph was
+bigger? How could you represent this graph as a 1-dimensional array?</p>
 <p><img src="../images/tsort/twonodescycle.jpg" class="pic" /></p>
-<p>Cycles are fine depending on what you’re trying to do. If you’re writing a game and you need to implement pathfinding around obstacles, you might rely on a <a href="https://en.wikipedia.org/wiki/Breadth-first_search">breadth-first search</a> or some version of <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A*</a>. Generally, if you know <em>where</em> you want to go, cycles aren’t that big of a deal. Assuming you know which McDonald’s you wanna head to, you probably won’t get tripped up by cloverleaf interchanges on the highway. If you’re trying to map the highway however, this becomes an issue.</p>
-<p>By the way, trees are always directed acylic graphs, with the special restriction that a node can only ever be pointed to by one node.</p>
-<p>A topological sort is a transformation that’s only valid for graphs without cycles. The idea is to permute every node in such a way that, if a node <code class="inline-type">A</code> points to a node <code class="inline-type">B</code>, <code class="inline-type">A</code> will come before <code class="inline-type">B</code> in the final sorted permutation.</p>
+<p>Cycles are fine depending on what you’re trying to do. If you’re
+writing a game and you need to implement pathfinding around obstacles,
+you might rely on a <a href="https://en.wikipedia.org/wiki/Breadth-first_search">breadth-first
+search</a> or some version of <a href="https://en.wikipedia.org/wiki/A*_search_algorithm">A*</a>.
+Generally, if you know <em>where</em> you want to go, cycles aren’t that
+big of a deal. Assuming you know which McDonald’s you wanna head to, you
+probably won’t get tripped up by cloverleaf interchanges on the highway.
+If you’re trying to map the highway however, this becomes an issue.</p>
+<p>By the way, trees are always directed acylic graphs, with the special
+restriction that a node can only ever be pointed to by one node.</p>
+<p>A topological sort is a transformation that’s only valid for graphs
+without cycles. The idea is to permute every node in such a way that, if
+a node <code class="inline-type">A</code> points to a node <code class="inline-type">B</code>, <code class="inline-type">A</code> will
+come before <code class="inline-type">B</code> in the final sorted
+permutation.</p>
 <p>Let’s say we have a DAG that looks like this:</p>
 <p><img src="../images/tsort/fullgraph.jpg" class="pic" /></p>
-<p>The nodes are approximately sized according to how many outgoing edges they have. If you wanted to walk this graph, visiting every single emoji, which one would you start at? You can only go in the direction that the arrows point.</p>
-<p>Clearly, you would start at the emoji that doesn’t have any arrows pointing <em>toward</em> it. From there, you can head to <code>explodey-head</code>, <code>yeehaw</code>, and <code>kewl-dude</code>. <code>explodey-head</code> points to <code>think</code>, and <code>yeehaw</code> points to <code>balloon-face</code>. From <code>balloon-face</code>, you head to <code>kewl-dude</code> once more, and you’re out of options. You can see that even though some nodes can share directions, we still don’t have any cycles. The order in which we walked the graph corresponds to its topological sort - we always have to visit the <em>originating</em> node of an edge before we can visit the <em>destination</em> node. For nodes with the same “depth”, their relative order doesn’t really matter. It doesn’t matter whether we visit <code>yeehaw</code> or <code>explodey-head</code> first, they won’t take it personally.</p>
-<p>This kind of traversal strategy is exactly what <code>tsort</code> does. If we convert every edge to a pair of nodes, we can find a traversal path in mere milliseconds. Note that the original permutation of our pairs doesn’t matter.</p>
+<p>The nodes are approximately sized according to how many outgoing
+edges they have. If you wanted to walk this graph, visiting every single
+emoji, which one would you start at? You can only go in the direction
+that the arrows point.</p>
+<p>Clearly, you would start at the emoji that doesn’t have any arrows
+pointing <em>toward</em> it. From there, you can head to
+<code>explodey-head</code>, <code>yeehaw</code>, and
+<code>kewl-dude</code>. <code>explodey-head</code> points to
+<code>think</code>, and <code>yeehaw</code> points to
+<code>balloon-face</code>. From <code>balloon-face</code>, you head to
+<code>kewl-dude</code> once more, and you’re out of options. You can see
+that even though some nodes can share directions, we still don’t have
+any cycles. The order in which we walked the graph corresponds to its
+topological sort - we always have to visit the <em>originating</em> node
+of an edge before we can visit the <em>destination</em> node. For nodes
+with the same “depth”, their relative order doesn’t really matter. It
+doesn’t matter whether we visit <code>yeehaw</code> or
+<code>explodey-head</code> first, they won’t take it personally.</p>
+<p>This kind of traversal strategy is exactly what <code>tsort</code>
+does. If we convert every edge to a pair of nodes, we can find a
+traversal path in mere milliseconds. Note that the original permutation
+of our pairs doesn’t matter.</p>
 <div class="sourceCode" id="cb1" data-caption="(I had to submit a pull request to KDE in order for pandoc to highlight tsort correctly)"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cat emojiGraph.txt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">explode</span> think</span>
@@ -97,12 +163,25 @@
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ex">think</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ex">laugh</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ex">sunglasses</span></span></code></pre></div>
-<p>Notice that <code>think</code> comes after <code>cowboy</code>, even though they both have edges that are 2 degrees of separation away from our origin. There’s a shorter, 1-degree path to <code>cowboy</code>, so he comes first.</p>
-<p>We have our topological sorting now, a 1-dimensional representation of the DAG and a souvenir of our time reenacting of the Emoji Movie:</p>
+<p>Notice that <code>think</code> comes after <code>cowboy</code>, even
+though they both have edges that are 2 degrees of separation away from
+our origin. There’s a shorter, 1-degree path to <code>cowboy</code>, so
+he comes first.</p>
+<p>We have our topological sorting now, a 1-dimensional representation
+of the DAG and a souvenir of our time reenacting of the Emoji Movie:</p>
 <p><img src="../images/tsort/tsorted.jpg" class="pic" /></p>
-<p>There’s a really interesting <a href="https://leetcode.com/problems/course-schedule-ii/description/">Leetcode</a> problem that involves graph traversal in this way. The prompt goes something like this:</p>
-<p>You have a list of <code>n</code> courses you need to take, labeled from <code>0</code> to <code>n - 1</code>. Some courses have prerequisites that need to be satisfied before you can take them. Given <code>n</code>, and a list of pairs <code>[(a, b)]</code>, denoting that <code>b</code> is a prerequisite of <code>a</code>, return the order in which you need to take these courses. Notice that the ordering of edges is backwards from our <code>tsort</code> example.</p>
-<p>So let’s go with a simple example. We’ll use part of my old university transcript.</p>
+<p>There’s a really interesting <a href="https://leetcode.com/problems/course-schedule-ii/description/">Leetcode</a>
+problem that involves graph traversal in this way. The prompt goes
+something like this:</p>
+<p>You have a list of <code>n</code> courses you need to take, labeled
+from <code>0</code> to <code>n - 1</code>. Some courses have
+prerequisites that need to be satisfied before you can take them. Given
+<code>n</code>, and a list of pairs <code>[(a, b)]</code>, denoting that
+<code>b</code> is a prerequisite of <code>a</code>, return the order in
+which you need to take these courses. Notice that the ordering of edges
+is backwards from our <code>tsort</code> example.</p>
+<p>So let’s go with a simple example. We’ll use part of my old
+university transcript.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a> courses <span class="ot">=</span> [ (<span class="dt">HMB265</span>, <span class="dt">BIO120</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>           , (<span class="dt">BCH311</span>, <span class="dt">BCH210</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>           , (<span class="dt">HAJ453</span>, <span class="dt">HMB312</span>)</span>
@@ -115,8 +194,15 @@
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>           , (<span class="dt">BIO220</span>, <span class="dt">BIO120</span>)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>           , (<span class="dt">HMB265</span>, <span class="dt">BIO130</span>)</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>           ]</span></code></pre></div>
-<p>Where do we go with this? How the hell do I graduate if my course schedule is a complete mess? (In real life, there are credit requirements, corequisites and sometimes prerequisite requirements aren’t actually mandatory, but we’ll assume a simple dependency graph here.)</p>
-<p>Let’s reshuffle this list a bit by hand now to make it a little more clear where we’re starting. Let’s try grouping together our courses by their incoming edges - in other words, assembling their total prerequisites.</p>
+<p>Where do we go with this? How the hell do I graduate if my course
+schedule is a complete mess? (In real life, there are credit
+requirements, corequisites and sometimes prerequisite requirements
+aren’t actually mandatory, but we’ll assume a simple dependency graph
+here.)</p>
+<p>Let’s reshuffle this list a bit by hand now to make it a little more
+clear where we’re starting. Let’s try grouping together our courses by
+their incoming edges - in other words, assembling their total
+prerequisites.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>courseRequirements <span class="ot">=</span> {</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">BIO120</span><span class="op">:</span> [],</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">BIO130</span><span class="op">:</span> [],</span>
@@ -130,14 +216,25 @@
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">HMB312</span><span class="op">:</span> [<span class="dt">HMB265</span>, <span class="dt">HMB204</span>],</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">HAJ453</span><span class="op">:</span> [<span class="dt">BIO220</span>, <span class="dt">HMB312</span>]</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>If we look at these courses as nodes, we can see immediately that there are 3 sources in our graph, nodes without any incoming edges. Their <code>in-degrees</code> are zero, and so we know that we need to start from there. In our context, <code class="inline-type">BIO120, BIO130,</code> and <code class="inline-type">CHM136</code> are courses that we can take immediately, and not have to worry about the registrar kicking us out halfway through the semester.</p>
-<p>Now what? It seems like <code class="inline-type">BCH210</code> requires <code class="inline-type">CHM136</code>, so we would have to take it one semester afterwards. Same goes for <code class="inline-type">HMB265, BIO220, HMB204,</code> and <code class="inline-type">PSL301</code>. Let’s skip ahead to Christmas break.Our first courses are done. We don’t care about them anymore, and they’re on our transcript.</p>
+<p>If we look at these courses as nodes, we can see immediately that
+there are 3 sources in our graph, nodes without any incoming edges.
+Their <code>in-degrees</code> are zero, and so we know that we need to
+start from there. In our context, <code class="inline-type">BIO120, BIO130,</code> and <code class="inline-type">CHM136</code> are courses that we can take
+immediately, and not have to worry about the registrar kicking us out
+halfway through the semester.</p>
+<p>Now what? It seems like <code class="inline-type">BCH210</code>
+requires <code class="inline-type">CHM136</code>, so we would have to
+take it one semester afterwards. Same goes for <code class="inline-type">HMB265, BIO220, HMB204,</code> and <code class="inline-type">PSL301</code>. Let’s skip ahead to Christmas
+break.Our first courses are done. We don’t care about them anymore, and
+they’re on our transcript.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>transcript <span class="ot">=</span> [ <span class="dt">BIO120</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">BIO130</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">CHM136</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>             ]</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>   </span></code></pre></div>
-<p>We can now remove these completed courses from our graph, and all their outgoing edges pointing to higher-level courses. This also means removing the incoming edges as well. Here’s our new graph:</p>
+<p>We can now remove these completed courses from our graph, and all
+their outgoing edges pointing to higher-level courses. This also means
+removing the incoming edges as well. Here’s our new graph:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>courseRequirements <span class="ot">=</span> {</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">HMB265</span><span class="op">:</span> [],</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">BIO220</span><span class="op">:</span> [],</span>
@@ -148,7 +245,9 @@
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">HAJ453</span><span class="op">:</span> [<span class="dt">HMB312</span>, <span class="dt">BIO220</span>]</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">HMB312</span><span class="op">:</span> [<span class="dt">HMB204</span>]</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Nice! We’ve finished all the requirements for 5 courses! It’s pretty clear what our next semester is gonna to look like. After our second semester, our transcript has grown:</p>
+<p>Nice! We’ve finished all the requirements for 5 courses! It’s pretty
+clear what our next semester is gonna to look like. After our second
+semester, our transcript has grown:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>transcript <span class="ot">=</span> [ <span class="dt">BIO120</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">BIO130</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">CHM136</span></span>
@@ -159,13 +258,18 @@
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">PSL301</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">BCH210</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>             ]</span></code></pre></div>
-<p>Are we done yet? Nope. Looking back at <code>courseRequirements</code>, <code class="inline-type">HAJ453</code> still requires courses that we haven’t gotten around to yet. Let’s reorder our requirements list again.</p>
+<p>Are we done yet? Nope. Looking back at
+<code>courseRequirements</code>, <code class="inline-type">HAJ453</code>
+still requires courses that we haven’t gotten around to yet. Let’s
+reorder our requirements list again.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>courseRequirements <span class="ot">=</span> {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">BCH311</span><span class="op">:</span> [],</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">HMB312</span><span class="op">:</span> []</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">HAJ453</span><span class="op">:</span> [<span class="dt">HMB312</span>]</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>We take <code class="inline-type">BCH311</code> and <code class="inline-type">HMB312</code> next, before we can do <code class="inline-type">HAJ453</code> in our senior year. Electives and failed courses aside - in total, it took us 4 iterations to go from being clueless freshmen to becoming well-respected biologists.</p>
+<p>We take <code class="inline-type">BCH311</code> and <code class="inline-type">HMB312</code> next, before we can do <code class="inline-type">HAJ453</code> in our senior year. Electives and
+failed courses aside - in total, it took us 4 iterations to go from
+being clueless freshmen to becoming well-respected biologists.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>transcript <span class="ot">=</span> [ <span class="dt">BIO120</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">BIO130</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">CHM136</span></span>
@@ -181,8 +285,22 @@
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>             <span class="co">-- fourth semester</span></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>             , <span class="dt">HAJ453</span></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>             ]</span></code></pre></div>
-<p>Do you see the pattern in our strategy? We did a topological sort by hand, using <a href="https://dl.acm.org/doi/10.1145/368996.369025">Kahn’s algorithm</a>. Starting off with a randomly permuted list of elements <code>(a, b)</code>, where <code>b</code> has to be fulfilled before <code>a</code>, we identify which courses we’re eligible for (nodes with no incoming edges). Next, we “visit” these nodes by taking the courses, confident that we’re not lacking any background knowledge. After removing our visited nodes from the graph, we delete their edges and take note of the next batch of zero-degree nodes. Keep doing this until we’re out of courses to take, and the University shoves a diploma in our hands then cancels our health insurance.</p>
-<p>This sucks to work out by hand, and we only had to deal with 11 courses. What about 40? (flashbacks to dealing with U of T’s degree explorer). What if we wanted to take every single course at the University? Where do we even start then? We need computers - let’s express this in their language.</p>
+<p>Do you see the pattern in our strategy? We did a topological sort by
+hand, using <a href="https://dl.acm.org/doi/10.1145/368996.369025">Kahn’s
+algorithm</a>. Starting off with a randomly permuted list of elements
+<code>(a, b)</code>, where <code>b</code> has to be fulfilled before
+<code>a</code>, we identify which courses we’re eligible for (nodes with
+no incoming edges). Next, we “visit” these nodes by taking the courses,
+confident that we’re not lacking any background knowledge. After
+removing our visited nodes from the graph, we delete their edges and
+take note of the next batch of zero-degree nodes. Keep doing this until
+we’re out of courses to take, and the University shoves a diploma in our
+hands then cancels our health insurance.</p>
+<p>This sucks to work out by hand, and we only had to deal with 11
+courses. What about 40? (flashbacks to dealing with U of T’s degree
+explorer). What if we wanted to take every single course at the
+University? Where do we even start then? We need computers - let’s
+express this in their language.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gradPlan(requirements):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    transcript <span class="op">=</span> []</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -213,8 +331,19 @@
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> transcript <span class="co"># magna cum laude, baby</span></span>
 <span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    </span></code></pre></div>
-<p>This isn’t syntactically valid <code class="inline-type">Python</code>, and there are optimizations we can make. But I think it illustrates the algorithm pretty well. At any point in time, we can only take courses that we’re eligible to enroll in. The relative order of courses doesn’t matter if they’re at the same “depth” within the graph. For instance, we can take <code class="inline-type">BIO120</code> at the same time as <code class="inline-type">CHM136</code> since neither of them rely on any prerequisites, so it doesn’t matter which of the two comes first in our transcript. For courses that directly depend on these, however, we can only take them after we’re finished. How are you supposed to know understand glycolysis if you don’t even know what electrons are?</p>
-<p>Now that we know the theory behind topological sorting, we can add it to our toolkit. Luckily, you won’t have to implement <code>tsort</code> by hand very often, because real engineers avoid code duplication at all costs. Here’s an easy solution to the Leetcode problem:</p>
+<p>This isn’t syntactically valid <code class="inline-type">Python</code>, and there are optimizations we can
+make. But I think it illustrates the algorithm pretty well. At any point
+in time, we can only take courses that we’re eligible to enroll in. The
+relative order of courses doesn’t matter if they’re at the same “depth”
+within the graph. For instance, we can take <code class="inline-type">BIO120</code> at the same time as <code class="inline-type">CHM136</code> since neither of them rely on any
+prerequisites, so it doesn’t matter which of the two comes first in our
+transcript. For courses that directly depend on these, however, we can
+only take them after we’re finished. How are you supposed to know
+understand glycolysis if you don’t even know what electrons are?</p>
+<p>Now that we know the theory behind topological sorting, we can add it
+to our toolkit. Luckily, you won’t have to implement <code>tsort</code>
+by hand very often, because real engineers avoid code duplication at all
+costs. Here’s an easy solution to the Leetcode problem:</p>
 <div class="sourceCode" id="cb10" data-caption="errors and edge-case handling are left as an exercise for the reader."><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> subprocess <span class="im">import</span> check_output, DEVNULL</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> courseSchedule(numCourses: <span class="bu">int</span>, prerequisites: List[List[<span class="bu">int</span>]]) <span class="op">-&gt;</span> List[<span class="bu">int</span>]:</span>
@@ -226,7 +355,14 @@
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">list</span>(<span class="bu">map</span>(<span class="bu">int</span>, tsorted.splitlines()))</span></code></pre></div>
 <p>Beautiful.</p>
-<p>It turns out that <code>tsort</code> isn’t used in <code>ld</code> anymore (<code>grep</code>ped for it just now), but it’s a cool utility that can come in handy. Don’t listen to <a href="https://docstore.mik.ua/orelly/unix/unixnut/c02_222.htm">O’Reilly</a> and their pessimism. Next time you run into a problem where you have to consider the relationships between objects within a category, see if you can reduce it to graph traversal. This is usually my go-to intuition when I’m doing Leetcode problems, but the site is biased towards graph-type questions anyway.</p>
+<p>It turns out that <code>tsort</code> isn’t used in <code>ld</code>
+anymore (<code>grep</code>ped for it just now), but it’s a cool utility
+that can come in handy. Don’t listen to <a href="https://docstore.mik.ua/orelly/unix/unixnut/c02_222.htm">O’Reilly</a>
+and their pessimism. Next time you run into a problem where you have to
+consider the relationships between objects within a category, see if you
+can reduce it to graph traversal. This is usually my go-to intuition
+when I’m doing Leetcode problems, but the site is biased towards
+graph-type questions anyway.</p>
   </section>
 </article>
         </main>

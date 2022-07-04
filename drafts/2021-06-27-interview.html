@@ -97,73 +97,151 @@
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.HashMap.Strict</span> <span class="kw">as</span> <span class="dt">M</span></span>
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Hashable</span></span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Array.IO</span></span></code></pre></div>
-<p>–newtype ContT r m a = ContT {runContT :: (a -&gt; m r) -&gt; m r}</p>
-<p>–(.&lt;) :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; (a -&gt; c) –f .&lt; g = -&gt; f (g x)</p>
-<p>–instance Functor (ContT r m) where – fmap f c = ContT $ &gt; runContT c (k .&lt; f)</p>
-<p>–instance Applicative (ContT r m) where – pure x = ContT ($ x) – f &lt;*&gt; x = ContT &gt; runContT f  -&gt; runContT x (k .&lt; f’)</p>
-<p>–instance Monad (ContT r m) where – return = pure – x &gt;&gt;= f = ContT &gt; runContT x $ -&gt; runContT (f a) k</p>
-<p>–instance (Alternative m) =&gt; Alternative (ContT r m) where – empty = ContT (_ -&gt; empty) – a &lt;|&gt; b = ContT $ liftA2 (&lt;|&gt;) (runContT a) (runContT b)</p>
-<p>–instance MonadTrans (ContT r) where – lift :: Monad m =&gt; m a -&gt; ContT r m a – lift m = ContT (m &gt;&gt;=)</p>
-<p>–instance MonadIO m =&gt; MonadIO (ContT r m) where – liftIO :: IO a -&gt; ContT r m a – liftIO = lift .&lt; liftIO</p>
-<p>–instance MonadFail m =&gt; MonadFail (ContT r m) where – fail :: String -&gt; ContT r m a – fail = ContT .&lt; const .&lt; fail</p>
-<p>–mapContT :: (m r -&gt; m r) -&gt; ContT r m a -&gt; ContT r m a –mapContT f c = ContT &gt; runContT c (f .&lt; k)</p>
+<p>–newtype ContT r m a = ContT {runContT :: (a -&gt; m r) -&gt; m
+r}</p>
+<p>–(.&lt;) :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; (a -&gt; c) –f .&lt;
+g = -&gt; f (g x)</p>
+<p>–instance Functor (ContT r m) where – fmap f c = ContT $ &gt;
+runContT c (k .&lt; f)</p>
+<p>–instance Applicative (ContT r m) where – pure x = ContT ($ x) – f
+&lt;*&gt; x = ContT &gt; runContT f -&gt; runContT x (k .&lt; f’)</p>
+<p>–instance Monad (ContT r m) where – return = pure – x &gt;&gt;= f =
+ContT &gt; runContT x $ -&gt; runContT (f a) k</p>
+<p>–instance (Alternative m) =&gt; Alternative (ContT r m) where – empty
+= ContT (_ -&gt; empty) – a &lt;|&gt; b = ContT $ liftA2 (&lt;|&gt;)
+(runContT a) (runContT b)</p>
+<p>–instance MonadTrans (ContT r) where – lift :: Monad m =&gt; m a
+-&gt; ContT r m a – lift m = ContT (m &gt;&gt;=)</p>
+<p>–instance MonadIO m =&gt; MonadIO (ContT r m) where – liftIO :: IO a
+-&gt; ContT r m a – liftIO = lift .&lt; liftIO</p>
+<p>–instance MonadFail m =&gt; MonadFail (ContT r m) where – fail ::
+String -&gt; ContT r m a – fail = ContT .&lt; const .&lt; fail</p>
+<p>–mapContT :: (m r -&gt; m r) -&gt; ContT r m a -&gt; ContT r m a
+–mapContT f c = ContT &gt; runContT c (f .&lt; k)</p>
 <p>–todo = undefined</p>
-<p>–withContT :: ((b -&gt; m r) -&gt; a -&gt; m r) -&gt; ContT r m a -&gt; ContT r m b –withContT f c = ContT (runContT c .&lt; f)</p>
-<p>–evalContT :: Applicative m =&gt; ContT r m r -&gt; m r –evalContT c = runContT c pure</p>
-<p>–callCC :: ((a -&gt; ContT r m b) -&gt; ContT r m a) -&gt; ContT r m a –callCC f = ContT &gt; – let z = f (-&gt; ContT _ -&gt; k x) – in – runContT z k</p>
-<p>–shiftT :: Monad m =&gt; ((a -&gt; m r) -&gt; ContT r m r) -&gt; ContT r m a –shiftT f = ContT $ evalContT .&lt; f</p>
-<p>–resetT :: Monad m =&gt; ContT r m r -&gt; ContT r’ m r –resetT = lift .&lt; evalContT</p>
-<p>–liftLocal :: Monad m =&gt; m r’ -&gt; ((r’ -&gt; r’) -&gt; m r -&gt; m r) -&gt; (r’ -&gt; r’) -&gt; ContT r m a -&gt; ContT r m a –liftLocal ask local rr c = ContT &gt; do – r &lt;- ask – local rr $ runContT c (local (const r) .&lt; k)</p>
+<p>–withContT :: ((b -&gt; m r) -&gt; a -&gt; m r) -&gt; ContT r m a
+-&gt; ContT r m b –withContT f c = ContT (runContT c .&lt; f)</p>
+<p>–evalContT :: Applicative m =&gt; ContT r m r -&gt; m r –evalContT c
+= runContT c pure</p>
+<p>–callCC :: ((a -&gt; ContT r m b) -&gt; ContT r m a) -&gt; ContT r m
+a –callCC f = ContT &gt; – let z = f (-&gt; ContT _ -&gt; k x) – in –
+runContT z k</p>
+<p>–shiftT :: Monad m =&gt; ((a -&gt; m r) -&gt; ContT r m r) -&gt;
+ContT r m a –shiftT f = ContT $ evalContT .&lt; f</p>
+<p>–resetT :: Monad m =&gt; ContT r m r -&gt; ContT r’ m r –resetT =
+lift .&lt; evalContT</p>
+<p>–liftLocal :: Monad m =&gt; m r’ -&gt; ((r’ -&gt; r’) -&gt; m r -&gt;
+m r) -&gt; (r’ -&gt; r’) -&gt; ContT r m a -&gt; ContT r m a –liftLocal
+ask local rr c = ContT &gt; do – r &lt;- ask – local rr $ runContT c
+(local (const r) .&lt; k)</p>
 <p>–newtype ReaderT r m a = ReaderT {runReaderT :: r -&gt; m a}</p>
-<p>–instance Functor f =&gt; Functor (ReaderT r f) where – fmap f r = ReaderT (fmap f .&lt; runReaderT r)</p>
-<p>–instance Applicative f =&gt; Applicative (ReaderT r f) where – pure x = ReaderT (const (pure x)) – f &lt;<em>&gt; x = ReaderT (&gt; runReaderT f r &lt;</em>&gt; runReaderT x r)</p>
-<p>–instance Monad m =&gt; Monad (ReaderT r m) where – x &gt;&gt;= f = ReaderT &gt; do – a &lt;- runReaderT x r – runReaderT (f a) r</p>
+<p>–instance Functor f =&gt; Functor (ReaderT r f) where – fmap f r =
+ReaderT (fmap f .&lt; runReaderT r)</p>
+<p>–instance Applicative f =&gt; Applicative (ReaderT r f) where – pure
+x = ReaderT (const (pure x)) – f &lt;<em>&gt; x = ReaderT (&gt;
+runReaderT f r &lt;</em>&gt; runReaderT x r)</p>
+<p>–instance Monad m =&gt; Monad (ReaderT r m) where – x &gt;&gt;= f =
+ReaderT &gt; do – a &lt;- runReaderT x r – runReaderT (f a) r</p>
 <p>–ask :: Monad m =&gt; ReaderT r m r –ask = ReaderT pure</p>
-<p>–asks :: Applicative m =&gt; (a1 -&gt; a2) -&gt; ReaderT a1 m a2 –asks f = ReaderT (pure .&lt; f)</p>
-<p>–local :: (r -&gt; r) -&gt; ReaderT r m a -&gt; ReaderT r m a –local f r = ReaderT $ runReaderT r .&lt; f</p>
+<p>–asks :: Applicative m =&gt; (a1 -&gt; a2) -&gt; ReaderT a1 m a2
+–asks f = ReaderT (pure .&lt; f)</p>
+<p>–local :: (r -&gt; r) -&gt; ReaderT r m a -&gt; ReaderT r m a –local
+f r = ReaderT $ runReaderT r .&lt; f</p>
 <p>–data DerefCmd a = Read | Write a</p>
 <p>–newtype ArrPtr m a = ArrPtr {getPtr :: DerefCmd a -&gt; m a}</p>
-<p>–class DerefMut m a b c where – poke :: a -&gt; b -&gt; m c – peek :: a -&gt; m b</p>
-<p>–instance MonadIO m =&gt; DerefMut m (IORef a) a () where – peek = liftIO .&lt; readIORef – poke r = liftIO .&lt; writeIORef r</p>
-<p>–instance DerefMut m (ArrPtr m a) a a where – peek = flip getPtr Read – poke x a = getPtr x (Write a)</p>
-<p>–class MonadIO m =&gt; Deref s m where – type family Target s – deref :: MonadIO m =&gt; s -&gt; m (Target s)</p>
-<p>–instance MonadIO m =&gt; Deref [a] m where – type Target [a] = [a] – deref = pure</p>
-<p>–instance (Deref s m) =&gt; Deref (IORef s) m where – type Target (IORef s) = Target s – deref s = do – r &lt;- liftIO $ readIORef s – deref r</p>
-<p>–instance (Deref s m) =&gt; Deref (ContT s m s) m where – type Target (ContT s m s) = Target s – deref cs = evalContT cs &gt;&gt;= deref</p>
-<p>–foreach :: forall k s (r :: k) (m :: k -&gt; <em>) (t :: </em> -&gt; *) u a b. – (Deref s (ContT r m), MonadIO (ContT r m), Foldable t, – Target s ~ t u) =&gt; – s – -&gt; (ContT r m a -&gt; ContT r m b -&gt; u -&gt; ContT r m ()) – -&gt; ContT r m () –foreach xs f = do – xs’ &lt;- deref xs – callCC -&gt; – forM_ xs’ -&gt; – callCC -&gt; f (break ()) (continue ()) x</p>
+<p>–class DerefMut m a b c where – poke :: a -&gt; b -&gt; m c – peek ::
+a -&gt; m b</p>
+<p>–instance MonadIO m =&gt; DerefMut m (IORef a) a () where – peek =
+liftIO .&lt; readIORef – poke r = liftIO .&lt; writeIORef r</p>
+<p>–instance DerefMut m (ArrPtr m a) a a where – peek = flip getPtr Read
+– poke x a = getPtr x (Write a)</p>
+<p>–class MonadIO m =&gt; Deref s m where – type family Target s – deref
+:: MonadIO m =&gt; s -&gt; m (Target s)</p>
+<p>–instance MonadIO m =&gt; Deref [a] m where – type Target [a] = [a] –
+deref = pure</p>
+<p>–instance (Deref s m) =&gt; Deref (IORef s) m where – type Target
+(IORef s) = Target s – deref s = do – r &lt;- liftIO $ readIORef s –
+deref r</p>
+<p>–instance (Deref s m) =&gt; Deref (ContT s m s) m where – type Target
+(ContT s m s) = Target s – deref cs = evalContT cs &gt;&gt;= deref</p>
+<p>–foreach :: forall k s (r :: k) (m :: k -&gt; <em>) (t :: </em> -&gt;
+*) u a b. – (Deref s (ContT r m), MonadIO (ContT r m), Foldable t, –
+Target s ~ t u) =&gt; – s – -&gt; (ContT r m a -&gt; ContT r m b -&gt; u
+-&gt; ContT r m ()) – -&gt; ContT r m () –foreach xs f = do – xs’ &lt;-
+deref xs – callCC -&gt; – forM_ xs’ -&gt; – callCC -&gt; f (break ())
+(continue ()) x</p>
 <p>–type Imperative r a = ContT r IO a</p>
-<p>–(=:) :: IORef a -&gt; a -&gt; Imperative r () –ref =: a = liftIO $ writeIORef ref a</p>
-<p>–(.) :: a -&gt; (a -&gt; b) -&gt; b – IORef a -&gt; (IORef a -&gt; Imperative r b) -&gt; Imperative r b –r . f = f r –infixl 9 .</p>
-<p>–set :: (Eq k, Hashable k) =&gt; (k, v) -&gt; IORef (M.HashMap k v) -&gt; Imperative r () –set (k, v) r = liftIO $ modifyIORef’ r (M.insert k v) –nil = False –null = error “Null pointer dereference!”</p>
-<p>–get :: (Eq k, Hashable k) =&gt; k -&gt; IORef (M.HashMap k v) -&gt; Imperative r (v, Bool) –get k r = verbose .&lt; M.lookup k &lt;$&gt; liftIO (readIORef r)</p>
-<p>–verbose :: Maybe a -&gt; (a, Bool) –verbose = maybe (null, True) (, False)</p>
-<p>–begin :: forall k a (r :: k) (m :: k -&gt; *) b. – ((a -&gt; ContT r m b) -&gt; ContT r m a) -&gt; ContT r m a –begin = callCC</p>
+<p>–(=:) :: IORef a -&gt; a -&gt; Imperative r () –ref =: a = liftIO $
+writeIORef ref a</p>
+<p>–(.) :: a -&gt; (a -&gt; b) -&gt; b – IORef a -&gt; (IORef a -&gt;
+Imperative r b) -&gt; Imperative r b –r . f = f r –infixl 9 .</p>
+<p>–set :: (Eq k, Hashable k) =&gt; (k, v) -&gt; IORef (M.HashMap k v)
+-&gt; Imperative r () –set (k, v) r = liftIO $ modifyIORef’ r (M.insert
+k v) –nil = False –null = error “Null pointer dereference!”</p>
+<p>–get :: (Eq k, Hashable k) =&gt; k -&gt; IORef (M.HashMap k v) -&gt;
+Imperative r (v, Bool) –get k r = verbose .&lt; M.lookup k &lt;$&gt;
+liftIO (readIORef r)</p>
+<p>–verbose :: Maybe a -&gt; (a, Bool) –verbose = maybe (null, True) (,
+False)</p>
+<p>–begin :: forall k a (r :: k) (m :: k -&gt; *) b. – ((a -&gt; ContT r
+m b) -&gt; ContT r m a) -&gt; ContT r m a –begin = callCC</p>
 <p>–end :: ContT r m r –end = pure null</p>
 <p>–f ?: x = f x –infixr 9 ?:</p>
 <p>–if’ :: Bool -&gt; ContT a IO () -&gt; ContT a IO () –if’ = when</p>
-<p>–println :: (MonadIO m, Show a) =&gt; a -&gt; m () –println = liftIO .&lt; print</p>
-<p>–enumerate :: (Num a, Enum a, MonadIO f) =&gt; p -&gt; IORef [b] -&gt; f [(a, b)] –enumerate _ xs = zip [0..] &lt;$&gt; liftIO (readIORef xs)</p>
-<p>—-new :: (a -&gt; b) -&gt; a -&gt; Imperative r (IORef b) —-new f = liftIO &lt;| newIORef &lt;| f</p>
-<p>—- new :: Default a b =&gt; (c -&gt; a) -&gt; c -&gt; Imperative r (IORef b) —- new f = liftIO &lt;| newIORef &lt;| into &lt;| f</p>
-<p>–class Default a b where – into :: a -&gt; b – new :: MonadIO m =&gt; (c -&gt; a) -&gt; c -&gt; m (IORef b) – new f = liftIO .&lt; newIORef .&lt; into .&lt; f – from :: MonadIO m =&gt; c -&gt; (c -&gt; a) -&gt; m (IORef b) – from = flip new</p>
+<p>–println :: (MonadIO m, Show a) =&gt; a -&gt; m () –println = liftIO
+.&lt; print</p>
+<p>–enumerate :: (Num a, Enum a, MonadIO f) =&gt; p -&gt; IORef [b]
+-&gt; f [(a, b)] –enumerate _ xs = zip [0..] &lt;$&gt; liftIO (readIORef
+xs)</p>
+<p>—-new :: (a -&gt; b) -&gt; a -&gt; Imperative r (IORef b) —-new f =
+liftIO &lt;| newIORef &lt;| f</p>
+<p>—- new :: Default a b =&gt; (c -&gt; a) -&gt; c -&gt; Imperative r
+(IORef b) —- new f = liftIO &lt;| newIORef &lt;| into &lt;| f</p>
+<p>–class Default a b where – into :: a -&gt; b – new :: MonadIO m =&gt;
+(c -&gt; a) -&gt; c -&gt; m (IORef b) – new f = liftIO .&lt; newIORef
+.&lt; into .&lt; f – from :: MonadIO m =&gt; c -&gt; (c -&gt; a) -&gt; m
+(IORef b) – from = flip new</p>
 <p>–instance Default m m where – into = id</p>
 <p>–instance Monoid m =&gt; Default () m where – into = const mempty</p>
 <p>–newtype HashMap a = HashMap a</p>
 <p>–newtype List a = List a</p>
 <p>–newtype Str a = Str a</p>
 <p>–newtype Array a = Array a</p>
-<p>–instance Default a (M.HashMap k v) =&gt; Default (HashMap a) (M.HashMap k v) where – into (HashMap h) = into h</p>
-<p>–instance Default a [b] =&gt; Default (List a) [b] where – into (List a) = into a</p>
-<p>–instance Default a [Char] =&gt; Default (Str a) [Char] where – into (Str a) = into a</p>
-<p>–array :: MArray IOUArray a IO =&gt; [a] – -&gt; Imperative r ([Int] -&gt; ArrPtr (ContT r IO) a) –array xs = do – arr :: IOUArray Int a &lt;- liftIO $ newListArray (0, length xs) xs – let getter :: Int -&gt; DerefCmd a -&gt; Imperative r a – getter i Read = liftIO $ readArray arr i – getter i (Write x) = liftIO $ writeArray arr i x $&gt; x – pure ([i] -&gt; ArrPtr (getter i))</p>
-<p>–arrTest = do – arr &lt;- array[1..10] – p &lt;- arr[2] Read – pure arr –using :: (t1 -&gt; t2) -&gt; t1 -&gt; t2 –using f x = f x<br />
+<p>–instance Default a (M.HashMap k v) =&gt; Default (HashMap a)
+(M.HashMap k v) where – into (HashMap h) = into h</p>
+<p>–instance Default a [b] =&gt; Default (List a) [b] where – into (List
+a) = into a</p>
+<p>–instance Default a [Char] =&gt; Default (Str a) [Char] where – into
+(Str a) = into a</p>
+<p>–array :: MArray IOUArray a IO =&gt; [a] – -&gt; Imperative r ([Int]
+-&gt; ArrPtr (ContT r IO) a) –array xs = do – arr :: IOUArray Int a
+&lt;- liftIO $ newListArray (0, length xs) xs – let getter :: Int -&gt;
+DerefCmd a -&gt; Imperative r a – getter i Read = liftIO $ readArray arr
+i – getter i (Write x) = liftIO $ writeArray arr i x $&gt; x – pure ([i]
+-&gt; ArrPtr (getter i))</p>
+<p>–arrTest = do – arr &lt;- array[1..10] – p &lt;- arr[2] Read – pure
+arr –using :: (t1 -&gt; t2) -&gt; t1 -&gt; t2 –using f x = f x<br />
 –infixr 9 <code>using</code></p>
 <p>–(===) :: Eq a =&gt; a -&gt; a -&gt; Bool –(===) = (==)</p>
-<p>–(+) :: Semigroup a =&gt; a -&gt; a -&gt; a –(+) = (&lt;&gt;) –infixl 0 +</p>
-<p>–toString :: Show a =&gt; () -&gt; a -&gt; String –toString _ = show</p>
-<p>–twoSum :: Int -&gt; [Int] -&gt; Imperative (Int, Int) (Int, Int) – – return :: (Int, Int) -&gt; ContT (Int, Int) IO () –twoSum target nums = begin <code>using</code> -&gt; do { – – IORef (HashMap Int Int) – seen &lt;- new HashMap(); – – IORef [Int] – _xs:: IORef [Int] &lt;- List .from(nums); – xs &lt;- new List(nums); – – [(Int, Int)] – indices &lt;- xs.enumerate(); – foreach indices <code>using</code> continue (i, x) -&gt; do { – – (Int | ⊥, Bool), i.e. Maybe with the side effect of crashing on Nothing – (res, err) &lt;- seen.get(target - x); – – when – if’ (err === nil)?: – return (res, i); – seen.set(x, i);</p>
-<p>– println(“testing” + x.toString() + ” at index ” + i.toString()); – }; – – without a proper return, throw a null ptr error – return (0, 0); – end –}</p>
-<p>—- embed a language that encapsulates transition sttates for dfa —- e&lt;|g&lt;| given a certain amount of states, encode typeclass transformations between each state</p>
+<p>–(+) :: Semigroup a =&gt; a -&gt; a -&gt; a –(+) = (&lt;&gt;) –infixl
+0 +</p>
+<p>–toString :: Show a =&gt; () -&gt; a -&gt; String –toString _ =
+show</p>
+<p>–twoSum :: Int -&gt; [Int] -&gt; Imperative (Int, Int) (Int, Int) – –
+return :: (Int, Int) -&gt; ContT (Int, Int) IO () –twoSum target nums =
+begin <code>using</code> -&gt; do { – – IORef (HashMap Int Int) – seen
+&lt;- new HashMap(); – – IORef [Int] – _xs:: IORef [Int] &lt;- List
+.from(nums); – xs &lt;- new List(nums); – – [(Int, Int)] – indices &lt;-
+xs.enumerate(); – foreach indices <code>using</code> continue (i, x)
+-&gt; do { – – (Int | ⊥, Bool), i.e. Maybe with the side effect of
+crashing on Nothing – (res, err) &lt;- seen.get(target - x); – – when –
+if’ (err === nil)?: – return (res, i); – seen.set(x, i);</p>
+<p>– println(“testing” + x.toString() + ” at index ” + i.toString()); –
+}; – – without a proper return, throw a null ptr error – return (0, 0);
+– end –}</p>
+<p>—- embed a language that encapsulates transition sttates for dfa —-
+e&lt;|g&lt;| given a certain amount of states, encode typeclass
+transformations between each state</p>
 <p>–\end{code} –this is something</p>
   </section>
 </article>

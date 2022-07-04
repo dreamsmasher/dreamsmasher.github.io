@@ -66,26 +66,72 @@
 
   </section>
   <section>
-    <p>It’s been a WHILE since I’ve updated this site, really sorry to the 5 people that follow me. Life’s been pretty busy.</p>
-<p>I finally won the hiring lottery back in May, and I’m pretty pleased to say that I’m gainfully employed and no longer starving for <del>recruiter attention</del> creative outlets. My stack at work doesn’t include Haskell (yet), but a ton of Scala and Rust. Scala’s been a blast so far, especially coming from a functional background. Plenty of concepts map directly between the two worlds (type classes -&gt; implicits, type families -&gt; abstract <code>type</code>s/<code>def</code>s, trash outdated IO API’s -&gt; <code>java.nio</code>, etc).</p>
-<p>There’s plenty to be desired though, and most of my developer pains tend to stem from a few sources.</p>
+    <p>It’s been a WHILE since I’ve updated this site, really sorry to the 5
+people that follow me. Life’s been pretty busy.</p>
+<p>I finally won the hiring lottery back in May, and I’m pretty pleased
+to say that I’m gainfully employed and no longer starving for
+<del>recruiter attention</del> creative outlets. My stack at work
+doesn’t include Haskell (yet), but a ton of Scala and Rust. Scala’s been
+a blast so far, especially coming from a functional background. Plenty
+of concepts map directly between the two worlds (type classes -&gt;
+implicits, type families -&gt; abstract
+<code>type</code>s/<code>def</code>s, trash outdated IO API’s -&gt;
+<code>java.nio</code>, etc).</p>
+<p>There’s plenty to be desired though, and most of my developer pains
+tend to stem from a few sources.</p>
 <ol type="1">
 <li>Long compile times.</li>
 </ol>
-<p>I always thought GHC was kinda slow when compiling projects for the first time, given that this blog takes ~10 minutes to build from scratch (most of that stems from <code class="inline-type">Pandoc</code> and <code class="inline-type">JuicyPixels</code>). Recompiling is fast though, with a rebuild rarely taking longer than a second. Scala projects take exponentially longer, to the point where it starts to really impact your developer experience. On a medium-sized codebase (~100 classes or so) with heavy use of implicits, recompiling a single file can take me 10 seconds or more. Some quick profililing during a long build showed me that most of that time is spent on implicit resolution, with the compiler having to shovel hundreds of thousands of rejected implicits into the <del>garburetor</del> GC. This issue is made worse with heavy use of libraries like <code>shapeless</code>, which enable SYB-style generic programming. Implicits in Scala 3 have been heavily revised, although it’ll be a while until people start migrating en masse to the new ecosystem. I haven’t benchmarked Scala 3 vs Scala 2’s compile times on anything larger than small example projects, although older articles seem to indicate that Scala 3 is <a href="https://betterprogramming.pub/scala-almost-succeeded-c3b1028b02c5?gi=fe8cdf438d4e#:~:text=The%20Scala%203%20compiler%20is,leave%20gaps%20in%20the%20ecosystem.">slower</a>.</p>
-<p>This issue sometimes extends to my IDE, as well. I use <code class="inline-type">Metals</code> in VSCode for most of my work, and editor feedback sometimes slows to a crawl when the compiler has to re-resolve implicits and macro annotations. This is arguably more annoying than the long compile times alone, given your workflow tends to directly depend on the responsiveness of your development environment. Personally, I have a habit of saving after every line, to make sure what I’m writing is coherent and that my types check out. On those rare occasions where Metals takes 10+ seconds to tell me whether or not I’m being a dumbass, it’s incredibly easy to lose my train of thought and the pace of development slows down to a crawl.</p>
+<p>I always thought GHC was kinda slow when compiling projects for the
+first time, given that this blog takes ~10 minutes to build from scratch
+(most of that stems from <code class="inline-type">Pandoc</code> and
+<code class="inline-type">JuicyPixels</code>). Recompiling is fast
+though, with a rebuild rarely taking longer than a second. Scala
+projects take exponentially longer, to the point where it starts to
+really impact your developer experience. On a medium-sized codebase
+(~100 classes or so) with heavy use of implicits, recompiling a single
+file can take me 10 seconds or more. Some quick profililing during a
+long build showed me that most of that time is spent on implicit
+resolution, with the compiler having to shovel hundreds of thousands of
+rejected implicits into the <del>garburetor</del> GC. This issue is made
+worse with heavy use of libraries like <code>shapeless</code>, which
+enable SYB-style generic programming. Implicits in Scala 3 have been
+heavily revised, although it’ll be a while until people start migrating
+en masse to the new ecosystem. I haven’t benchmarked Scala 3 vs Scala
+2’s compile times on anything larger than small example projects,
+although older articles seem to indicate that Scala 3 is <a href="https://betterprogramming.pub/scala-almost-succeeded-c3b1028b02c5?gi=fe8cdf438d4e#:~:text=The%20Scala%203%20compiler%20is,leave%20gaps%20in%20the%20ecosystem.">slower</a>.</p>
+<p>This issue sometimes extends to my IDE, as well. I use <code class="inline-type">Metals</code> in VSCode for most of my work, and
+editor feedback sometimes slows to a crawl when the compiler has to
+re-resolve implicits and macro annotations. This is arguably more
+annoying than the long compile times alone, given your workflow tends to
+directly depend on the responsiveness of your development environment.
+Personally, I have a habit of saving after every line, to make sure what
+I’m writing is coherent and that my types check out. On those rare
+occasions where Metals takes 10+ seconds to tell me whether or not I’m
+being a dumbass, it’s incredibly easy to lose my train of thought and
+the pace of development slows down to a crawl.</p>
 <ol start="2" type="1">
 <li>Verbosity.</li>
 </ol>
-<p>Scala is <em>EXPONENTIALLY</em> better than Java due to ADT’s, improved syntax, and its facilities for programming in a properly functional style. It still tends to show its warts in unexpected areas, largely due to limitations of running on the JVM and conscious decisions by its authors. For instance, a simple sum type is a one-liner in ML-style languages:</p>
+<p>Scala is <em>EXPONENTIALLY</em> better than Java due to ADT’s,
+improved syntax, and its facilities for programming in a properly
+functional style. It still tends to show its warts in unexpected areas,
+largely due to limitations of running on the JVM and conscious decisions
+by its authors. For instance, a simple sum type is a one-liner in
+ML-style languages:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">SumType</span> a <span class="ot">=</span> <span class="dt">Foo</span> <span class="dt">Int</span> <span class="op">|</span> <span class="dt">Bar</span> <span class="dt">Char</span> <span class="op">|</span> <span class="dt">SumType</span> a a</span></code></pre></div>
-<p>but unifying disjoint structures in Scala is a <em>little</em> bit more involved:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">sealed</span> <span class="kw">trait</span> SumType<span class="op">[</span>A<span class="op">]</span> <span class="kw">extends</span> <span class="bu">Enumeration</span> <span class="op">{</span></span>
+<p>but unifying disjoint structures in Scala is a <em>little</em> bit
+more involved:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">sealed</span> <span class="kw">trait</span> SumType<span class="op">[</span>A<span class="op">]</span> <span class="kw">extends</span> <span class="ex">Enumeration</span> <span class="op">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">final</span> <span class="cf">case</span> <span class="kw">class</span> <span class="fu">Foo</span><span class="op">(</span>thisIntNeedsAName<span class="op">:</span> <span class="bu">Int</span><span class="op">)</span> <span class="kw">extends</span> SumType<span class="op">[</span>A<span class="op">]</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">final</span> <span class="cf">case</span> <span class="kw">class</span> <span class="fu">Bar</span><span class="op">(</span>alsoNeedsAName<span class="op">:</span> <span class="bu">Char</span><span class="op">)</span> <span class="kw">extends</span> SumType<span class="op">[</span>A<span class="op">]</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">final</span> <span class="cf">case</span> <span class="kw">class</span> <span class="fu">SumType</span><span class="op">(</span>left<span class="op">:</span> A<span class="op">,</span> right<span class="op">:</span> A<span class="op">)</span> <span class="kw">extends</span> SumType<span class="op">[</span>A<span class="op">]</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>Ow, my pinky fingers hurt already. This is a vanilla Scala 2 implementation, by the way. There are libraries like <a href="https://github.com/lloydmeta/enumeratum"><code>enumeratum</code></a> that provide macros for easier declaration of sum types. Enums in Scala 3 have also been vastly improved, although you still have to dance the <code>extends</code> shuffle.</p>
+<p>Ow, my pinky fingers hurt already. This is a vanilla Scala 2
+implementation, by the way. There are libraries like <a href="https://github.com/lloydmeta/enumeratum"><code>enumeratum</code></a>
+that provide macros for easier declaration of sum types. Enums in Scala
+3 have also been vastly improved, although you still have to dance the
+<code>extends</code> shuffle.</p>
 <p>On the flip side, you get GADTs for free:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE GADTs #-}</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">GADT</span> a <span class="kw">where</span></span>
@@ -105,14 +151,19 @@
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">object</span> GADT <span class="op">{</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">final</span> <span class="cf">case</span> <span class="kw">class</span> <span class="fu">SomeInt</span><span class="op">(</span>unwrapGADT<span class="op">:</span> <span class="bu">Int</span><span class="op">)</span> <span class="kw">extends</span> GADT<span class="op">[</span><span class="bu">Int</span><span class="op">]</span></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">final</span> <span class="cf">case</span> <span class="kw">class</span> <span class="fu">SomeChar</span><span class="op">(</span>unwrapGADT<span class="op">:</span> <span class="bu">Char</span><span class="op">)</span> <span class="kw">extends</span> GADT<span class="op">[</span><span class="bu">Char</span><span class="op">]</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">final</span> <span class="cf">case</span> <span class="kw">class</span> <span class="fu">SomeMaybe</span><span class="op">(</span>unwrapGADT<span class="op">:</span> <span class="bu">Option</span><span class="op">[</span>A<span class="op">])</span> </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">final</span> <span class="cf">case</span> <span class="kw">class</span> <span class="fu">SomeMaybe</span><span class="op">(</span>unwrapGADT<span class="op">:</span> <span class="ex">Option</span><span class="op">[</span>A<span class="op">])</span> </span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">extends</span> GADT<span class="op">[</span>Maybe<span class="op">[</span>A<span class="op">]]</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <ol start="3" type="1">
 <li>Janky implicits (and more verbosity).</li>
 </ol>
-<p>Implicits are also first-class, compared to type class instances which sort of float around in the ether and can only be accessed through their members. This is either a hindrance or a plus, depending on the context.</p>
-<p>Let’s give an example of some type class, like <code class="inline-type">Functor</code>. It’s not built into Scala, but provided by <code>cats</code>, which is pretty widely used across projects.</p>
+<p>Implicits are also first-class, compared to type class instances
+which sort of float around in the ether and can only be accessed through
+their members. This is either a hindrance or a plus, depending on the
+context.</p>
+<p>Let’s give an example of some type class, like <code class="inline-type">Functor</code>. It’s not built into Scala, but
+provided by <code>cats</code>, which is pretty widely used across
+projects.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Functor</span> f <span class="kw">where</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  fmap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> f a <span class="ot">-&gt;</span> f b</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -133,32 +184,74 @@
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>The verbosity is out of control, and thousands of Scala developers will begin to flood hospitals with symptoms of RSI in the next few decades. You need to name all your instances (just like Purescript, blech), and instances are namespaced not by module (package objects), but by companion objects. At least associated implicits are imported along with their source classes, but this leads to a bloatload of imports with more complex uses of implicits. Naming instances also requires you to declare types twice (<code>_: Functor[_] = new Functor[_] {...}</code>), which is pretty unavoidable under most linting rules. Top level declarations usually need types, and you can’t infer the type of an instance even when you assign a type to the expression. This, for example, won’t type-check:</p>
+<p>The verbosity is out of control, and thousands of Scala developers
+will begin to flood hospitals with symptoms of RSI in the next few
+decades. You need to name all your instances (just like Purescript,
+blech), and instances are namespaced not by module (package objects),
+but by companion objects. At least associated implicits are imported
+along with their source classes, but this leads to a bloatload of
+imports with more complex uses of implicits. Naming instances also
+requires you to declare types twice
+(<code>_: Functor[_] = new Functor[_] {...}</code>), which is pretty
+unavoidable under most linting rules. Top level declarations usually
+need types, and you can’t infer the type of an instance even when you
+assign a type to the expression. This, for example, won’t
+type-check:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">implicit</span> <span class="kw">def</span> functorIdent<span class="op">:</span> Functor<span class="op">[</span>Ident<span class="op">]</span> <span class="op">=</span> <span class="kw">new</span> Functor <span class="op">{</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>and you end up with esoteric errors about type variance since the instance’s type is inferred to be <code class="inline-type">Nothing</code> (a subclass of every type). Another issue is actually using these instances. You can write parametrically polymorphic functions constrained by the presence of implicits, just like type class constraints in Haskell:</p>
+<p>and you end up with esoteric errors about type variance since the
+instance’s type is inferred to be <code class="inline-type">Nothing</code> (a subclass of every type). Another
+issue is actually using these instances. You can write parametrically
+polymorphic functions constrained by the presence of implicits, just
+like type class constraints in Haskell:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mapCompose<span class="op">[</span>F<span class="op">[</span>_<span class="op">]:</span> Functor<span class="op">]</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span>ab<span class="op">:</span> A <span class="op">=&gt;</span> B<span class="op">,</span> bc<span class="op">:</span> B <span class="op">=&gt;</span> C<span class="op">)</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span>fa<span class="op">:</span> F<span class="op">[</span>A<span class="op">]):</span> F<span class="op">[</span>C<span class="op">]</span> <span class="op">=</span> <span class="op">{...}</span></span></code></pre></div>
-<p>which means “Give me two functions, one from a type <code class="inline-type">A</code> to <code class="inline-type">B</code>, the other from a type <code class="inline-type">B</code> to <code class="inline-type">C</code>, as well as a value of type <code class="inline-type">A</code> wrapped inside a container for which there’s an implicit <code class="inline-type">Functor</code> object floating around, and I’ll give you the result of mapping the composition of these functions into that container.” That’s a mouthful, thank god natural language programming never took off. The key is that this function will work for <em>any</em> class with an associated <code class="inline-type">Functor</code> instance, but we can’t actually use that instance unless we name it.</p>
+<p>which means “Give me two functions, one from a type <code class="inline-type">A</code> to <code class="inline-type">B</code>, the
+other from a type <code class="inline-type">B</code> to <code class="inline-type">C</code>, as well as a value of type <code class="inline-type">A</code> wrapped inside a container for which
+there’s an implicit <code class="inline-type">Functor</code> object
+floating around, and I’ll give you the result of mapping the composition
+of these functions into that container.” That’s a mouthful, thank god
+natural language programming never took off. The key is that this
+function will work for <em>any</em> class with an associated <code class="inline-type">Functor</code> instance, but we can’t actually use
+that instance unless we name it.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mapCompose<span class="op">[</span>F<span class="op">[</span>_<span class="op">]:</span> Functor<span class="op">]</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span>ab<span class="op">:</span> A <span class="op">=&gt;</span> B<span class="op">,</span> bc<span class="op">:</span> B <span class="op">=&gt;</span> C<span class="op">)</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span>fa<span class="op">:</span> F<span class="op">[</span>A<span class="op">]):</span> F<span class="op">[</span>C<span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">val</span> functor<span class="op">:</span> Functor<span class="op">[</span>F<span class="op">]</span> <span class="op">=</span> implicitly</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    functor<span class="op">.</span>fmap <span class="op">{</span>a <span class="op">=&gt;</span> <span class="fu">bc</span><span class="op">(</span><span class="fu">ab</span><span class="op">(</span>a<span class="op">))}</span> <span class="op">(</span> fa <span class="op">)</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
-<p>We can name the implicit value directly in the arguments, but that gets ugly:</p>
+<p>We can name the implicit value directly in the arguments, but that
+gets ugly:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mapCompose<span class="op">[</span>F<span class="op">[</span>_<span class="op">]]</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span>ab<span class="op">:</span> A <span class="op">=&gt;</span> B<span class="op">,</span> bc<span class="op">:</span> B <span class="op">=&gt;</span> C<span class="op">)</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span>fa<span class="op">:</span> F<span class="op">[</span>A<span class="op">])</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span><span class="kw">implicit</span> functor<span class="op">:</span> Functor<span class="op">[</span>F<span class="op">]):</span> F<span class="op">[</span>C<span class="op">]=</span> <span class="op">{...}</span></span></code></pre></div>
-<p>On the plus side, libraries like <code>cats</code> provide package objects with all the implicits you need, so invoking type class methods is a lot cleaner:</p>
+<p>On the plus side, libraries like <code>cats</code> provide package
+objects with all the implicits you need, so invoking type class methods
+is a lot cleaner:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode scala"><code class="sourceCode scala"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Functor<span class="op">[</span>F<span class="op">].</span><span class="fu">fmap</span><span class="op">(...)</span></span></code></pre></div>
-<p>Implicits are immensely powerful - they’re type classes, <code class="inline-type">TypeFamilies</code>, <code class="inline-type">ImplicitParams</code>, <code class="inline-type">FlexibleInstances</code>, and the <code class="inline-type">Reader</code> monad baked right into the language. You can even define macros that are invoked implicitly, which transforms your build times into a Samuel Beckett homage. I guess it’s no different from Template Haskell, although implicits being built-into the language leads to much easier and pervasive misuse. You also can’t declare implicits at top level, although you can use package objects to make implicits visible across an entire namespace level. Scala 3’s <code>given</code> and <code>using</code> features promote implicits to simple, first-class, scoped, contextual abstractions, which gives me a ton of ideas for Koka-like effect systems. Scala 2 is still stuck with raw implicits for now.</p>
+<p>Implicits are immensely powerful - they’re type classes, <code class="inline-type">TypeFamilies</code>, <code class="inline-type">ImplicitParams</code>, <code class="inline-type">FlexibleInstances</code>, and the <code class="inline-type">Reader</code> monad baked right into the language.
+You can even define macros that are invoked implicitly, which transforms
+your build times into a Samuel Beckett homage. I guess it’s no different
+from Template Haskell, although implicits being built-into the language
+leads to much easier and pervasive misuse. You also can’t declare
+implicits at top level, although you can use package objects to make
+implicits visible across an entire namespace level. Scala 3’s
+<code>given</code> and <code>using</code> features promote implicits to
+simple, first-class, scoped, contextual abstractions, which gives me a
+ton of ideas for Koka-like effect systems. Scala 2 is still stuck with
+raw implicits for now.</p>
 <hr />
-<p>In short, work is great. Being able to use cutting-edge tech in production is exciting, and there’s no better feeling than being surrounded by big-brain coworkers with plenty of experience and new knowledge to impart. I’m just sharing some gripes about Scala that I’ve faced in the last few months, and that have no doubt been improved/outright solved in recent releases.</p>
-<p>Oh yeah, I have zero gripes about Rust. Rust is love. Rust is life.</p>
+<p>In short, work is great. Being able to use cutting-edge tech in
+production is exciting, and there’s no better feeling than being
+surrounded by big-brain coworkers with plenty of experience and new
+knowledge to impart. I’m just sharing some gripes about Scala that I’ve
+faced in the last few months, and that have no doubt been
+improved/outright solved in recent releases.</p>
+<p>Oh yeah, I have zero gripes about Rust. Rust is love. Rust is
+life.</p>
   </section>
 </article>
         </main>
